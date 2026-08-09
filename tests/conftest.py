@@ -43,11 +43,18 @@ def testing_session_factory(test_engine):
     )
 
 @pytest.fixture()
-def db_session(testing_session_factory):
-    session = testing_session_factory()
+def db_session(test_engine, testing_session_factory):
+    connection = test_engine.connect()
+    transaction = connection.begin()
+
+    session = testing_session_factory(
+        bind=connection,
+        join_transaction_mode="create_savepoint",
+    )
 
     try:
         yield session
     finally:
-        session.rollback()
         session.close()
+        transaction.rollback()
+        connection.close()
