@@ -3,7 +3,13 @@ from datetime import date, timedelta
 import pytest
 
 from app.models.game import GameStatus, VenueType
+from app.models.player import Player
+from app.models.player_game_stats import (
+    ParticipationStatus,
+    PlayerGameStats,
+)
 from app.models.season import Season
+from app.models.season_roster import RosterStatus, SeasonRoster
 from app.models.team import Team
 from app.schemas.game import GameCreate, GameUpdate
 from app.services.game import (
@@ -49,6 +55,43 @@ def _create_game_dependencies(db_session):
     return season_team, opponent_team, season
 
 
+def _add_player_game_stats(
+    db_session,
+    season,
+    game,
+    participation_status=ParticipationStatus.PLAYED,
+):
+    player = Player(
+        full_name="Stats Player",
+    )
+
+    db_session.add(player)
+    db_session.commit()
+    db_session.refresh(player)
+
+    roster = SeasonRoster(
+        season_id=season.id,
+        player_id=player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    db_session.add(roster)
+    db_session.commit()
+    db_session.refresh(roster)
+
+    stats = PlayerGameStats(
+        game_id=game.id,
+        season_roster_id=roster.id,
+        participation_status=participation_status,
+    )
+
+    db_session.add(stats)
+    db_session.commit()
+    db_session.refresh(stats)
+
+    return stats
+
+
 def test_create_valid_draft_game(db_session):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
@@ -78,25 +121,26 @@ def test_create_valid_draft_game(db_session):
     assert game.updated_at is not None
 
 
-def test_create_valid_completed_game(db_session):
+def test_create_completed_game_is_rejected(db_session):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
     )
 
-    game = create_game(
-        db_session,
-        GameCreate(
-            season_id=season.id,
-            opponent_team_id=opponent_team.id,
-            game_date=date.today() - timedelta(days=1),
-            venue_type=VenueType.AWAY,
-            status=GameStatus.COMPLETED,
-            opponent_score=68,
-        ),
-    )
-
-    assert game.status == GameStatus.COMPLETED
-    assert game.opponent_score == 68
+    with pytest.raises(
+        ValueError,
+        match="New games must start as DRAFT",
+    ):
+        create_game(
+            db_session,
+            GameCreate(
+                season_id=season.id,
+                opponent_team_id=opponent_team.id,
+                game_date=date.today() - timedelta(days=1),
+                venue_type=VenueType.AWAY,
+                status=GameStatus.COMPLETED,
+                opponent_score=68,
+            ),
+        )
 
 
 def test_create_game_rejects_missing_season(db_session):
@@ -204,51 +248,6 @@ def test_create_future_draft_game_is_allowed(db_session):
     assert game.status == GameStatus.DRAFT
 
 
-def test_create_future_completed_game_is_rejected(db_session):
-    season_team, opponent_team, season = _create_game_dependencies(
-        db_session
-    )
-
-    with pytest.raises(
-        ValueError,
-        match="Future-dated game cannot be completed",
-    ):
-        create_game(
-            db_session,
-            GameCreate(
-                season_id=season.id,
-                opponent_team_id=opponent_team.id,
-                game_date=date.today() + timedelta(days=1),
-                venue_type=VenueType.AWAY,
-                status=GameStatus.COMPLETED,
-                opponent_score=70,
-            ),
-        )
-
-
-def test_create_completed_game_without_opponent_score_is_rejected(
-    db_session,
-):
-    season_team, opponent_team, season = _create_game_dependencies(
-        db_session
-    )
-
-    with pytest.raises(
-        ValueError,
-        match="Completed game requires an opponent score",
-    ):
-        create_game(
-            db_session,
-            GameCreate(
-                season_id=season.id,
-                opponent_team_id=opponent_team.id,
-                game_date=date.today(),
-                venue_type=VenueType.HOME,
-                status=GameStatus.COMPLETED,
-            ),
-        )
-
-
 def test_get_game_returns_existing_game(db_session):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
@@ -315,7 +314,9 @@ def test_list_games_returns_games_in_id_order(db_session):
     ]
 
 
-def test_update_game_partial_update_preserves_omitted_fields(db_session):
+def test_update_game_partial_update_preserves_omitted_fields(
+    db_session,
+):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
     )
@@ -376,6 +377,78 @@ def test_update_game_can_clear_optional_notes(db_session):
     assert updated_game.notes is None
 
 
+def test_update_draft_game_without_stats_cannot_complete(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+            opponent_score=65,
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Completed game requires at least one player game stats row",
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                status=GameStatus.COMPLETED,
+            ),
+        )
+
+
+def test_update_draft_game_with_only_dnp_cannot_complete(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+            opponent_score=65,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+        ParticipationStatus.DID_NOT_PLAY,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Completed game requires at least one "
+            "PLAYED player game stats row"
+        ),
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                status=GameStatus.COMPLETED,
+            ),
+        )
+
+
 def test_update_draft_game_to_completed_is_allowed(db_session):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
@@ -392,6 +465,13 @@ def test_update_draft_game_to_completed_is_allowed(db_session):
         ),
     )
 
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+        ParticipationStatus.PLAYED,
+    )
+
     updated_game = update_game(
         db_session,
         game.id,
@@ -404,7 +484,82 @@ def test_update_draft_game_to_completed_is_allowed(db_session):
     assert updated_game.opponent_score == 65
 
 
-def test_update_completed_game_cannot_clear_opponent_score(db_session):
+def test_update_draft_game_without_opponent_score_cannot_complete(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Completed game requires an opponent score",
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                status=GameStatus.COMPLETED,
+            ),
+        )
+
+
+def test_update_future_draft_game_cannot_complete(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today() + timedelta(days=1),
+            venue_type=VenueType.AWAY,
+            opponent_score=70,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Future-dated game cannot be completed",
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                status=GameStatus.COMPLETED,
+            ),
+        )
+
+
+def test_update_completed_game_cannot_clear_opponent_score(
+    db_session,
+):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
     )
@@ -416,8 +571,21 @@ def test_update_completed_game_cannot_clear_opponent_score(db_session):
             opponent_team_id=opponent_team.id,
             game_date=date.today() - timedelta(days=1),
             venue_type=VenueType.HOME,
-            status=GameStatus.COMPLETED,
             opponent_score=65,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+    )
+
+    game = update_game(
+        db_session,
+        game.id,
+        GameUpdate(
+            status=GameStatus.COMPLETED,
         ),
     )
 
@@ -434,7 +602,9 @@ def test_update_completed_game_cannot_clear_opponent_score(db_session):
         )
 
 
-def test_update_completed_game_cannot_move_to_future_date(db_session):
+def test_update_completed_game_cannot_move_to_future_date(
+    db_session,
+):
     season_team, opponent_team, season = _create_game_dependencies(
         db_session
     )
@@ -446,8 +616,21 @@ def test_update_completed_game_cannot_move_to_future_date(db_session):
             opponent_team_id=opponent_team.id,
             game_date=date.today() - timedelta(days=1),
             venue_type=VenueType.HOME,
-            status=GameStatus.COMPLETED,
             opponent_score=65,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+    )
+
+    game = update_game(
+        db_session,
+        game.id,
+        GameUpdate(
+            status=GameStatus.COMPLETED,
         ),
     )
 
@@ -462,6 +645,51 @@ def test_update_completed_game_cannot_move_to_future_date(db_session):
                 game_date=date.today() + timedelta(days=1),
             ),
         )
+
+
+def test_completed_game_remains_editable_when_final_state_is_valid(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+            opponent_score=65,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+    )
+
+    game = update_game(
+        db_session,
+        game.id,
+        GameUpdate(
+            status=GameStatus.COMPLETED,
+        ),
+    )
+
+    updated_game = update_game(
+        db_session,
+        game.id,
+        GameUpdate(
+            notes="Reviewed after completion",
+        ),
+    )
+
+    assert updated_game.status == GameStatus.COMPLETED
+    assert updated_game.opponent_score == 65
+    assert updated_game.notes == "Reviewed after completion"
 
 
 def test_update_game_rejects_missing_final_season(db_session):
@@ -571,7 +799,11 @@ def test_update_game_rejects_none_for_required_fields(
         ),
     )
 
-    update = GameUpdate(**{field_name: None})
+    update = GameUpdate(
+        **{
+            field_name: None,
+        }
+    )
 
     with pytest.raises(
         ValueError,

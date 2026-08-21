@@ -8,6 +8,10 @@ from app.models.game import Game, GameStatus
 from app.models.team import Team
 from app.schemas.game import GameCreate, GameUpdate
 from app.services.season import get_season
+from app.models.player_game_stats import (
+    ParticipationStatus,
+    PlayerGameStats,
+)
 
 
 class GameNotFoundError(Exception):
@@ -43,6 +47,44 @@ def _ensure_opponent_is_not_season_team(
     if season_team_id == opponent_team_id:
         raise GameOpponentConflictError(
             "Opponent team cannot be the same team as the season team."
+        )
+
+
+def _ensure_new_game_is_draft(
+    status: GameStatus,
+) -> None:
+    if status != GameStatus.DRAFT:
+        raise ValueError(
+            "New games must start as DRAFT"
+        )
+
+
+def _ensure_completed_game_has_played_stats(
+    db: Session,
+    game_id: int,
+    status: GameStatus,
+) -> None:
+    if status != GameStatus.COMPLETED:
+        return
+
+    statement = select(
+        PlayerGameStats.participation_status
+    ).where(
+        PlayerGameStats.game_id == game_id
+    )
+
+    participation_statuses = list(
+        db.scalars(statement).all()
+    )
+
+    if not participation_statuses:
+        raise ValueError(
+            "Completed game requires at least one player game stats row"
+        )
+
+    if ParticipationStatus.PLAYED not in participation_statuses:
+        raise ValueError(
+            "Completed game requires at least one PLAYED player game stats row"
         )
 
 
@@ -82,6 +124,10 @@ def create_game(
     _ensure_opponent_is_not_season_team(
         season.team_id,
         opponent_team.id,
+    )
+
+    _ensure_new_game_is_draft(
+        game_data.status,
     )
 
     _validate_game_state(
@@ -202,6 +248,11 @@ def update_game(
         final_opponent_score,
     )
 
+    _ensure_completed_game_has_played_stats(
+        db,
+        game.id,
+        final_status,
+    )
 
     for field, value in update_data.items():
         setattr(game, field, value)
