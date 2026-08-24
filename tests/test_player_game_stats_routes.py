@@ -458,3 +458,93 @@ def test_update_player_game_stats_route_returns_422_for_invalid_final_state(
     assert response.json()["detail"] == (
         "Three-point makes cannot exceed three-point attempts"
     )
+
+
+def test_update_route_returns_409_when_removing_last_played_from_completed_game(
+    client,
+    db_session,
+):
+    season_team, season, game, roster = _create_dependencies(
+        db_session
+    )
+
+    create_response = client.post(
+        "/player-game-stats",
+        json={
+            "game_id": game.id,
+            "season_roster_id": roster.id,
+            "participation_status": "PLAYED",
+        },
+    )
+
+    assert create_response.status_code == 201
+    stats_id = create_response.json()["id"]
+
+    game.opponent_score = 65
+    game.status = GameStatus.COMPLETED
+    db_session.commit()
+    db_session.refresh(game)
+
+    response = client.patch(
+        f"/player-game-stats/{stats_id}",
+        json={
+            "participation_status": "DID_NOT_PLAY",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == (
+        "Completed game requires at least one "
+        "PLAYED player game stats row"
+    )
+
+
+def test_update_route_returns_409_when_moving_last_played_from_completed_game(
+    client,
+    db_session,
+):
+    season_team, season, game, roster = _create_dependencies(
+        db_session
+    )
+
+    create_response = client.post(
+        "/player-game-stats",
+        json={
+            "game_id": game.id,
+            "season_roster_id": roster.id,
+            "participation_status": "PLAYED",
+        },
+    )
+
+    assert create_response.status_code == 201
+    stats_id = create_response.json()["id"]
+
+    second_game = Game(
+        season_id=season.id,
+        opponent_team_id=game.opponent_team_id,
+        game_date=date.today(),
+        venue_type=VenueType.AWAY,
+        status=GameStatus.DRAFT,
+    )
+
+    db_session.add(second_game)
+    db_session.commit()
+    db_session.refresh(second_game)
+
+    game.opponent_score = 65
+    game.status = GameStatus.COMPLETED
+    db_session.commit()
+    db_session.refresh(game)
+
+    response = client.patch(
+        f"/player-game-stats/{stats_id}",
+        json={
+            "game_id": second_game.id,
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == (
+        "Completed game requires at least one "
+        "PLAYED player game stats row"
+    )

@@ -20,6 +20,7 @@ from app.services.game import (
     get_game,
     list_games,
     update_game,
+    GameSeasonStatsConflictError,
 )
 from app.services.season import SeasonNotFoundError
 
@@ -813,4 +814,135 @@ def test_update_game_rejects_none_for_required_fields(
             db_session,
             game.id,
             update,
+        )
+
+def test_update_game_cannot_change_season_after_stats_exist(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    second_season = Season(
+        team_id=season_team.id,
+        name="2027-28",
+    )
+
+    db_session.add(second_season)
+    db_session.commit()
+    db_session.refresh(second_season)
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+    )
+
+    with pytest.raises(
+        GameSeasonStatsConflictError,
+        match=(
+            "Game season cannot be changed after "
+            "player game stats exist."
+        ),
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                season_id=second_season.id,
+            ),
+        )
+
+
+def test_completed_game_patch_rejects_game_with_no_stats(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+            opponent_score=65,
+        ),
+    )
+
+    # Construct an invalid completed state directly so we can verify
+    # that ANY later PATCH revalidates the completed Game.
+    game.status = GameStatus.COMPLETED
+    db_session.commit()
+    db_session.refresh(game)
+
+    with pytest.raises(
+        ValueError,
+        match="Completed game requires at least one player game stats row",
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                notes="Edited note",
+            ),
+        )
+
+
+def test_completed_game_patch_rejects_game_with_only_dnp_stats(
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        db_session
+    )
+
+    game = create_game(
+        db_session,
+        GameCreate(
+            season_id=season.id,
+            opponent_team_id=opponent_team.id,
+            game_date=date.today(),
+            venue_type=VenueType.HOME,
+            opponent_score=65,
+        ),
+    )
+
+    _add_player_game_stats(
+        db_session,
+        season,
+        game,
+        ParticipationStatus.DID_NOT_PLAY,
+    )
+
+    # Again, bypass normal completion deliberately to create the
+    # invalid state we want update_game() to detect.
+    game.status = GameStatus.COMPLETED
+    db_session.commit()
+    db_session.refresh(game)
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Completed game requires at least one "
+            "PLAYED player game stats row"
+        ),
+    ):
+        update_game(
+            db_session,
+            game.id,
+            GameUpdate(
+                notes="Edited note",
+            ),
         )

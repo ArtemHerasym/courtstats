@@ -6,6 +6,7 @@ from app.schemas.game import GameCreate, GameRead, GameUpdate
 from app.services.game import (
     GameNotFoundError,
     GameOpponentConflictError,
+    GameSeasonStatsConflictError,
     OpponentTeamNotFoundError,
     create_game,
     get_game,
@@ -104,7 +105,11 @@ def update_game_route(
             detail=str(exc),
         ) from exc
 
-    except GameOpponentConflictError as exc:
+
+    except (
+            GameOpponentConflictError,
+            GameSeasonStatsConflictError,
+    ) as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),

@@ -884,3 +884,93 @@ def test_update_game_route_returns_422_for_required_field_null(
     assert response.json()["detail"] == (
         "Game status cannot be None"
     )
+
+    def test_update_game_route_returns_409_when_changing_season_with_stats(
+            client,
+            db_session,
+    ):
+        season_team, opponent_team, season = _create_game_dependencies(
+            client,
+            db_session,
+        )
+
+        second_season_response = client.post(
+            "/seasons",
+            json={
+                "team_id": season_team.id,
+                "name": "2027-28",
+            },
+        )
+
+        assert second_season_response.status_code == 201
+        second_season = second_season_response.json()
+
+        game = _create_game(
+            client,
+            season["id"],
+            opponent_team.id,
+        )
+
+        _add_player_game_stats(
+            client,
+            db_session,
+            season["id"],
+            game["id"],
+        )
+
+        response = client.patch(
+            f"/games/{game['id']}",
+            json={
+                "season_id": second_season["id"],
+            },
+        )
+
+        assert response.status_code == 409
+        assert response.json()["detail"] == (
+            "Game season cannot be changed after player game stats exist."
+        )
+
+def test_update_game_route_returns_409_when_changing_season_with_stats(
+    client,
+    db_session,
+):
+    season_team, opponent_team, season = _create_game_dependencies(
+        client,
+        db_session,
+    )
+
+    second_season_response = client.post(
+        "/seasons",
+        json={
+            "team_id": season_team.id,
+            "name": "2027-28",
+        },
+    )
+
+    assert second_season_response.status_code == 201
+    second_season = second_season_response.json()
+
+    game = _create_game(
+        client,
+        season["id"],
+        opponent_team.id,
+    )
+
+    _add_player_game_stats(
+        client,
+        db_session,
+        season["id"],
+        game["id"],
+    )
+
+    response = client.patch(
+        f"/games/{game['id']}",
+        json={
+            "season_id": second_season["id"],
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == (
+        "Game season cannot be changed after player game stats exist."
+    )

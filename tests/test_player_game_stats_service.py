@@ -735,3 +735,209 @@ def test_database_failure_rolls_back_and_session_remains_usable(
     )
 
     assert existing.id == first_stats_id
+
+
+def test_update_cannot_remove_last_played_player_from_completed_game(
+    db_session,
+):
+    season_team, season, game, roster = _create_dependencies(
+        db_session
+    )
+
+    stats = create_player_game_stats(
+        db_session,
+        PlayerGameStatsCreate(
+            game_id=game.id,
+            season_roster_id=roster.id,
+            participation_status=ParticipationStatus.PLAYED,
+        ),
+    )
+
+    game.opponent_score = 65
+    game.status = GameStatus.COMPLETED
+
+    db_session.commit()
+    db_session.refresh(game)
+
+    with pytest.raises(
+        PlayerGameStatsConflictError,
+        match=(
+            "Completed game requires at least one "
+            "PLAYED player game stats row"
+        ),
+    ):
+        update_player_game_stats(
+            db_session,
+            stats.id,
+            PlayerGameStatsUpdate(
+                participation_status=(
+                    ParticipationStatus.DID_NOT_PLAY
+                ),
+            ),
+        )
+
+
+def test_update_allows_one_of_multiple_played_players_to_change_to_dnp(
+    db_session,
+):
+    season_team, season, game, first_roster = _create_dependencies(
+        db_session
+    )
+
+    second_roster = _create_second_roster(
+        db_session,
+        season,
+    )
+
+    first_stats = create_player_game_stats(
+        db_session,
+        PlayerGameStatsCreate(
+            game_id=game.id,
+            season_roster_id=first_roster.id,
+            participation_status=ParticipationStatus.PLAYED,
+        ),
+    )
+
+    second_stats = create_player_game_stats(
+        db_session,
+        PlayerGameStatsCreate(
+            game_id=game.id,
+            season_roster_id=second_roster.id,
+            participation_status=ParticipationStatus.PLAYED,
+        ),
+    )
+
+    game.opponent_score = 65
+    game.status = GameStatus.COMPLETED
+
+    db_session.commit()
+    db_session.refresh(game)
+
+    updated = update_player_game_stats(
+        db_session,
+        first_stats.id,
+        PlayerGameStatsUpdate(
+            participation_status=ParticipationStatus.DID_NOT_PLAY,
+        ),
+    )
+
+    assert updated.participation_status == ParticipationStatus.DID_NOT_PLAY
+
+    db_session.refresh(second_stats)
+
+    assert second_stats.participation_status == ParticipationStatus.PLAYED
+
+
+def test_update_cannot_move_last_played_player_from_completed_game(
+    db_session,
+):
+    season_team, season, game, roster = _create_dependencies(
+        db_session
+    )
+
+    stats = create_player_game_stats(
+        db_session,
+        PlayerGameStatsCreate(
+            game_id=game.id,
+            season_roster_id=roster.id,
+            participation_status=ParticipationStatus.PLAYED,
+        ),
+    )
+
+    second_game = Game(
+        season_id=season.id,
+        opponent_team_id=game.opponent_team_id,
+        game_date=date.today(),
+        venue_type=VenueType.AWAY,
+        status=GameStatus.DRAFT,
+    )
+
+    db_session.add(second_game)
+    db_session.commit()
+    db_session.refresh(second_game)
+
+    game.opponent_score = 65
+    game.status = GameStatus.COMPLETED
+
+    db_session.commit()
+    db_session.refresh(game)
+
+    with pytest.raises(
+        PlayerGameStatsConflictError,
+        match=(
+            "Completed game requires at least one "
+            "PLAYED player game stats row"
+        ),
+    ):
+        update_player_game_stats(
+            db_session,
+            stats.id,
+            PlayerGameStatsUpdate(
+                game_id=second_game.id,
+            ),
+        )
+
+
+def test_update_allows_one_of_multiple_played_players_to_move_from_completed_game(
+    db_session,
+):
+    season_team, season, game, first_roster = _create_dependencies(
+        db_session
+    )
+
+    second_roster = _create_second_roster(
+        db_session,
+        season,
+    )
+
+    first_stats = create_player_game_stats(
+        db_session,
+        PlayerGameStatsCreate(
+            game_id=game.id,
+            season_roster_id=first_roster.id,
+            participation_status=ParticipationStatus.PLAYED,
+        ),
+    )
+
+    second_stats = create_player_game_stats(
+        db_session,
+        PlayerGameStatsCreate(
+            game_id=game.id,
+            season_roster_id=second_roster.id,
+            participation_status=ParticipationStatus.PLAYED,
+        ),
+    )
+
+    second_game = Game(
+        season_id=season.id,
+        opponent_team_id=game.opponent_team_id,
+        game_date=date.today(),
+        venue_type=VenueType.AWAY,
+        status=GameStatus.DRAFT,
+    )
+
+    db_session.add(second_game)
+    db_session.commit()
+    db_session.refresh(second_game)
+
+    game.opponent_score = 65
+    game.status = GameStatus.COMPLETED
+
+    db_session.commit()
+    db_session.refresh(game)
+
+    updated = update_player_game_stats(
+        db_session,
+        first_stats.id,
+        PlayerGameStatsUpdate(
+            game_id=second_game.id,
+        ),
+    )
+
+    assert updated.game_id == second_game.id
+    assert updated.participation_status == ParticipationStatus.PLAYED
+
+    db_session.refresh(second_stats)
+
+    assert second_stats.game_id == game.id
+    assert second_stats.participation_status == ParticipationStatus.PLAYED

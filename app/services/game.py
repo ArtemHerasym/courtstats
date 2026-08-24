@@ -26,6 +26,10 @@ class GameOpponentConflictError(Exception):
     pass
 
 
+class GameSeasonStatsConflictError(Exception):
+    pass
+
+
 def _get_opponent_team(
     db: Session,
     opponent_team_id: int,
@@ -109,6 +113,25 @@ def _validate_game_state(
             "Future-dated game cannot be completed"
         )
 
+def _ensure_game_season_can_change(
+    db: Session,
+    game_id: int,
+    current_season_id: int,
+    final_season_id: int,
+) -> None:
+    if final_season_id == current_season_id:
+        return
+
+    statement = select(PlayerGameStats.id).where(
+        PlayerGameStats.game_id == game_id
+    )
+
+    existing_stats_id = db.scalar(statement)
+
+    if existing_stats_id is not None:
+        raise GameSeasonStatsConflictError(
+            "Game season cannot be changed after player game stats exist."
+        )
 
 def create_game(
         db: Session,
@@ -226,6 +249,12 @@ def update_game(
     if final_status is None:
         raise ValueError("Game status cannot be None")
 
+    _ensure_game_season_can_change(
+        db,
+        game.id,
+        game.season_id,
+        final_season_id,
+    )
 
     season = get_season(
         db,

@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
+from app.models.game import GameStatus
 
 from app.schemas.player_game_stats import (
     PlayerGameStatsBase,
@@ -111,6 +112,41 @@ def _validate_stats_state(
             message = message.removeprefix("Value error, ")
 
         raise ValueError(message) from exc
+
+
+def _ensure_completed_game_keeps_played_player(
+    db: Session,
+    source_game,
+    stats: PlayerGameStats,
+    final_game_id: int,
+    final_participation_status: ParticipationStatus,
+) -> None:
+    if source_game.status != GameStatus.COMPLETED:
+        return
+
+    if stats.participation_status != ParticipationStatus.PLAYED:
+        return
+
+    keeps_played_row_on_same_game = (
+        final_game_id == source_game.id
+        and final_participation_status == ParticipationStatus.PLAYED
+    )
+
+    if keeps_played_row_on_same_game:
+        return
+
+    statement = select(PlayerGameStats.id).where(
+        PlayerGameStats.game_id == source_game.id,
+        PlayerGameStats.participation_status == ParticipationStatus.PLAYED,
+        PlayerGameStats.id != stats.id,
+    )
+
+    other_played_stats_id = db.scalar(statement)
+
+    if other_played_stats_id is None:
+        raise PlayerGameStatsConflictError(
+            "Completed game requires at least one PLAYED player game stats row"
+        )
 
 
 def create_player_game_stats(
@@ -250,6 +286,11 @@ def update_player_game_stats(
             "Player game stats season_roster_id cannot be None"
         )
 
+    source_game = get_game(
+        db,
+        stats.game_id,
+    )
+
     game = get_game(
         db,
         final_game_id,
@@ -275,6 +316,14 @@ def update_player_game_stats(
     _validate_stats_state(
         final_participation_status,
         final_stats_values,
+    )
+
+    _ensure_completed_game_keeps_played_player(
+        db,
+        source_game,
+        stats,
+        final_game_id,
+        final_participation_status,
     )
 
     for field, value in update_data.items():
