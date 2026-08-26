@@ -23,6 +23,8 @@ from app.models.player_game_stats import (
     PlayerGameStats,
 )
 from app.services.season_roster import get_season_roster
+from app.services.game import get_game
+from app.services.season import get_season
 
 
 def aggregate_game_raw_stats(
@@ -307,6 +309,11 @@ def calculate_team_season_summary(
     db: Session,
     season_id: int,
 ) -> dict[str, int | float | None]:
+    get_season(
+        db,
+        season_id,
+    )
+
     games = _get_completed_season_games(
         db,
         season_id,
@@ -423,3 +430,23 @@ def calculate_team_season_summary(
         "true_shooting_percentage": true_shooting_percentage,
         "assist_turnover_ratio": assist_turnover_ratio,
     }
+
+
+def get_game_statistics(
+    db: Session,
+    game_id: int,
+) -> dict[str, int | float | str | None]:
+    game = get_game(
+        db,
+        game_id,
+    )
+
+    if game.opponent_score is None:
+        raise ValueError(
+            "Game summary requires an opponent score"
+        )
+
+    return calculate_game_summary(
+        game.player_game_stats,
+        game.opponent_score,
+    )
