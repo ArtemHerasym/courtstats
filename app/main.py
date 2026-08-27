@@ -8,9 +8,23 @@ from app.routers.player_game_stats import (
 )
 from app.routers.statistics import router as statistics_router
 
+from pathlib import Path
+
+from fastapi.staticfiles import StaticFiles
+
+from app.routes.pages import router as pages_router
+
 
 app = FastAPI()
 
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR),
+    name="static",
+)
+app.include_router(pages_router)
 app.include_router(season_router)
 app.include_router(player_router)
 app.include_router(season_roster_router)
