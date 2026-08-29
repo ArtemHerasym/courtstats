@@ -9,7 +9,10 @@ from app.schemas.player_game_stats import (
     PlayerGameStatsCreate,
     PlayerGameStatsUpdate,
 )
-from app.services.game import get_game
+from app.services.game import (
+    get_game,
+    validate_game_completion,
+)
 from app.services.season_roster import get_season_roster
 
 from app.models.player_game_stats import (
@@ -354,3 +357,356 @@ def update_player_game_stats(
         raise
 
     return stats
+
+
+def list_player_game_stats_for_game(
+    db: Session,
+    game_id: int,
+) -> list[PlayerGameStats]:
+    get_game(db, game_id)
+
+    statement = (
+        select(PlayerGameStats)
+        .where(PlayerGameStats.game_id == game_id)
+        .order_by(PlayerGameStats.season_roster_id)
+    )
+
+    return list(db.scalars(statement).all())
+
+
+def save_player_game_stats_draft(
+    db: Session,
+    game_id: int,
+    stats_rows: list[PlayerGameStatsCreate],
+) -> list[PlayerGameStats]:
+    game = get_game(db, game_id)
+
+    if game.status != GameStatus.DRAFT:
+        raise PlayerGameStatsConflictError(
+            "Player statistics can only be draft-saved for a DRAFT game."
+        )
+
+    seen_roster_ids: set[int] = set()
+
+    # Validate every submitted row BEFORE modifying the database.
+    for stats_data in stats_rows:
+        if stats_data.game_id != game_id:
+            raise PlayerGameStatsConflictError(
+                "Submitted player statistics belong to a different game."
+            )
+
+        if stats_data.season_roster_id in seen_roster_ids:
+            raise PlayerGameStatsConflictError(
+                "Duplicate season roster entry in submitted statistics."
+            )
+
+        seen_roster_ids.add(stats_data.season_roster_id)
+
+        season_roster = get_season_roster(
+            db,
+            stats_data.season_roster_id,
+        )
+
+        _ensure_same_season(
+            game,
+            season_roster,
+        )
+
+        stats_values = {
+            field: getattr(stats_data, field)
+            for field in RAW_STAT_FIELDS
+        }
+
+        _validate_stats_state(
+            stats_data.participation_status,
+            stats_values,
+        )
+
+    statement = select(PlayerGameStats).where(
+        PlayerGameStats.game_id == game_id
+    )
+
+    existing_stats = list(
+        db.scalars(statement).all()
+    )
+
+    existing_by_roster_id = {
+        stats.season_roster_id: stats
+        for stats in existing_stats
+    }
+
+    saved_rows: list[PlayerGameStats] = []
+
+    try:
+        for stats_data in stats_rows:
+            existing = existing_by_roster_id.get(
+                stats_data.season_roster_id
+            )
+
+            if existing is None:
+                stats = PlayerGameStats(
+                    **stats_data.model_dump()
+                )
+
+                db.add(stats)
+                saved_rows.append(stats)
+
+            else:
+                existing.participation_status = (
+                    stats_data.participation_status
+                )
+
+                for field in RAW_STAT_FIELDS:
+                    setattr(
+                        existing,
+                        field,
+                        getattr(stats_data, field),
+                    )
+
+                saved_rows.append(existing)
+
+        # ONE commit for the entire roster.
+        db.commit()
+
+        for stats in saved_rows:
+            db.refresh(stats)
+
+    except IntegrityError as exc:
+        db.rollback()
+
+        constraint_name = getattr(
+            getattr(exc.orig, "diag", None),
+            "constraint_name",
+            None,
+        )
+
+        if constraint_name == "uq_player_game_stats_game_roster":
+            raise PlayerGameStatsConflictError(
+                "Duplicate player statistics were detected."
+            ) from exc
+
+        raise
+
+    except SQLAlchemyError:
+        db.rollback()
+        raise
+
+    return saved_rows
+
+def _apply_player_game_stats_rows(
+    db: Session,
+    game,
+    stats_rows: list[PlayerGameStatsCreate],
+) -> list[PlayerGameStats]:
+    seen_roster_ids: set[int] = set()
+
+    # Validate the entire submission before changing ORM objects.
+    for stats_data in stats_rows:
+        if stats_data.game_id != game.id:
+            raise PlayerGameStatsConflictError(
+                "Submitted player statistics belong to a different game."
+            )
+
+        if stats_data.season_roster_id in seen_roster_ids:
+            raise PlayerGameStatsConflictError(
+                "Duplicate season roster entry in submitted statistics."
+            )
+
+        seen_roster_ids.add(
+            stats_data.season_roster_id
+        )
+
+        season_roster = get_season_roster(
+            db,
+            stats_data.season_roster_id,
+        )
+
+        _ensure_same_season(
+            game,
+            season_roster,
+        )
+
+        stats_values = {
+            field: getattr(stats_data, field)
+            for field in RAW_STAT_FIELDS
+        }
+
+        _validate_stats_state(
+            stats_data.participation_status,
+            stats_values,
+        )
+
+    statement = select(PlayerGameStats).where(
+        PlayerGameStats.game_id == game.id
+    )
+
+    existing_stats = list(
+        db.scalars(statement).all()
+    )
+
+    existing_by_roster_id = {
+        stats.season_roster_id: stats
+        for stats in existing_stats
+    }
+
+    saved_rows: list[PlayerGameStats] = []
+
+    for stats_data in stats_rows:
+        existing = existing_by_roster_id.get(
+            stats_data.season_roster_id
+        )
+
+        if existing is None:
+            stats = PlayerGameStats(
+                **stats_data.model_dump()
+            )
+            db.add(stats)
+            saved_rows.append(stats)
+
+        else:
+            existing.participation_status = (
+                stats_data.participation_status
+            )
+
+            for field in RAW_STAT_FIELDS:
+                setattr(
+                    existing,
+                    field,
+                    getattr(stats_data, field),
+                )
+
+            saved_rows.append(existing)
+
+    return saved_rows
+
+def save_player_game_stats(
+    db: Session,
+    game_id: int,
+    stats_rows: list[PlayerGameStatsCreate],
+    opponent_score: int | None,
+) -> list[PlayerGameStats]:
+    game = get_game(
+        db,
+        game_id,
+    )
+
+    try:
+        saved_rows = _apply_player_game_stats_rows(
+            db,
+            game,
+            stats_rows,
+        )
+
+        game.opponent_score = opponent_score
+
+        # Make staged stats visible to completion queries.
+        db.flush()
+
+        if game.status == GameStatus.COMPLETED:
+            validate_game_completion(
+                db,
+                game.id,
+                game.game_date,
+                game.opponent_score,
+            )
+
+        db.commit()
+
+        for stats in saved_rows:
+            db.refresh(stats)
+
+        db.refresh(game)
+
+    except IntegrityError as exc:
+        db.rollback()
+
+        constraint_name = getattr(
+            getattr(exc.orig, "diag", None),
+            "constraint_name",
+            None,
+        )
+
+        if (
+            constraint_name
+            == "uq_player_game_stats_game_roster"
+        ):
+            raise PlayerGameStatsConflictError(
+                "Duplicate player statistics were detected."
+            ) from exc
+
+        raise
+
+    except Exception:
+        db.rollback()
+        raise
+
+    return saved_rows
+
+def finalize_game_with_stats(
+    db: Session,
+    game_id: int,
+    stats_rows: list[PlayerGameStatsCreate],
+    opponent_score: int | None,
+) -> list[PlayerGameStats]:
+    game = get_game(
+        db,
+        game_id,
+    )
+
+    if game.status != GameStatus.DRAFT:
+        raise PlayerGameStatsConflictError(
+            "Only a DRAFT game can be finalized."
+        )
+
+    try:
+        saved_rows = _apply_player_game_stats_rows(
+            db,
+            game,
+            stats_rows,
+        )
+
+        game.opponent_score = opponent_score
+
+        # Flush inserts/updates without committing them.
+        db.flush()
+
+        validate_game_completion(
+            db,
+            game.id,
+            game.game_date,
+            game.opponent_score,
+        )
+
+        game.status = GameStatus.COMPLETED
+
+        db.commit()
+
+        for stats in saved_rows:
+            db.refresh(stats)
+
+        db.refresh(game)
+
+    except IntegrityError as exc:
+        db.rollback()
+
+        constraint_name = getattr(
+            getattr(exc.orig, "diag", None),
+            "constraint_name",
+            None,
+        )
+
+        if (
+            constraint_name
+            == "uq_player_game_stats_game_roster"
+        ):
+            raise PlayerGameStatsConflictError(
+                "Duplicate player statistics were detected."
+            ) from exc
+
+        raise
+
+    except Exception:
+        db.rollback()
+        raise
+
+    return saved_rows

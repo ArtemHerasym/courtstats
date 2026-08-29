@@ -281,6 +281,13 @@ h2 {
     font-size: 0.82rem;
 }
 
+.form-error {
+    margin: 6px 0 0;
+    color: #a63232;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
 .input,
 .select,
 .textarea {
@@ -425,6 +432,74 @@ button:focus-visible,
     outline-offset: 3px;
 }
 
+/* ---------- Game stat entry ---------- */
+
+.stats-table-container {
+    width: 100%;
+    overflow-x: auto;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.stats-table {
+    min-width: 1200px;
+}
+
+.stats-table th,
+.stats-table td {
+    padding: 8px;
+}
+
+.stats-table th {
+    text-align: center;
+}
+
+.stats-input {
+    width: 58px;
+    min-height: 38px;
+    padding: 6px;
+
+    text-align: center;
+}
+
+.stats-select {
+    width: 92px;
+    min-height: 38px;
+    padding: 6px;
+}
+
+.player-column {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+
+    min-width: 180px;
+
+    background: var(--color-surface);
+
+    text-align: left !important;
+}
+
+thead .player-column {
+    z-index: 3;
+}
+
+.stats-row:hover .player-column {
+    background: var(--color-background);
+}
+
+.stats-actions {
+    margin-top: 20px;
+}
+
+.stats-row-error {
+    max-width: 170px;
+    white-space: normal;
+    margin-top: 6px;
+}
+
 
 /* ---------- Reduced motion ---------- */
 
@@ -436,4 +511,16 @@ button:focus-visible,
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
+}
+
+.game-details-card {
+    margin-bottom: 18px;
+}
+
+.game-score-field {
+    max-width: 220px;
+}
+
+.game-score-field .input {
+    width: 100%;
 }

@@ -225,3 +225,21 @@ def update_season_roster(
         raise
 
     return roster
+
+
+def list_season_rosters_for_season(
+    db: Session,
+    season_id: int,
+) -> list[SeasonRoster]:
+    get_season(db, season_id)
+
+    statement = (
+        select(SeasonRoster)
+        .where(SeasonRoster.season_id == season_id)
+        .order_by(
+            SeasonRoster.jersey_number.asc().nulls_last(),
+            SeasonRoster.id,
+        )
+    )
+
+    return list(db.scalars(statement).all())

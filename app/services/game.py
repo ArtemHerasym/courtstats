@@ -113,6 +113,24 @@ def _validate_game_state(
             "Future-dated game cannot be completed"
         )
 
+def validate_game_completion(
+    db: Session,
+    game_id: int,
+    game_date: date,
+    opponent_score: int | None,
+) -> None:
+    _validate_game_state(
+        game_date,
+        GameStatus.COMPLETED,
+        opponent_score,
+    )
+
+    _ensure_completed_game_has_played_stats(
+        db,
+        game_id,
+        GameStatus.COMPLETED,
+    )
+
 def _ensure_game_season_can_change(
     db: Session,
     game_id: int,
@@ -271,17 +289,19 @@ def update_game(
         opponent_team.id,
     )
 
-    _validate_game_state(
-        final_game_date,
-        final_status,
-        final_opponent_score,
-    )
-
-    _ensure_completed_game_has_played_stats(
-        db,
-        game.id,
-        final_status,
-    )
+    if final_status == GameStatus.COMPLETED:
+        validate_game_completion(
+            db,
+            game.id,
+            final_game_date,
+            final_opponent_score,
+        )
+    else:
+        _validate_game_state(
+            final_game_date,
+            final_status,
+            final_opponent_score,
+        )
 
     for field, value in update_data.items():
         setattr(game, field, value)
