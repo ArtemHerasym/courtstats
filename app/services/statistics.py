@@ -63,6 +63,200 @@ def aggregate_game_raw_stats(
 
     return totals
 
+def calculate_player_game_summary(
+    stats: PlayerGameStats,
+) -> dict[str, int | float | None]:
+    points = calculate_points(
+        stats.two_point_makes,
+        stats.three_point_makes,
+        stats.free_throw_makes,
+    )
+
+    rebounds = calculate_rebounds(
+        stats.offensive_rebounds,
+        stats.defensive_rebounds,
+    )
+
+    field_goal_makes = calculate_fgm(
+        stats.two_point_makes,
+        stats.three_point_makes,
+    )
+
+    field_goal_attempts = calculate_fga(
+        stats.two_point_attempts,
+        stats.three_point_attempts,
+    )
+
+    field_goal_percentage = calculate_fg_percentage(
+        stats.two_point_makes,
+        stats.three_point_makes,
+        stats.two_point_attempts,
+        stats.three_point_attempts,
+    )
+
+    two_point_percentage = calculate_two_point_percentage(
+        stats.two_point_makes,
+        stats.two_point_attempts,
+    )
+
+    three_point_percentage = calculate_three_point_percentage(
+        stats.three_point_makes,
+        stats.three_point_attempts,
+    )
+
+    free_throw_percentage = calculate_free_throw_percentage(
+        stats.free_throw_makes,
+        stats.free_throw_attempts,
+    )
+
+    true_shooting_percentage = calculate_true_shooting_percentage(
+        stats.two_point_makes,
+        stats.three_point_makes,
+        stats.free_throw_makes,
+        stats.two_point_attempts,
+        stats.three_point_attempts,
+        stats.free_throw_attempts,
+    )
+
+    assist_turnover_ratio = calculate_assist_turnover_ratio(
+        stats.assists,
+        stats.turnovers,
+    )
+
+    return {
+        "three_point_attempts": stats.three_point_attempts,
+        "three_point_makes": stats.three_point_makes,
+        "two_point_attempts": stats.two_point_attempts,
+        "two_point_makes": stats.two_point_makes,
+        "free_throw_attempts": stats.free_throw_attempts,
+        "free_throw_makes": stats.free_throw_makes,
+        "turnovers": stats.turnovers,
+        "assists": stats.assists,
+        "offensive_rebounds": stats.offensive_rebounds,
+        "defensive_rebounds": stats.defensive_rebounds,
+        "steals": stats.steals,
+        "deflections": stats.deflections,
+        "personal_fouls": stats.personal_fouls,
+        "points": points,
+        "rebounds": rebounds,
+        "field_goal_makes": field_goal_makes,
+        "field_goal_attempts": field_goal_attempts,
+        "field_goal_percentage": field_goal_percentage,
+        "two_point_percentage": two_point_percentage,
+        "three_point_percentage": three_point_percentage,
+        "free_throw_percentage": free_throw_percentage,
+        "true_shooting_percentage": true_shooting_percentage,
+        "assist_turnover_ratio": assist_turnover_ratio,
+    }
+
+def get_game_player_summaries(
+    db: Session,
+    game_id: int,
+) -> list[dict]:
+    game = get_game(
+        db,
+        game_id,
+    )
+
+    rows: list[dict] = []
+
+    for stats in game.player_game_stats:
+        roster = stats.season_roster
+
+        rows.append(
+            {
+                "stats_id": stats.id,
+                "season_roster_id": roster.id,
+                "jersey_number": roster.jersey_number,
+                "player_name": (
+                    roster.player.display_name
+                    or roster.player.full_name
+                ),
+                "participation_status": (
+                    stats.participation_status
+                ),
+                **calculate_player_game_summary(
+                    stats
+                ),
+            }
+        )
+
+    rows.sort(
+        key=lambda row: (
+            row["jersey_number"] is None,
+            (
+                row["jersey_number"]
+                if row["jersey_number"] is not None
+                else 0
+            ),
+            row["season_roster_id"],
+        )
+    )
+
+    return rows
+
+def get_player_completed_game_log(
+    db: Session,
+    season_roster_id: int,
+) -> list[dict]:
+    roster = get_season_roster(
+        db,
+        season_roster_id,
+    )
+
+    statement = (
+        select(PlayerGameStats)
+        .join(
+            Game,
+            PlayerGameStats.game_id == Game.id,
+        )
+        .where(
+            PlayerGameStats.season_roster_id
+            == roster.id,
+            Game.status == GameStatus.COMPLETED,
+        )
+        .order_by(
+            Game.game_date.desc(),
+            Game.id.desc(),
+        )
+    )
+
+    stats_rows = list(
+        db.scalars(statement).all()
+    )
+
+    log: list[dict] = []
+
+    for stats in stats_rows:
+        game = stats.game
+
+        assert game.opponent_score is not None
+
+        game_summary = get_game_statistics(
+            db,
+            game.id,
+        )
+
+        log.append(
+            {
+                "game_id": game.id,
+                "game_date": game.game_date,
+                "venue_type": game.venue_type,
+                "opponent_name": game.opponent_team.name,
+                "team_score": game_summary["team_score"],
+                "opponent_score": game.opponent_score,
+                "result": game_summary["result"],
+                "participation_status": (
+                    stats.participation_status
+                ),
+                **calculate_player_game_summary(
+                    stats
+                ),
+            }
+        )
+
+    return log
+
 def calculate_game_summary(
     stats_rows: list[PlayerGameStats],
     opponent_score: int,

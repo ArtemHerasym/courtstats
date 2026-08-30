@@ -3,6 +3,14 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+
+from app.services.statistics import (
+    calculate_player_season_summary,
+    get_game_player_summaries,
+    get_game_statistics,
+    get_player_completed_game_log,
+)
+
 from app.core.dates import GameDateValidationError, parse_game_date
 from app.core.templates import templates
 from app.database.dependencies import get_db
@@ -35,6 +43,8 @@ from app.services.player_game_stats import (
     save_player_game_stats,
 )
 from app.services.season_roster import (
+    SeasonRosterNotFoundError,
+    get_season_roster,
     list_season_rosters_for_season,
 )
 from app.schemas.player_game_stats import PlayerGameStatsCreate
@@ -531,4 +541,96 @@ async def save_game_stats_page(
     return RedirectResponse(
         url=redirect_url,
         status_code=303,
+    )
+
+@router.get(
+    "/app/games/{game_id}/report",
+    response_class=HTMLResponse,
+)
+def game_report_page(
+    request: Request,
+    game_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        game = get_game(
+            db,
+            game_id,
+        )
+
+        player_rows = (
+            get_game_player_summaries(
+                db,
+                game_id,
+            )
+        )
+
+    except GameNotFoundError:
+        return HTMLResponse(
+            content="Game not found.",
+            status_code=404,
+        )
+
+    summary = None
+    report_error = None
+
+    try:
+        summary = get_game_statistics(
+            db,
+            game_id,
+        )
+    except ValueError as exc:
+        report_error = str(exc)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="games/report.html",
+        context={
+            "game": game,
+            "summary": summary,
+            "player_rows": player_rows,
+            "report_error": report_error,
+        },
+    )
+
+
+@router.get(
+    "/app/season-rosters/{season_roster_id}/profile",
+    response_class=HTMLResponse,
+)
+def player_season_profile_page(
+    request: Request,
+    season_roster_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        roster = get_season_roster(
+            db,
+            season_roster_id,
+        )
+
+        summary = calculate_player_season_summary(
+            db,
+            season_roster_id,
+        )
+
+        game_log = get_player_completed_game_log(
+            db,
+            season_roster_id,
+        )
+
+    except SeasonRosterNotFoundError:
+        return HTMLResponse(
+            content="Season roster entry not found.",
+            status_code=404,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="players/season_profile.html",
+        context={
+            "roster": roster,
+            "summary": summary,
+            "game_log": game_log,
+        },
     )

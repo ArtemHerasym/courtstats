@@ -524,3 +524,81 @@ thead .player-column {
 .game-score-field .input {
     width: 100%;
 }
+
+/* ---------- Game report ---------- */
+
+.report-header {
+    margin-bottom: 24px;
+}
+
+.report-score-card {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 28px;
+}
+
+.report-score-team {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.report-score-team:last-child {
+    justify-content: flex-end;
+}
+
+.report-team-name {
+    font-weight: 600;
+}
+
+.report-score {
+    font-size: 2.2rem;
+    line-height: 1;
+}
+
+.report-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.report-section {
+    margin-top: 28px;
+}
+
+.report-section h2 {
+    margin-bottom: 14px;
+}
+
+.report-stat-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(110px, 1fr));
+    gap: 12px;
+}
+
+.report-stat {
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+.report-stat span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.report-stat strong {
+    font-size: 1.2rem;
+}
+
+.report-player-table {
+    min-width: 1100px;
+}

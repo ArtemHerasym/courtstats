@@ -10,10 +10,21 @@
     <h1>Enter Stats</h1>
 
     <p class="page-description">
-    {{ game.game_date.strftime("%m/%d/%Y") }}
-    · {{ game.venue_type.value }}
-    · <strong>{{ game.status.value }}</strong>
-</p>
+        {{ game.game_date.strftime("%m/%d/%Y") }}
+        · {{ game.venue_type.value }}
+        · <strong>{{ game.status.value }}</strong>
+    </p>
+
+    {% if game.status.value == "COMPLETED" %}
+        <div class="actions">
+            <a
+                class="button"
+                href="/app/games/{{ game.id }}/report"
+            >
+                View Report
+            </a>
+        </div>
+    {% endif %}
 </section>
 
 {% if finalized %}

@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Player Profile | CourtStats{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+    <p class="eyebrow">Player Season Profile</p>
+
+    <h1>
+        {% if roster.jersey_number is not none %}
+            #{{ roster.jersey_number }}
+        {% endif %}
+        {{ roster.player.display_name or roster.player.full_name }}
+    </h1>
+
+    <p class="page-description">
+        {{ roster.season.name }}
+
+        {% if roster.position %}
+            · {{ roster.position }}
+        {% endif %}
+
+        {% if roster.grade_level %}
+            · {{ roster.grade_level }}
+        {% endif %}
+
+        · {{ roster.status.value }}
+    </p>
+</section>
+
+
+<section class="report-section">
+    <h2>Season Summary</h2>
+
+    <div class="report-stat-grid">
+        <div class="report-stat">
+            <span>GP</span>
+            <strong>{{ summary.games_played }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>PTS</span>
+            <strong>{{ summary.points }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>PPG</span>
+            <strong>
+                {% if summary.points_per_game is not none %}
+                    {{ "%.1f"|format(summary.points_per_game) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="report-stat">
+            <span>REB</span>
+            <strong>{{ summary.rebounds }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>RPG</span>
+            <strong>
+                {% if summary.rebounds_per_game is not none %}
+                    {{ "%.1f"|format(summary.rebounds_per_game) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="report-stat">
+            <span>AST</span>
+            <strong>{{ summary.assists }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>APG</span>
+            <strong>
+                {% if summary.assists_per_game is not none %}
+                    {{ "%.1f"|format(summary.assists_per_game) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="report-stat">
+            <span>TS%</span>
+            <strong>
+                {{ summary.true_shooting_percentage|percentage }}
+            </strong>
+        </div>
+
+        <div class="report-stat">
+            <span>A:TO</span>
+            <strong>
+                {% if summary.assist_turnover_ratio is not none %}
+                    {{ "%.2f"|format(summary.assist_turnover_ratio) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Shooting</h2>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>M</th>
+                    <th>A</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>FG</td>
+                    <td>{{ summary.field_goal_makes }}</td>
+                    <td>{{ summary.field_goal_attempts }}</td>
+                    <td>{{ summary.field_goal_percentage|percentage }}</td>
+                </tr>
+
+                <tr>
+                    <td>2PT</td>
+                    <td>{{ summary.two_point_makes }}</td>
+                    <td>{{ summary.two_point_attempts }}</td>
+                    <td>{{ summary.two_point_percentage|percentage }}</td>
+                </tr>
+
+                <tr>
+                    <td>3PT</td>
+                    <td>{{ summary.three_point_makes }}</td>
+                    <td>{{ summary.three_point_attempts }}</td>
+                    <td>{{ summary.three_point_percentage|percentage }}</td>
+                </tr>
+
+                <tr>
+                    <td>FT</td>
+                    <td>{{ summary.free_throw_makes }}</td>
+                    <td>{{ summary.free_throw_attempts }}</td>
+                    <td>{{ summary.free_throw_percentage|percentage }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Other Totals</h2>
+
+    <div class="report-stat-grid">
+        <div class="report-stat">
+            <span>OREB</span>
+            <strong>{{ summary.offensive_rebounds }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>DREB</span>
+            <strong>{{ summary.defensive_rebounds }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>TO</span>
+            <strong>{{ summary.turnovers }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>STL</span>
+            <strong>{{ summary.steals }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>DEF</span>
+            <strong>{{ summary.deflections }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>PF</span>
+            <strong>{{ summary.personal_fouls }}</strong>
+        </div>
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Completed Game Log</h2>
+
+    {% if game_log %}
+
+    <div class="table-container">
+        <table class="table report-player-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Opponent</th>
+                    <th>Result</th>
+                    <th>Part.</th>
+                    <th>PTS</th>
+                    <th>REB</th>
+                    <th>AST</th>
+                    <th>TO</th>
+                    <th>FG</th>
+                    <th>3PT</th>
+                    <th>FT</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in game_log %}
+                <tr>
+                    <td>
+                        <a href="/app/games/{{ row.game_id }}/report">
+                            {{ row.game_date.strftime("%m/%d/%Y") }}
+                        </a>
+                    </td>
+
+                    <td>{{ row.opponent_name }}</td>
+
+                    <td>
+                        {{ row.result }}
+                        {{ row.team_score }}-{{ row.opponent_score }}
+                    </td>
+
+                    <td>
+                        {% if row.participation_status.value == "DID_NOT_PLAY" %}
+                            DNP
+                        {% else %}
+                            PLAYED
+                        {% endif %}
+                    </td>
+
+                    <td>{{ row.points }}</td>
+                    <td>{{ row.rebounds }}</td>
+                    <td>{{ row.assists }}</td>
+                    <td>{{ row.turnovers }}</td>
+
+                    <td>
+                        {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
+                    </td>
+
+                    <td>
+                        {{ row.three_point_makes }}/{{ row.three_point_attempts }}
+                    </td>
+
+                    <td>
+                        {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+
+        <div class="message">
+            No completed games are available for this player.
+        </div>
+
+    {% endif %}
+</section>
+
+{% endblock %}

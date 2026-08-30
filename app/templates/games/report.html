@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Game Report | CourtStats{% endblock %}
+
+{% block content %}
+
+<section class="page-header report-header">
+    <p class="eyebrow">Game Report</p>
+
+    <h1>
+        {{ game.season.team.name }}
+        vs
+        {{ game.opponent_team.name }}
+    </h1>
+
+    <p class="page-description">
+        {{ game.game_date.strftime("%m/%d/%Y") }}
+        · {{ game.venue_type.value }}
+        · {{ game.status.value }}
+    </p>
+
+    <div class="actions">
+        <a
+            class="button"
+            href="/app/games/{{ game.id }}/stats"
+        >
+            Edit Stats
+        </a>
+    </div>
+</section>
+
+
+{% if report_error %}
+    <div class="message message-warning">
+        {{ report_error }}
+    </div>
+{% endif %}
+
+
+{% if summary %}
+
+<section class="card report-score-card">
+    <div class="report-score-team">
+        <span class="report-team-name">
+            {{ game.season.team.name }}
+        </span>
+
+        <strong class="report-score">
+            {{ summary.team_score }}
+        </strong>
+    </div>
+
+    <div class="report-result">
+        <strong>{{ summary.result }}</strong>
+
+        {% if summary.score_margin > 0 %}
+            <span>+{{ summary.score_margin }}</span>
+        {% else %}
+            <span>{{ summary.score_margin }}</span>
+        {% endif %}
+    </div>
+
+    <div class="report-score-team">
+        <strong class="report-score">
+            {{ summary.opponent_score }}
+        </strong>
+
+        <span class="report-team-name">
+            {{ game.opponent_team.name }}
+        </span>
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Team Summary</h2>
+
+    <div class="report-stat-grid">
+        <div class="report-stat">
+            <span>PTS</span>
+            <strong>{{ summary.team_score }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>REB</span>
+            <strong>{{ summary.rebounds }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>AST</span>
+            <strong>{{ summary.assists }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>TO</span>
+            <strong>{{ summary.turnovers }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>A:TO</span>
+            <strong>
+                {% if summary.assist_turnover_ratio is not none %}
+                    {{ "%.2f"|format(summary.assist_turnover_ratio) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="report-stat">
+            <span>TS%</span>
+            <strong>
+                {{ summary.true_shooting_percentage|percentage }}
+            </strong>
+        </div>
+
+        <div class="report-stat">
+            <span>STL</span>
+            <strong>{{ summary.steals }}</strong>
+        </div>
+
+        <div class="report-stat">
+            <span>DEF</span>
+            <strong>{{ summary.deflections }}</strong>
+        </div>
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Shooting</h2>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>M</th>
+                    <th>A</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>FG</td>
+                    <td>{{ summary.field_goal_makes }}</td>
+                    <td>{{ summary.field_goal_attempts }}</td>
+                    <td>
+                        {{ summary.field_goal_percentage|percentage }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>2PT</td>
+                    <td>{{ summary.two_point_makes }}</td>
+                    <td>{{ summary.two_point_attempts }}</td>
+                    <td>
+                        {{ summary.two_point_percentage|percentage }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>3PT</td>
+                    <td>{{ summary.three_point_makes }}</td>
+                    <td>{{ summary.three_point_attempts }}</td>
+                    <td>
+                        {{ summary.three_point_percentage|percentage }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>FT</td>
+                    <td>{{ summary.free_throw_makes }}</td>
+                    <td>{{ summary.free_throw_attempts }}</td>
+                    <td>
+                        {{ summary.free_throw_percentage|percentage }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endif %}
+
+
+<section class="report-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Box Score</p>
+            <h2>Player Statistics</h2>
+        </div>
+    </div>
+
+    {% if player_rows %}
+
+    <div class="table-container">
+        <table class="table report-player-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Part.</th>
+                    <th>PTS</th>
+                    <th>FG</th>
+                    <th>2PT</th>
+                    <th>3PT</th>
+                    <th>FT</th>
+                    <th>REB</th>
+                    <th>AST</th>
+                    <th>TO</th>
+                    <th>STL</th>
+                    <th>DEF</th>
+                    <th>PF</th>
+                    <th>TS%</th>
+                    <th>A:TO</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in player_rows %}
+                <tr>
+                    <td>
+                        <a
+                            href="/app/season-rosters/{{ row.season_roster_id }}/profile"
+                        >
+                            {% if row.jersey_number is not none %}
+                                #{{ row.jersey_number }}
+                            {% endif %}
+                            {{ row.player_name }}
+                        </a>
+                    </td>
+
+                    <td>
+                        {% if row.participation_status.value == "DID_NOT_PLAY" %}
+                            DNP
+                        {% else %}
+                            PLAYED
+                        {% endif %}
+                    </td>
+
+                    <td>{{ row.points }}</td>
+
+                    <td>
+                        {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
+                    </td>
+
+                    <td>
+                        {{ row.two_point_makes }}/{{ row.two_point_attempts }}
+                    </td>
+
+                    <td>
+                        {{ row.three_point_makes }}/{{ row.three_point_attempts }}
+                    </td>
+
+                    <td>
+                        {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
+                    </td>
+
+                    <td>{{ row.rebounds }}</td>
+                    <td>{{ row.assists }}</td>
+                    <td>{{ row.turnovers }}</td>
+                    <td>{{ row.steals }}</td>
+                    <td>{{ row.deflections }}</td>
+                    <td>{{ row.personal_fouls }}</td>
+
+                    <td>
+                        {{ row.true_shooting_percentage|percentage }}
+                    </td>
+
+                    <td>
+                        {% if row.assist_turnover_ratio is not none %}
+                            {{ "%.2f"|format(row.assist_turnover_ratio) }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+
+        <div class="message">
+            No player statistics are available for this game.
+        </div>
+
+    {% endif %}
+</section>
+
+{% endblock %}
