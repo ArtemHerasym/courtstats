@@ -6,9 +6,14 @@ from sqlalchemy.orm import Session
 
 from app.services.statistics import (
     calculate_player_season_summary,
+    calculate_team_season_summary,
     get_game_player_summaries,
     get_game_statistics,
     get_player_completed_game_log,
+    get_season_comparison_data,
+    get_season_game_series,
+    get_season_player_leaderboards,
+    get_season_chart_data,
 )
 
 from app.core.dates import GameDateValidationError, parse_game_date
@@ -132,7 +137,7 @@ def create_game_page(
         parsed_season_id = int(season_id)
         get_season(db, parsed_season_id)
     except (ValueError, SeasonNotFoundError):
-        errors["season_id"] = "Please select a valid season."
+        errors["season_id"] = "Please select a valid seasons."
         parsed_season_id = None
 
     try:
@@ -595,7 +600,7 @@ def game_report_page(
 
 
 @router.get(
-    "/app/season-rosters/{season_roster_id}/profile",
+    "/app/seasons-rosters/{season_roster_id}/profile",
     response_class=HTMLResponse,
 )
 def player_season_profile_page(
@@ -632,5 +637,64 @@ def player_season_profile_page(
             "roster": roster,
             "summary": summary,
             "game_log": game_log,
+        },
+    )
+
+@router.get(
+    "/app/seasons/{season_id}/dashboard",
+    response_class=HTMLResponse,
+)
+def season_dashboard_page(
+    request: Request,
+    season_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        season = get_season(
+            db,
+            season_id,
+        )
+
+        summary = calculate_team_season_summary(
+            db,
+            season_id,
+        )
+
+        leaderboards = get_season_player_leaderboards(
+            db,
+            season_id,
+        )
+
+        game_series = get_season_game_series(
+            db,
+            season_id,
+        )
+
+        chart_data = get_season_chart_data(
+            db,
+            season_id,
+        )
+
+        comparisons = get_season_comparison_data(
+            db,
+            season_id,
+        )
+
+    except SeasonNotFoundError:
+        return HTMLResponse(
+            content="Season not found.",
+            status_code=404,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="seasons/dashboard.html",
+        context={
+            "season": season,
+            "summary": summary,
+            "leaderboards": leaderboards,
+            "game_series": game_series,
+            "chart_data": chart_data,
+            "comparisons": comparisons,
         },
     )

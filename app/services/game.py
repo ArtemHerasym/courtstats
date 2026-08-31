@@ -50,7 +50,7 @@ def _ensure_opponent_is_not_season_team(
 ) -> None:
     if season_team_id == opponent_team_id:
         raise GameOpponentConflictError(
-            "Opponent team cannot be the same team as the season team."
+            "Opponent team cannot be the same team as the seasons team."
         )
 
 
@@ -148,7 +148,7 @@ def _ensure_game_season_can_change(
 
     if existing_stats_id is not None:
         raise GameSeasonStatsConflictError(
-            "Game season cannot be changed after player game stats exist."
+            "Game seasons cannot be changed after player game stats exist."
         )
 
 def create_game(

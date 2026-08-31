@@ -248,7 +248,7 @@ def test_create_game_route_returns_409_for_season_team_as_opponent(
 
     assert response.status_code == 409
     assert response.json()["detail"] == (
-        "Opponent team cannot be the same team as the season team."
+        "Opponent team cannot be the same team as the seasons team."
     )
 
 
@@ -533,7 +533,7 @@ def test_update_game_route_returns_409_for_season_team_as_opponent(
 
     assert response.status_code == 409
     assert response.json()["detail"] == (
-        "Opponent team cannot be the same team as the season team."
+        "Opponent team cannot be the same team as the seasons team."
     )
 
 
@@ -927,7 +927,7 @@ def test_update_game_route_returns_422_for_required_field_null(
 
         assert response.status_code == 409
         assert response.json()["detail"] == (
-            "Game season cannot be changed after player game stats exist."
+            "Game seasons cannot be changed after player game stats exist."
         )
 
 def test_update_game_route_returns_409_when_changing_season_with_stats(
@@ -972,5 +972,5 @@ def test_update_game_route_returns_409_when_changing_season_with_stats(
 
     assert response.status_code == 409
     assert response.json()["detail"] == (
-        "Game season cannot be changed after player game stats exist."
+        "Game seasons cannot be changed after player game stats exist."
     )

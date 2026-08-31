@@ -52,7 +52,7 @@ def get_game_statistics_route(
 
 
 @router.get(
-    "/season-rosters/{season_roster_id}",
+    "/seasons-rosters/{season_roster_id}",
     response_model=PlayerSeasonStatisticsRead,
     status_code=status.HTTP_200_OK,
 )

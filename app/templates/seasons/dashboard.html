@@ -1,0 +1,620 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ season.name }} Dashboard | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Season Dashboard</p>
+
+        <h1>{{ season.team.name }}</h1>
+
+        <p class="page-description">
+            {{ season.name }} season performance and analytics
+        </p>
+    </div>
+</section>
+
+
+{% if summary.games_played == 0 %}
+
+<section class="card">
+    <h2>No completed games yet</h2>
+
+    <p>
+        Season statistics will appear after the first game is completed.
+    </p>
+</section>
+
+{% else %}
+
+
+<section class="report-section">
+    <h2>Season Overview</h2>
+
+    <div class="report-stat-grid">
+
+        <div class="report-stat">
+            <span class="report-stat-label">Record</span>
+
+            <strong>
+                {{ summary.wins }}-{{ summary.losses }}
+                {% if summary.ties %}
+                    -{{ summary.ties }}
+                {% endif %}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">GP</span>
+
+            <strong>
+                {{ summary.games_played }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">PPG</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.points_per_game) }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">OPP PPG</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.opponent_points_per_game) }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">AVG MARGIN</span>
+
+            <strong>
+                {{ "%+.1f"|format(summary.point_differential_per_game) }}
+            </strong>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Team Performance</h2>
+
+    <div class="report-stat-grid">
+
+        <div class="report-stat">
+            <span class="report-stat-label">FG%</span>
+
+            <strong>
+                {{ summary.field_goal_percentage|percentage }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">2PT%</span>
+
+            <strong>
+                {{ summary.two_point_percentage|percentage }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">3PT%</span>
+
+            <strong>
+                {{ summary.three_point_percentage|percentage }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">FT%</span>
+
+            <strong>
+                {{ summary.free_throw_percentage|percentage }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">TS%</span>
+
+            <strong>
+                {{ summary.true_shooting_percentage|percentage }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">RPG</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.rebounds_per_game) }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">APG</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.assists_per_game) }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">TO/G</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.turnovers_per_game) }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">A:TO</span>
+
+            <strong>
+                {% if summary.assist_turnover_ratio is not none %}
+                    {{ "%.2f"|format(summary.assist_turnover_ratio) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">STL/G</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.steals_per_game) }}
+            </strong>
+        </div>
+
+
+        <div class="report-stat">
+            <span class="report-stat-label">DEF/G</span>
+
+            <strong>
+                {{ "%.1f"|format(summary.deflections_per_game) }}
+            </strong>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Player Leaders</h2>
+
+    <div class="dashboard-leaderboard-grid">
+
+        <div class="card">
+            <h3>Points Per Game</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>PPG</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.ppg[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.points_per_game) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h3>Rebounds Per Game</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>RPG</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.rpg[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.rebounds_per_game) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h3>Assists Per Game</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>APG</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.apg[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.assists_per_game) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h3>Steals</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>STL</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.steals[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ player.steals }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Shooting Leaders</h2>
+
+    <div class="dashboard-leaderboard-grid">
+
+        <div class="card">
+            <h3>Field Goal Percentage</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>FG%</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.fg_percentage[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ player.field_goal_percentage|percentage }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h3>2-Point Percentage</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>2PT%</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.two_point_percentage[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ player.two_point_percentage|percentage }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h3>3-Point Percentage</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>3PT%</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.three_point_percentage[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ player.three_point_percentage|percentage }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <h3>Free Throw Percentage</h3>
+
+            <div class="table-container">
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>FT%</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for player in leaderboards.free_throw_percentage[:5] %}
+                        <tr>
+                            <td>
+                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
+                                    {{ player.player_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ player.free_throw_percentage|percentage }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="report-section">
+    <h2>Season Analytics</h2>
+
+    <div class="dashboard-chart-grid">
+
+        <div class="card dashboard-chart-card">
+            <h3>Scoring Trend</h3>
+
+            <p class="page-description">
+                Team scoring across completed games in chronological order.
+            </p>
+
+            <div class="dashboard-chart-wrapper">
+                <canvas id="scoring-trend-chart"></canvas>
+            </div>
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+            <h3>Team vs Opponent</h3>
+
+            <p class="page-description">
+                Final team and opponent score for each completed game.
+            </p>
+
+            <div class="dashboard-chart-wrapper">
+                <canvas id="score-comparison-chart"></canvas>
+            </div>
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+            <h3>Shooting Percentage Trends</h3>
+
+            <p class="page-description">
+                Game-by-game shooting efficiency across completed games.
+            </p>
+
+            <div class="dashboard-chart-wrapper">
+                <canvas id="shooting-trend-chart"></canvas>
+            </div>
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+            <h3>Win vs Loss Comparison</h3>
+
+            <p class="page-description">
+                Team performance averages in wins compared with losses.
+            </p>
+
+            <div class="dashboard-chart-wrapper">
+                <canvas id="result-comparison-chart"></canvas>
+            </div>
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+            <h3>Performance by Venue</h3>
+
+            <p class="page-description">
+                Team performance averages at home, away, and neutral venues.
+            </p>
+
+            <div class="dashboard-chart-wrapper">
+                <canvas id="venue-comparison-chart"></canvas>
+            </div>
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+            <h3>Player Scoring Comparison</h3>
+
+            <p class="page-description">
+                Season scoring average for each player with completed-game statistics.
+            </p>
+
+            <div class="dashboard-chart-wrapper">
+                <canvas id="player-scoring-chart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<script
+    id="season-chart-data"
+    type="application/json"
+>
+    {{ chart_data | tojson }}
+</script>
+
+
+<script
+    id="season-comparison-data"
+    type="application/json"
+>
+    {{ comparisons | tojson }}
+</script>
+
+
+<script
+    id="season-player-scoring-data"
+    type="application/json"
+>
+    {{ leaderboards.ppg | tojson }}
+</script>
+
+
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+{% if summary.games_played > 0 %}
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+></script>
+
+<script
+    src="{{ url_for('static', path='js/dashboard.js') }}"
+></script>
+
+{% endif %}
+
+{% endblock %}

@@ -24,7 +24,7 @@ def create_season(db: Session, season_data: SeasonCreate) -> Season:
     )
     if existing_season is not None:
         raise SeasonNameConflictError(
-            "A season with this name already exists for this team."
+            "A seasons with this name already exists for this team."
         )
     try:
         db.add(season)
@@ -41,7 +41,7 @@ def create_season(db: Session, season_data: SeasonCreate) -> Season:
 
         if constraint_name == "uq_seasons_team_name":
             raise SeasonNameConflictError(
-                "A season with this name already exists for this team."
+                "A seasons with this name already exists for this team."
             ) from exc
 
         raise
@@ -109,7 +109,7 @@ def update_season(
 
     if existing_season is not None:
         raise SeasonNameConflictError(
-            "A season with this name already exists for this team."
+            "A seasons with this name already exists for this team."
         )
 
     for field, value in update_data.items():
@@ -129,7 +129,7 @@ def update_season(
 
         if constraint_name == "uq_seasons_team_name":
             raise SeasonNameConflictError(
-                "A season with this name already exists for this team."
+                "A seasons with this name already exists for this team."
             ) from exc
         raise
 

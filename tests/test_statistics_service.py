@@ -5,6 +5,10 @@ from app.services.statistics import (
     calculate_game_summary,
     calculate_player_season_summary,
     calculate_team_season_summary,
+    get_season_comparison_data,
+    get_season_game_series,
+    get_season_player_leaderboards,
+    get_season_chart_data,
 )
 from app.models.player_game_stats import (
     ParticipationStatus,
@@ -885,3 +889,638 @@ def test_team_season_summary_handles_no_completed_games(
     assert result["free_throw_percentage"] is None
     assert result["true_shooting_percentage"] is None
     assert result["assist_turnover_ratio"] is None
+
+
+def test_season_player_leaderboards_rank_players_correctly(
+    db_session,
+):
+    team = Team(name="JCP")
+    opponent = Team(name="Opponent")
+
+    first_player = Player(full_name="Player One")
+    second_player = Player(full_name="Player Two")
+
+    db_session.add_all(
+        [team, opponent, first_player, second_player]
+    )
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="2026-27",
+    )
+
+    db_session.add(season)
+    db_session.commit()
+
+    first_roster = SeasonRoster(
+        season_id=season.id,
+        player_id=first_player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    second_roster = SeasonRoster(
+        season_id=season.id,
+        player_id=second_player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date.today(),
+        venue_type=VenueType.HOME,
+        status=GameStatus.COMPLETED,
+        opponent_score=50,
+    )
+
+    db_session.add_all(
+        [first_roster, second_roster, game]
+    )
+    db_session.commit()
+
+    first_stats = PlayerGameStats(
+        game_id=game.id,
+        season_roster_id=first_roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=5,
+        two_point_attempts=10,
+        assists=2,
+        defensive_rebounds=3,
+        steals=1,
+    )
+
+    second_stats = PlayerGameStats(
+        game_id=game.id,
+        season_roster_id=second_roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=3,
+        two_point_attempts=10,
+        assists=5,
+        defensive_rebounds=7,
+        steals=4,
+    )
+
+    db_session.add_all(
+        [first_stats, second_stats]
+    )
+    db_session.commit()
+
+    result = get_season_player_leaderboards(
+        db_session,
+        season.id,
+    )
+
+    assert result["ppg"][0]["player_name"] == "Player One"
+    assert result["rpg"][0]["player_name"] == "Player Two"
+    assert result["apg"][0]["player_name"] == "Player Two"
+    assert result["steals"][0]["player_name"] == "Player Two"
+
+    assert (
+        result["fg_percentage"][0]["player_name"]
+        == "Player One"
+    )
+
+
+def test_season_player_leaderboards_exclude_draft_only_players(
+    db_session,
+):
+    team = Team(name="JCP")
+    opponent = Team(name="Opponent")
+    player = Player(full_name="Draft Player")
+
+    db_session.add_all(
+        [team, opponent, player]
+    )
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="2026-27",
+    )
+
+    db_session.add(season)
+    db_session.commit()
+
+    roster = SeasonRoster(
+        season_id=season.id,
+        player_id=player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    draft_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date.today(),
+        venue_type=VenueType.HOME,
+        status=GameStatus.DRAFT,
+    )
+
+    db_session.add_all(
+        [roster, draft_game]
+    )
+    db_session.commit()
+
+    stats = PlayerGameStats(
+        game_id=draft_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=10,
+        two_point_attempts=10,
+    )
+
+    db_session.add(stats)
+    db_session.commit()
+
+    result = get_season_player_leaderboards(
+        db_session,
+        season.id,
+    )
+
+    assert result["ppg"] == []
+    assert result["fg_percentage"] == []
+
+
+def test_season_game_series_is_chronological_and_excludes_drafts(
+    db_session,
+):
+    team = Team(name="JCP")
+    opponent = Team(name="Opponent")
+    player = Player(full_name="Player One")
+
+    db_session.add_all([team, opponent, player])
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="2026-27",
+    )
+
+    db_session.add(season)
+    db_session.commit()
+
+    roster = SeasonRoster(
+        season_id=season.id,
+        player_id=player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    later_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 20),
+        venue_type=VenueType.AWAY,
+        status=GameStatus.COMPLETED,
+        opponent_score=60,
+    )
+
+    earlier_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 10),
+        venue_type=VenueType.HOME,
+        status=GameStatus.COMPLETED,
+        opponent_score=50,
+    )
+
+    draft_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 5),
+        venue_type=VenueType.HOME,
+        status=GameStatus.DRAFT,
+    )
+
+    db_session.add_all(
+        [
+            roster,
+            later_game,
+            earlier_game,
+            draft_game,
+        ]
+    )
+    db_session.commit()
+
+    earlier_stats = PlayerGameStats(
+        game_id=earlier_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=10,
+        two_point_attempts=20,
+        three_point_makes=2,
+        three_point_attempts=5,
+        free_throw_makes=4,
+        free_throw_attempts=5,
+    )
+
+    later_stats = PlayerGameStats(
+        game_id=later_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=8,
+        two_point_attempts=16,
+        three_point_makes=3,
+        three_point_attempts=6,
+        free_throw_makes=5,
+        free_throw_attempts=6,
+    )
+
+    draft_stats = PlayerGameStats(
+        game_id=draft_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=20,
+        two_point_attempts=20,
+    )
+
+    db_session.add_all(
+        [
+            earlier_stats,
+            later_stats,
+            draft_stats,
+        ]
+    )
+    db_session.commit()
+
+    result = get_season_game_series(
+        db_session,
+        season.id,
+    )
+
+    assert len(result) == 2
+
+    assert result[0]["game_id"] == earlier_game.id
+    assert result[1]["game_id"] == later_game.id
+
+    assert result[0]["game_date"] == date(2026, 1, 10)
+    assert result[1]["game_date"] == date(2026, 1, 20)
+
+    assert result[0]["team_score"] == 30
+    assert result[0]["opponent_score"] == 50
+    assert result[0]["result"] == "LOSS"
+
+    assert result[1]["team_score"] == 30
+    assert result[1]["opponent_score"] == 60
+    assert result[1]["result"] == "LOSS"
+
+    assert result[0]["field_goal_percentage"] == pytest.approx(
+        12 / 25
+    )
+
+    assert result[1]["field_goal_percentage"] == pytest.approx(
+        11 / 22
+    )
+
+    assert all(
+        row["game_id"] != draft_game.id
+        for row in result
+    )
+
+
+def test_season_game_series_returns_empty_list_for_no_completed_games(
+    db_session,
+):
+    team = Team(name="JCP Empty")
+
+    db_session.add(team)
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="Empty Season",
+    )
+
+    db_session.add(season)
+    db_session.commit()
+
+    result = get_season_game_series(
+        db_session,
+        season.id,
+    )
+
+    assert result == []
+
+def test_season_comparison_data_groups_results_and_venues(
+    db_session,
+):
+    team = Team(name="JCP")
+    opponent = Team(name="Opponent")
+    player = Player(full_name="Player One")
+
+    db_session.add_all([team, opponent, player])
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="2026-27",
+    )
+    db_session.add(season)
+    db_session.commit()
+
+    roster = SeasonRoster(
+        season_id=season.id,
+        player_id=player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    win_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 10),
+        venue_type=VenueType.HOME,
+        status=GameStatus.COMPLETED,
+        opponent_score=20,
+    )
+
+    loss_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 20),
+        venue_type=VenueType.AWAY,
+        status=GameStatus.COMPLETED,
+        opponent_score=40,
+    )
+
+    db_session.add_all(
+        [roster, win_game, loss_game]
+    )
+    db_session.commit()
+
+    win_stats = PlayerGameStats(
+        game_id=win_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=8,
+        two_point_attempts=10,
+        three_point_makes=2,
+        three_point_attempts=5,
+    )
+
+    loss_stats = PlayerGameStats(
+        game_id=loss_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=5,
+        two_point_attempts=10,
+        three_point_makes=1,
+        three_point_attempts=5,
+    )
+
+    db_session.add_all(
+        [win_stats, loss_stats]
+    )
+    db_session.commit()
+
+    result = get_season_comparison_data(
+        db_session,
+        season.id,
+    )
+
+    assert result["by_result"]["WIN"]["games_played"] == 1
+    assert result["by_result"]["LOSS"]["games_played"] == 1
+    assert result["by_result"]["TIE"]["games_played"] == 0
+
+    assert result["by_venue"]["HOME"]["games_played"] == 1
+    assert result["by_venue"]["AWAY"]["games_played"] == 1
+    assert result["by_venue"]["NEUTRAL"]["games_played"] == 0
+
+    assert result["by_result"]["WIN"]["points_per_game"] == 22
+    assert result["by_result"]["LOSS"]["points_per_game"] == 13
+
+    assert (
+        result["by_venue"]["HOME"]["point_differential_per_game"]
+        == 2
+    )
+    assert (
+        result["by_venue"]["AWAY"]["point_differential_per_game"]
+        == -27
+    )
+
+
+def test_season_comparison_data_uses_combined_shooting_totals(
+    db_session,
+):
+    team = Team(name="JCP")
+    opponent = Team(name="Opponent")
+    player = Player(full_name="Player One")
+
+    db_session.add_all([team, opponent, player])
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="2026-27",
+    )
+    db_session.add(season)
+    db_session.commit()
+
+    roster = SeasonRoster(
+        season_id=season.id,
+        player_id=player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    first_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 10),
+        venue_type=VenueType.HOME,
+        status=GameStatus.COMPLETED,
+        opponent_score=0,
+    )
+
+    second_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 20),
+        venue_type=VenueType.HOME,
+        status=GameStatus.COMPLETED,
+        opponent_score=0,
+    )
+
+    db_session.add_all(
+        [roster, first_game, second_game]
+    )
+    db_session.commit()
+
+    first_stats = PlayerGameStats(
+        game_id=first_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=1,
+        two_point_attempts=2,
+    )
+
+    second_stats = PlayerGameStats(
+        game_id=second_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=8,
+        two_point_attempts=20,
+    )
+
+    db_session.add_all(
+        [first_stats, second_stats]
+    )
+    db_session.commit()
+
+    result = get_season_comparison_data(
+        db_session,
+        season.id,
+    )
+
+    home = result["by_venue"]["HOME"]
+
+    assert home["games_played"] == 2
+
+    assert home["field_goal_percentage"] == pytest.approx(
+        9 / 22
+    )
+
+    assert home["field_goal_percentage"] != pytest.approx(
+        (0.50 + 0.40) / 2
+    )
+
+
+def test_season_comparison_data_returns_empty_groups(
+    db_session,
+):
+    team = Team(name="JCP Empty")
+    db_session.add(team)
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="Empty Season",
+    )
+    db_session.add(season)
+    db_session.commit()
+
+    result = get_season_comparison_data(
+        db_session,
+        season.id,
+    )
+
+    assert result["by_result"]["WIN"]["games_played"] == 0
+    assert result["by_result"]["LOSS"]["games_played"] == 0
+    assert result["by_result"]["TIE"]["games_played"] == 0
+
+    assert result["by_venue"]["HOME"]["games_played"] == 0
+    assert result["by_venue"]["AWAY"]["games_played"] == 0
+    assert result["by_venue"]["NEUTRAL"]["games_played"] == 0
+
+    assert (
+        result["by_venue"]["NEUTRAL"]["points_per_game"]
+        is None
+    )
+
+    assert (
+        result["by_result"]["WIN"]["field_goal_percentage"]
+        is None
+    )
+
+
+def test_season_chart_data_uses_completed_game_series(
+    db_session,
+):
+    team = Team(name="JCP")
+    opponent = Team(name="Opponent")
+    player = Player(full_name="Player One")
+
+    db_session.add_all([team, opponent, player])
+    db_session.commit()
+
+    season = Season(
+        team_id=team.id,
+        name="2026-27",
+    )
+    db_session.add(season)
+    db_session.commit()
+
+    roster = SeasonRoster(
+        season_id=season.id,
+        player_id=player.id,
+        status=RosterStatus.ACTIVE,
+    )
+
+    completed_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 10),
+        venue_type=VenueType.HOME,
+        status=GameStatus.COMPLETED,
+        opponent_score=12,
+    )
+
+    draft_game = Game(
+        season_id=season.id,
+        opponent_team_id=opponent.id,
+        game_date=date(2026, 1, 20),
+        venue_type=VenueType.AWAY,
+        status=GameStatus.DRAFT,
+    )
+
+    db_session.add_all(
+        [
+            roster,
+            completed_game,
+            draft_game,
+        ]
+    )
+    db_session.commit()
+
+    completed_stats = PlayerGameStats(
+        game_id=completed_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=4,
+        two_point_attempts=8,
+        three_point_makes=2,
+        three_point_attempts=4,
+        free_throw_makes=3,
+        free_throw_attempts=4,
+    )
+
+    draft_stats = PlayerGameStats(
+        game_id=draft_game.id,
+        season_roster_id=roster.id,
+        participation_status=ParticipationStatus.PLAYED,
+        two_point_makes=20,
+        two_point_attempts=20,
+    )
+
+    db_session.add_all(
+        [
+            completed_stats,
+            draft_stats,
+        ]
+    )
+    db_session.commit()
+
+    result = get_season_chart_data(
+        db_session,
+        season.id,
+    )
+
+    assert result["game_labels"] == [
+        "01/10 vs Opponent",
+    ]
+
+    assert result["team_scores"] == [17]
+    assert result["opponent_scores"] == [12]
+
+    assert result["fg_percentages"] == [
+        pytest.approx(0.5)
+    ]
+
+    assert result["two_point_percentages"] == [
+        pytest.approx(0.5)
+    ]
+
+    assert result["three_point_percentages"] == [
+        pytest.approx(0.5)
+    ]
+
+    assert result["free_throw_percentages"] == [
+        pytest.approx(0.75)
+    ]

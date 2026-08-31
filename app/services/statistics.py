@@ -22,7 +22,10 @@ from app.models.player_game_stats import (
     ParticipationStatus,
     PlayerGameStats,
 )
-from app.services.season_roster import get_season_roster
+from app.services.season_roster import (
+    get_season_roster,
+    list_season_rosters_for_season,
+)
 from app.services.game import get_game
 from app.services.season import get_season
 
@@ -478,6 +481,67 @@ def calculate_player_season_summary(
         "rebounds_per_game": rebounds_per_game,
     }
 
+def get_season_player_leaderboards(
+    db: Session,
+    season_id: int,
+) -> dict[str, list[dict]]:
+    roster_entries = list_season_rosters_for_season(
+        db,
+        season_id,
+    )
+
+    player_rows: list[dict] = []
+
+    for roster in roster_entries:
+        summary = calculate_player_season_summary(
+            db,
+            roster.id,
+        )
+
+        if summary["games_played"] == 0:
+            continue
+
+        player_rows.append(
+            {
+                "season_roster_id": roster.id,
+                "jersey_number": roster.jersey_number,
+                "player_name": (
+                    roster.player.display_name
+                    or roster.player.full_name
+                ),
+                **summary,
+            }
+        )
+
+    def rank(
+        metric: str,
+    ) -> list[dict]:
+        eligible_rows = [
+            row
+            for row in player_rows
+            if row[metric] is not None
+        ]
+
+        return sorted(
+            eligible_rows,
+            key=lambda row: (
+                -row[metric],
+                row["player_name"].lower(),
+                row["season_roster_id"],
+            ),
+        )
+
+    return {
+        "ppg": rank("points_per_game"),
+        "rpg": rank("rebounds_per_game"),
+        "apg": rank("assists_per_game"),
+        "fg_percentage": rank("field_goal_percentage"),
+        "two_point_percentage": rank("two_point_percentage"),
+        "three_point_percentage": rank("three_point_percentage"),
+        "free_throw_percentage": rank("free_throw_percentage"),
+        "steals": rank("steals"),
+    }
+
 
 def _get_completed_season_games(
     db: Session,
@@ -605,9 +669,30 @@ def calculate_team_season_summary(
 
     point_differential = points - opponent_points
 
+    games_played = len(games)
+
+    if games_played == 0:
+        points_per_game = None
+        opponent_points_per_game = None
+        point_differential_per_game = None
+        rebounds_per_game = None
+        assists_per_game = None
+        turnovers_per_game = None
+        steals_per_game = None
+        deflections_per_game = None
+    else:
+        points_per_game = points / games_played
+        opponent_points_per_game = opponent_points / games_played
+        point_differential_per_game = point_differential / games_played
+        rebounds_per_game = rebounds / games_played
+        assists_per_game = totals["assists"] / games_played
+        turnovers_per_game = totals["turnovers"] / games_played
+        steals_per_game = totals["steals"] / games_played
+        deflections_per_game = totals["deflections"] / games_played
+
     return {
         **totals,
-        "games_played": len(games),
+        "games_played": games_played,
         "wins": wins,
         "losses": losses,
         "ties": ties,
@@ -623,6 +708,297 @@ def calculate_team_season_summary(
         "free_throw_percentage": free_throw_percentage,
         "true_shooting_percentage": true_shooting_percentage,
         "assist_turnover_ratio": assist_turnover_ratio,
+        "points_per_game": points_per_game,
+        "opponent_points_per_game": opponent_points_per_game,
+        "point_differential_per_game": point_differential_per_game,
+        "rebounds_per_game": rebounds_per_game,
+        "assists_per_game": assists_per_game,
+        "turnovers_per_game": turnovers_per_game,
+        "steals_per_game": steals_per_game,
+        "deflections_per_game": deflections_per_game,
+    }
+
+
+def get_season_game_series(
+    db: Session,
+    season_id: int,
+) -> list[dict]:
+    get_season(
+        db,
+        season_id,
+    )
+
+    games = _get_completed_season_games(
+        db,
+        season_id,
+    )
+
+    rows: list[dict] = []
+
+    for game in games:
+        assert game.opponent_score is not None
+
+        summary = calculate_game_summary(
+            game.player_game_stats,
+            game.opponent_score,
+        )
+
+        rows.append(
+            {
+                "game_id": game.id,
+                "game_date": game.game_date,
+                "opponent_name": game.opponent_team.name,
+                "venue_type": game.venue_type,
+                "result": summary["result"],
+                "team_score": summary["team_score"],
+                "opponent_score": game.opponent_score,
+                "score_margin": summary["score_margin"],
+                "field_goal_percentage": (
+                    summary["field_goal_percentage"]
+                ),
+                "two_point_percentage": (
+                    summary["two_point_percentage"]
+                ),
+                "three_point_percentage": (
+                    summary["three_point_percentage"]
+                ),
+                "free_throw_percentage": (
+                    summary["free_throw_percentage"]
+                ),
+                "true_shooting_percentage": (
+                    summary["true_shooting_percentage"]
+                ),
+            }
+        )
+
+    return rows
+
+def get_season_chart_data(
+    db: Session,
+    season_id: int,
+) -> dict[str, list]:
+    game_series = get_season_game_series(
+        db,
+        season_id,
+    )
+
+    return {
+        "game_labels": [
+            f"{row['game_date'].strftime('%m/%d')} vs {row['opponent_name']}"
+            for row in game_series
+        ],
+        "team_scores": [
+            row["team_score"]
+            for row in game_series
+        ],
+        "opponent_scores": [
+            row["opponent_score"]
+            for row in game_series
+        ],
+        "fg_percentages": [
+            row["field_goal_percentage"]
+            for row in game_series
+        ],
+        "two_point_percentages": [
+            row["two_point_percentage"]
+            for row in game_series
+        ],
+        "three_point_percentages": [
+            row["three_point_percentage"]
+            for row in game_series
+        ],
+        "free_throw_percentages": [
+            row["free_throw_percentage"]
+            for row in game_series
+        ],
+    }
+
+
+def _calculate_game_group_summary(
+    games: list[Game],
+) -> dict[str, int | float | None]:
+    all_stats_rows: list[PlayerGameStats] = []
+
+    for game in games:
+        all_stats_rows.extend(
+            game.player_game_stats
+        )
+
+    totals = aggregate_game_raw_stats(
+        all_stats_rows
+    )
+
+    games_played = len(games)
+
+    points = calculate_points(
+        totals["two_point_makes"],
+        totals["three_point_makes"],
+        totals["free_throw_makes"],
+    )
+
+    rebounds = calculate_rebounds(
+        totals["offensive_rebounds"],
+        totals["defensive_rebounds"],
+    )
+
+    opponent_points = 0
+
+    for game in games:
+        assert game.opponent_score is not None
+        opponent_points += game.opponent_score
+
+    point_differential = points - opponent_points
+
+    if games_played == 0:
+        points_per_game = None
+        opponent_points_per_game = None
+        point_differential_per_game = None
+        rebounds_per_game = None
+        assists_per_game = None
+        turnovers_per_game = None
+        steals_per_game = None
+        deflections_per_game = None
+    else:
+        points_per_game = points / games_played
+        opponent_points_per_game = (
+            opponent_points / games_played
+        )
+        point_differential_per_game = (
+            point_differential / games_played
+        )
+        rebounds_per_game = rebounds / games_played
+        assists_per_game = (
+            totals["assists"] / games_played
+        )
+        turnovers_per_game = (
+            totals["turnovers"] / games_played
+        )
+        steals_per_game = (
+            totals["steals"] / games_played
+        )
+        deflections_per_game = (
+            totals["deflections"] / games_played
+        )
+
+    field_goal_percentage = calculate_fg_percentage(
+        totals["two_point_makes"],
+        totals["three_point_makes"],
+        totals["two_point_attempts"],
+        totals["three_point_attempts"],
+    )
+
+    two_point_percentage = calculate_two_point_percentage(
+        totals["two_point_makes"],
+        totals["two_point_attempts"],
+    )
+
+    three_point_percentage = calculate_three_point_percentage(
+        totals["three_point_makes"],
+        totals["three_point_attempts"],
+    )
+
+    free_throw_percentage = calculate_free_throw_percentage(
+        totals["free_throw_makes"],
+        totals["free_throw_attempts"],
+    )
+
+    true_shooting_percentage = (
+        calculate_true_shooting_percentage(
+            totals["two_point_makes"],
+            totals["three_point_makes"],
+            totals["free_throw_makes"],
+            totals["two_point_attempts"],
+            totals["three_point_attempts"],
+            totals["free_throw_attempts"],
+        )
+    )
+
+    assist_turnover_ratio = (
+        calculate_assist_turnover_ratio(
+            totals["assists"],
+            totals["turnovers"],
+        )
+    )
+
+    return {
+        "games_played": games_played,
+        "points_per_game": points_per_game,
+        "opponent_points_per_game": opponent_points_per_game,
+        "point_differential_per_game": (
+            point_differential_per_game
+        ),
+        "rebounds_per_game": rebounds_per_game,
+        "assists_per_game": assists_per_game,
+        "turnovers_per_game": turnovers_per_game,
+        "steals_per_game": steals_per_game,
+        "deflections_per_game": deflections_per_game,
+        "field_goal_percentage": field_goal_percentage,
+        "two_point_percentage": two_point_percentage,
+        "three_point_percentage": three_point_percentage,
+        "free_throw_percentage": free_throw_percentage,
+        "true_shooting_percentage": (
+            true_shooting_percentage
+        ),
+        "assist_turnover_ratio": assist_turnover_ratio,
+    }
+
+
+def get_season_comparison_data(
+    db: Session,
+    season_id: int,
+) -> dict[str, dict[str, dict[str, int | float | None]]]:
+    get_season(
+        db,
+        season_id,
+    )
+
+    games = _get_completed_season_games(
+        db,
+        season_id,
+    )
+
+    result_groups: dict[str, list[Game]] = {
+        "WIN": [],
+        "LOSS": [],
+        "TIE": [],
+    }
+
+    venue_groups: dict[str, list[Game]] = {
+        "HOME": [],
+        "AWAY": [],
+        "NEUTRAL": [],
+    }
+
+    for game in games:
+        assert game.opponent_score is not None
+
+        game_summary = calculate_game_summary(
+            game.player_game_stats,
+            game.opponent_score,
+        )
+
+        result = game_summary["result"]
+
+        assert isinstance(result, str)
+
+        result_groups[result].append(game)
+        venue_groups[game.venue_type.value].append(game)
+
+    return {
+        "by_result": {
+            result: _calculate_game_group_summary(
+                grouped_games
+            )
+            for result, grouped_games
+            in result_groups.items()
+        },
+        "by_venue": {
+            venue: _calculate_game_group_summary(
+                grouped_games
+            )
+            for venue, grouped_games
+            in venue_groups.items()
+        },
     }
 
 

@@ -21,8 +21,8 @@ from app.services.season_roster import (
 
 
 router = APIRouter(
-    prefix="/season-rosters",
-    tags=["season-rosters"],
+    prefix="/seasons-rosters",
+    tags=["seasons-rosters"],
 )
 
 

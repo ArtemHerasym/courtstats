@@ -40,7 +40,7 @@ def _setup_game_with_roster(client, db_session):
     player = player_response.json()
 
     roster_response = client.post(
-        "/season-rosters",
+        "/seasons-rosters",
         json={
             "season_id": season["id"],
             "player_id": player["id"],
@@ -288,7 +288,7 @@ def test_invalid_stats_submission_does_not_partially_save(
 
     assert response.status_code == 303
 
-    # Add a second player to the same season.
+    # Add a second player to the same seasons.
     player_response = client.post(
         "/players",
         json={
@@ -300,7 +300,7 @@ def test_invalid_stats_submission_does_not_partially_save(
     second_player = player_response.json()
 
     roster_response = client.post(
-        "/season-rosters",
+        "/seasons-rosters",
         json={
             "season_id": game.season_id,
             "player_id": second_player["id"],

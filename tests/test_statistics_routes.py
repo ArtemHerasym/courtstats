@@ -258,7 +258,7 @@ def test_player_season_statistics_route_returns_expected_summary(
     db_session.commit()
 
     response = client.get(
-        f"/statistics/season-rosters/{roster.id}"
+        f"/statistics/seasons-rosters/{roster.id}"
     )
 
     assert response.status_code == 200
@@ -290,7 +290,7 @@ def test_player_season_statistics_route_returns_404_for_missing_roster(
     client,
 ):
     response = client.get(
-        "/statistics/season-rosters/999999"
+        "/statistics/seasons-rosters/999999"
     )
 
     assert response.status_code == 404

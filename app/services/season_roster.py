@@ -36,7 +36,7 @@ def _ensure_membership_available(
      existing_membership = db.scalar(statement)
      if existing_membership is not None:
          raise SeasonRosterMembershipConflictError(
-             "Player is already on this season roster."
+             "Player is already on this seasons roster."
          )
 
 def _ensure_active_jersey_available(
@@ -68,7 +68,7 @@ def _ensure_active_jersey_available(
     if existing_roster is not None:
         raise SeasonRosterJerseyConflictError(
             f"Jersey number {jersey_number} is already assigned "
-            "to an active player in this season."
+            "to an active player in this seasons."
         )
 
 def create_season_roster(
@@ -106,7 +106,7 @@ def create_season_roster(
         )
         if constraint_name == "uq_season_rosters_season_player":
             raise SeasonRosterMembershipConflictError(
-                "Player is already on this season roster."
+                "Player is already on this seasons roster."
             ) from exc
 
         raise
@@ -215,7 +215,7 @@ def update_season_roster(
 
         if constraint_name == "uq_season_rosters_season_player":
             raise SeasonRosterMembershipConflictError(
-                "Player is already on this season roster."
+                "Player is already on this seasons roster."
             ) from exc
 
         raise

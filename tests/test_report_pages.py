@@ -49,7 +49,7 @@ def _setup_game_with_roster(
     player = player_response.json()
 
     roster_response = client.post(
-        "/season-rosters",
+        "/seasons-rosters",
         json={
             "season_id": season["id"],
             "player_id": player["id"],
@@ -283,9 +283,9 @@ def test_game_report_renders_calculated_values(
     assert "2.00" in html
 
     assert (
-        f"/app/season-rosters/"
-        f"{roster_id}/profile"
-        in html
+            f"/app/season-rosters/"
+            f"{roster_id}/profile"
+            in html
     )
 
     # Completed stats page links to report.
@@ -357,7 +357,7 @@ def test_player_profile_renders_season_summary_and_game_log(
     )
 
     response = client.get(
-        f"/app/season-rosters/"
+        f"/app/seasons-rosters/"
         f"{roster_id}/profile"
     )
 
@@ -404,7 +404,7 @@ def test_player_profile_returns_404_for_missing_roster(
     client,
 ):
     response = client.get(
-        "/app/season-rosters/999999/profile"
+        "/app/seasons-rosters/999999/profile"
     )
 
     assert response.status_code == 404
@@ -523,7 +523,7 @@ def test_player_profile_excludes_draft_games(
     assert draft_save_response.status_code == 303
 
     response = client.get(
-        f"/app/season-rosters/"
+        f"/app/seasons-rosters/"
         f"{roster_id}/profile"
     )
 
@@ -580,7 +580,7 @@ def test_dnp_does_not_increase_player_games_played(
     )
 
     second_roster_response = client.post(
-        "/season-rosters",
+        "/seasons-rosters",
         json={
             "season_id": game.season_id,
             "player_id": second_player["id"],
@@ -640,7 +640,7 @@ def test_dnp_does_not_increase_player_games_played(
     assert finalize_response.status_code == 303
 
     response = client.get(
-        f"/app/season-rosters/"
+        f"/app/seasons-rosters/"
         f"{dnp_roster_id}/profile"
     )
 
@@ -674,7 +674,7 @@ def test_player_profile_handles_no_completed_games(
     roster_id = roster["id"]
 
     response = client.get(
-        f"/app/season-rosters/"
+        f"/app/seasons-rosters/"
         f"{roster_id}/profile"
     )
 

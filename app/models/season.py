@@ -47,3 +47,4 @@ class Season(TimestampMixin, Base):
     games: Mapped[list["Game"]] = relationship(
         back_populates="season",
     )
+    

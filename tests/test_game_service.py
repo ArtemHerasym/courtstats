@@ -851,7 +851,7 @@ def test_update_game_cannot_change_season_after_stats_exist(
     with pytest.raises(
         GameSeasonStatsConflictError,
         match=(
-            "Game season cannot be changed after "
+            "Game seasons cannot be changed after "
             "player game stats exist."
         ),
     ):

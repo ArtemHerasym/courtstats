@@ -300,7 +300,7 @@ def test_create_rejects_roster_from_wrong_season(db_session):
 
     with pytest.raises(
         PlayerGameStatsSeasonMismatchError,
-        match="Game and season roster must belong to the same season.",
+        match="Game and seasons roster must belong to the same seasons.",
     ):
         create_player_game_stats(
             db_session,

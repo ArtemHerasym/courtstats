@@ -56,7 +56,7 @@ def _ensure_same_season(
 ) -> None:
     if game.season_id != season_roster.season_id:
         raise PlayerGameStatsSeasonMismatchError(
-            "Game and season roster must belong to the same season."
+            "Game and seasons roster must belong to the same seasons."
         )
 
 
@@ -397,7 +397,7 @@ def save_player_game_stats_draft(
 
         if stats_data.season_roster_id in seen_roster_ids:
             raise PlayerGameStatsConflictError(
-                "Duplicate season roster entry in submitted statistics."
+                "Duplicate seasons roster entry in submitted statistics."
             )
 
         seen_roster_ids.add(stats_data.season_roster_id)
@@ -509,7 +509,7 @@ def _apply_player_game_stats_rows(
 
         if stats_data.season_roster_id in seen_roster_ids:
             raise PlayerGameStatsConflictError(
-                "Duplicate season roster entry in submitted statistics."
+                "Duplicate seasons roster entry in submitted statistics."
             )
 
         seen_roster_ids.add(

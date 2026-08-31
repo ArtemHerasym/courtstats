@@ -47,7 +47,7 @@ def test_create_season_route_returns_409_for_duplicate_name(client, db_session):
     assert first_response.status_code == 201
     assert second_response.status_code == 409
     assert second_response.json()["detail"] == (
-        "A season with this name already exists for this team."
+        "A seasons with this name already exists for this team."
     )
 
 
@@ -220,7 +220,7 @@ def test_update_season_route_returns_409_for_duplicate_name(
 
     assert response.status_code == 409
     assert response.json()["detail"] == (
-        "A season with this name already exists for this team."
+        "A seasons with this name already exists for this team."
     )
 
 

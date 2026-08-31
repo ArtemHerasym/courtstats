@@ -225,7 +225,7 @@ def test_create_player_game_stats_route_returns_409_for_wrong_season(
 
     assert response.status_code == 409
     assert response.json()["detail"] == (
-        "Game and season roster must belong to the same season."
+        "Game and seasons roster must belong to the same seasons."
     )
 
 
