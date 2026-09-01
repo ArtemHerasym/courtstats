@@ -6,7 +6,7 @@ from app.models.team import Team
 
 
 def _setup_game_with_roster(
-    client,
+    authenticated_client,
     db_session,
 ):
     team = Team(
@@ -27,7 +27,7 @@ def _setup_game_with_roster(
     db_session.refresh(team)
     db_session.refresh(opponent)
 
-    season_response = client.post(
+    season_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -38,7 +38,7 @@ def _setup_game_with_roster(
     assert season_response.status_code == 201
     season = season_response.json()
 
-    player_response = client.post(
+    player_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "Test Player",
@@ -48,7 +48,7 @@ def _setup_game_with_roster(
     assert player_response.status_code == 201
     player = player_response.json()
 
-    roster_response = client.post(
+    roster_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -60,7 +60,7 @@ def _setup_game_with_roster(
     assert roster_response.status_code == 201
     roster = roster_response.json()
 
-    game_response = client.post(
+    game_response = authenticated_client.post(
         "/app/games/new",
         data={
             "season_id": str(
@@ -202,7 +202,7 @@ def _known_stat_line(
 
 
 def _finalize_known_game(
-    client,
+    authenticated_client,
     game_id: int,
     roster_id: int,
 ):
@@ -213,7 +213,7 @@ def _finalize_known_game(
     data["action"] = "finalize"
     data["opponent_score"] = "12"
 
-    response = client.post(
+    response = authenticated_client.post(
         f"/app/games/{game_id}/stats",
         data=data,
         follow_redirects=False,
@@ -231,23 +231,23 @@ def _normalize_html(
 
 
 def test_game_report_renders_calculated_values(
-    client,
+    authenticated_client,
     db_session,
 ):
     game, roster = _setup_game_with_roster(
-        client,
+        authenticated_client,
         db_session,
     )
 
     roster_id = roster["id"]
 
     _finalize_known_game(
-        client,
+        authenticated_client,
         game.id,
         roster_id,
     )
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/games/{game.id}/report"
     )
 
@@ -289,7 +289,7 @@ def test_game_report_renders_calculated_values(
     )
 
     # Completed stats page links to report.
-    stats_response = client.get(
+    stats_response = authenticated_client.get(
         f"/app/games/{game.id}/stats"
     )
 
@@ -302,9 +302,9 @@ def test_game_report_renders_calculated_values(
 
 
 def test_game_report_returns_404_for_missing_game(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/app/games/999999/report"
     )
 
@@ -313,15 +313,15 @@ def test_game_report_returns_404_for_missing_game(
 
 
 def test_game_report_handles_empty_stats(
-    client,
+    authenticated_client,
     db_session,
 ):
     game, _ = _setup_game_with_roster(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/games/{game.id}/report"
     )
 
@@ -340,23 +340,23 @@ def test_game_report_handles_empty_stats(
 
 
 def test_player_profile_renders_season_summary_and_game_log(
-    client,
+    authenticated_client,
     db_session,
 ):
     game, roster = _setup_game_with_roster(
-        client,
+        authenticated_client,
         db_session,
     )
 
     roster_id = roster["id"]
 
     _finalize_known_game(
-        client,
+        authenticated_client,
         game.id,
         roster_id,
     )
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/seasons-rosters/"
         f"{roster_id}/profile"
     )
@@ -401,9 +401,9 @@ def test_player_profile_renders_season_summary_and_game_log(
 
 
 def test_player_profile_returns_404_for_missing_roster(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/app/seasons-rosters/999999/profile"
     )
 
@@ -416,11 +416,11 @@ def test_player_profile_returns_404_for_missing_roster(
 
 
 def test_player_profile_excludes_draft_games(
-    client,
+    authenticated_client,
     db_session,
 ):
     game, roster = _setup_game_with_roster(
-        client,
+        authenticated_client,
         db_session,
     )
 
@@ -443,7 +443,7 @@ def test_player_profile_excludes_draft_games(
     completed_data["action"] = "finalize"
     completed_data["opponent_score"] = "1"
 
-    completed_response = client.post(
+    completed_response = authenticated_client.post(
         f"/app/games/{game.id}/stats",
         data=completed_data,
         follow_redirects=False,
@@ -465,7 +465,7 @@ def test_player_profile_excludes_draft_games(
         draft_opponent
     )
 
-    draft_game_response = client.post(
+    draft_game_response = authenticated_client.post(
         "/app/games/new",
         data={
             "season_id": str(
@@ -514,7 +514,7 @@ def test_player_profile_excludes_draft_games(
     draft_data["action"] = "save"
     draft_data["opponent_score"] = ""
 
-    draft_save_response = client.post(
+    draft_save_response = authenticated_client.post(
         f"/app/games/{draft_game.id}/stats",
         data=draft_data,
         follow_redirects=False,
@@ -522,7 +522,7 @@ def test_player_profile_excludes_draft_games(
 
     assert draft_save_response.status_code == 303
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/seasons-rosters/"
         f"{roster_id}/profile"
     )
@@ -551,11 +551,11 @@ def test_player_profile_excludes_draft_games(
 
 
 def test_dnp_does_not_increase_player_games_played(
-    client,
+    authenticated_client,
     db_session,
 ):
     game, roster = _setup_game_with_roster(
-        client,
+        authenticated_client,
         db_session,
     )
 
@@ -563,7 +563,7 @@ def test_dnp_does_not_increase_player_games_played(
 
     # A second player must PLAY so that the
     # game itself can validly be completed.
-    second_player_response = client.post(
+    second_player_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "Played Player",
@@ -579,7 +579,7 @@ def test_dnp_does_not_increase_player_games_played(
         second_player_response.json()
     )
 
-    second_roster_response = client.post(
+    second_roster_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": game.season_id,
@@ -631,7 +631,7 @@ def test_dnp_does_not_increase_player_games_played(
     combined_data["action"] = "finalize"
     combined_data["opponent_score"] = "0"
 
-    finalize_response = client.post(
+    finalize_response = authenticated_client.post(
         f"/app/games/{game.id}/stats",
         data=combined_data,
         follow_redirects=False,
@@ -639,7 +639,7 @@ def test_dnp_does_not_increase_player_games_played(
 
     assert finalize_response.status_code == 303
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/seasons-rosters/"
         f"{dnp_roster_id}/profile"
     )
@@ -663,17 +663,17 @@ def test_dnp_does_not_increase_player_games_played(
 
 
 def test_player_profile_handles_no_completed_games(
-    client,
+    authenticated_client,
     db_session,
 ):
     _, roster = _setup_game_with_roster(
-        client,
+        authenticated_client,
         db_session,
     )
 
     roster_id = roster["id"]
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/seasons-rosters/"
         f"{roster_id}/profile"
     )

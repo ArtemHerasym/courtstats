@@ -69,14 +69,14 @@ def _create_dependencies(db_session):
 
 
 def test_create_player_game_stats_route_returns_201_for_played(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -106,14 +106,14 @@ def test_create_player_game_stats_route_returns_201_for_played(
 
 
 def test_create_player_game_stats_route_returns_201_for_dnp(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -133,14 +133,14 @@ def test_create_player_game_stats_route_returns_201_for_dnp(
 
 
 def test_create_player_game_stats_route_returns_404_for_missing_game(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": 999999,
@@ -156,14 +156,14 @@ def test_create_player_game_stats_route_returns_404_for_missing_game(
 
 
 def test_create_player_game_stats_route_returns_404_for_missing_roster(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -179,7 +179,7 @@ def test_create_player_game_stats_route_returns_404_for_missing_roster(
 
 
 def test_create_player_game_stats_route_returns_409_for_wrong_season(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
@@ -214,7 +214,7 @@ def test_create_player_game_stats_route_returns_409_for_wrong_season(
     db_session.commit()
     db_session.refresh(other_roster)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -230,7 +230,7 @@ def test_create_player_game_stats_route_returns_409_for_wrong_season(
 
 
 def test_create_player_game_stats_route_returns_409_for_duplicate(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
@@ -243,14 +243,14 @@ def test_create_player_game_stats_route_returns_409_for_duplicate(
         "participation_status": "PLAYED",
     }
 
-    first_response = client.post(
+    first_response = authenticated_client.post(
         "/player-game-stats",
         json=payload,
     )
 
     assert first_response.status_code == 201
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/player-game-stats",
         json=payload,
     )
@@ -262,14 +262,14 @@ def test_create_player_game_stats_route_returns_409_for_duplicate(
 
 
 def test_create_player_game_stats_route_returns_422_for_invalid_shooting(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -284,14 +284,14 @@ def test_create_player_game_stats_route_returns_422_for_invalid_shooting(
 
 
 def test_create_player_game_stats_route_returns_422_for_invalid_dnp(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -305,14 +305,14 @@ def test_create_player_game_stats_route_returns_422_for_invalid_dnp(
 
 
 def test_list_player_game_stats_route_returns_entries(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -324,7 +324,7 @@ def test_list_player_game_stats_route_returns_entries(
 
     assert create_response.status_code == 201
 
-    response = client.get(
+    response = authenticated_client.get(
         "/player-game-stats"
     )
 
@@ -339,14 +339,14 @@ def test_list_player_game_stats_route_returns_entries(
 
 
 def test_get_player_game_stats_route_returns_existing(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -360,7 +360,7 @@ def test_get_player_game_stats_route_returns_existing(
 
     stats_id = create_response.json()["id"]
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/player-game-stats/{stats_id}"
     )
 
@@ -370,9 +370,9 @@ def test_get_player_game_stats_route_returns_existing(
 
 
 def test_get_player_game_stats_route_returns_404_for_missing(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/player-game-stats/999999"
     )
 
@@ -383,14 +383,14 @@ def test_get_player_game_stats_route_returns_404_for_missing(
 
 
 def test_update_player_game_stats_route_partial_update(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -406,7 +406,7 @@ def test_update_player_game_stats_route_partial_update(
 
     stats_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/player-game-stats/{stats_id}",
         json={
             "assists": 7,
@@ -425,14 +425,14 @@ def test_update_player_game_stats_route_partial_update(
 
 
 def test_update_player_game_stats_route_returns_422_for_invalid_final_state(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -447,7 +447,7 @@ def test_update_player_game_stats_route_returns_422_for_invalid_final_state(
 
     stats_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/player-game-stats/{stats_id}",
         json={
             "three_point_makes": 6,
@@ -461,14 +461,14 @@ def test_update_player_game_stats_route_returns_422_for_invalid_final_state(
 
 
 def test_update_route_returns_409_when_removing_last_played_from_completed_game(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -485,7 +485,7 @@ def test_update_route_returns_409_when_removing_last_played_from_completed_game(
     db_session.commit()
     db_session.refresh(game)
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/player-game-stats/{stats_id}",
         json={
             "participation_status": "DID_NOT_PLAY",
@@ -500,14 +500,14 @@ def test_update_route_returns_409_when_removing_last_played_from_completed_game(
 
 
 def test_update_route_returns_409_when_moving_last_played_from_completed_game(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, season, game, roster = _create_dependencies(
         db_session
     )
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game.id,
@@ -536,7 +536,7 @@ def test_update_route_returns_409_when_moving_last_played_from_completed_game(
     db_session.commit()
     db_session.refresh(game)
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/player-game-stats/{stats_id}",
         json={
             "game_id": second_game.id,

@@ -1,6 +1,6 @@
 from app.models.team import Team
 
-def _create_season(client, db_session, name="2026-27"):
+def _create_season(authenticated_client, db_session, name="2026-27"):
     team = Team(
         name="Jordan Christian Preparatory",
         abbreviation="JCP",
@@ -9,7 +9,7 @@ def _create_season(client, db_session, name="2026-27"):
     db_session.commit()
     db_session.refresh(team)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -21,8 +21,8 @@ def _create_season(client, db_session, name="2026-27"):
     return response.json()
 
 
-def _create_player(client, full_name="John Smith"):
-    response = client.post(
+def _create_player(authenticated_client, full_name="John Smith"):
+    response = authenticated_client.post(
         "/players",
         json={
             "full_name": full_name,
@@ -32,11 +32,11 @@ def _create_player(client, full_name="John Smith"):
     assert response.status_code == 201
     return response.json()
 
-def test_create_season_roster_route_returns_201(client, db_session):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+def test_create_season_roster_route_returns_201(authenticated_client, db_session):
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -51,13 +51,13 @@ def test_create_season_roster_route_returns_201(client, db_session):
 
 
 def test_create_season_roster_route_returns_expected_values(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -83,14 +83,14 @@ def test_create_season_roster_route_returns_expected_values(
     assert data["updated_at"] is not None
 
 def test_list_season_rosters_route_returns_entries_in_id_order(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    first_player = _create_player(client, "First Player")
-    second_player = _create_player(client, "Second Player")
+    season = _create_season(authenticated_client, db_session)
+    first_player = _create_player(authenticated_client, "First Player")
+    second_player = _create_player(authenticated_client, "Second Player")
 
-    first_response = client.post(
+    first_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -98,7 +98,7 @@ def test_list_season_rosters_route_returns_entries_in_id_order(
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -106,7 +106,7 @@ def test_list_season_rosters_route_returns_entries_in_id_order(
         },
     )
 
-    response = client.get("/seasons-rosters")
+    response = authenticated_client.get("/seasons-rosters")
 
     assert response.status_code == 200
 
@@ -119,13 +119,13 @@ def test_list_season_rosters_route_returns_entries_in_id_order(
 
 
 def test_get_season_roster_route_returns_existing_entry(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -136,7 +136,7 @@ def test_get_season_roster_route_returns_existing_entry(
 
     roster_id = create_response.json()["id"]
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/seasons-rosters/{roster_id}"
     )
 
@@ -147,8 +147,8 @@ def test_get_season_roster_route_returns_existing_entry(
     assert response.json()["jersey_number"] == 12
 
 
-def test_get_season_roster_route_returns_404_for_missing_id(client):
-    response = client.get(
+def test_get_season_roster_route_returns_404_for_missing_id(authenticated_client):
+    response = authenticated_client.get(
         "/seasons-rosters/999999"
     )
 
@@ -158,13 +158,13 @@ def test_get_season_roster_route_returns_404_for_missing_id(client):
     )
 
 def test_update_season_roster_route_partial_update(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -177,7 +177,7 @@ def test_update_season_roster_route_partial_update(
 
     roster_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{roster_id}",
         json={
             "grade_level": "Senior",
@@ -197,13 +197,13 @@ def test_update_season_roster_route_partial_update(
     assert data["status"] == "ACTIVE"
 
 def test_update_season_roster_route_can_clear_optional_field(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -214,7 +214,7 @@ def test_update_season_roster_route_can_clear_optional_field(
 
     roster_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{roster_id}",
         json={
             "position": None,
@@ -225,11 +225,11 @@ def test_update_season_roster_route_can_clear_optional_field(
     assert response.json()["position"] is None
 
 def test_create_season_roster_route_returns_404_for_missing_season(
-    client,
+    authenticated_client,
 ):
-    player = _create_player(client)
+    player = _create_player(authenticated_client)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": 999999,
@@ -244,12 +244,12 @@ def test_create_season_roster_route_returns_404_for_missing_season(
 
 
 def test_create_season_roster_route_returns_404_for_missing_player(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
+    season = _create_season(authenticated_client, db_session)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -264,23 +264,23 @@ def test_create_season_roster_route_returns_404_for_missing_player(
 
 
 def test_create_season_roster_route_returns_409_for_duplicate_membership(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
     roster_data = {
         "season_id": season["id"],
         "player_id": player["id"],
     }
 
-    first_response = client.post(
+    first_response = authenticated_client.post(
         "/seasons-rosters",
         json=roster_data,
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons-rosters",
         json=roster_data,
     )
@@ -293,14 +293,14 @@ def test_create_season_roster_route_returns_409_for_duplicate_membership(
 
 
 def test_create_season_roster_route_returns_409_for_active_jersey_conflict(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    first_player = _create_player(client, "First Player")
-    second_player = _create_player(client, "Second Player")
+    season = _create_season(authenticated_client, db_session)
+    first_player = _create_player(authenticated_client, "First Player")
+    second_player = _create_player(authenticated_client, "Second Player")
 
-    first_response = client.post(
+    first_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -309,7 +309,7 @@ def test_create_season_roster_route_returns_409_for_active_jersey_conflict(
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -326,13 +326,13 @@ def test_create_season_roster_route_returns_409_for_active_jersey_conflict(
     )
 
 def test_create_season_roster_route_returns_422_for_invalid_input(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -344,8 +344,8 @@ def test_create_season_roster_route_returns_422_for_invalid_input(
     assert response.status_code == 422
 
 
-def test_update_season_roster_route_returns_404_for_missing_roster(client):
-    response = client.patch(
+def test_update_season_roster_route_returns_404_for_missing_roster(authenticated_client):
+    response = authenticated_client.patch(
         "/seasons-rosters/999999",
         json={
             "position": "Guard",
@@ -359,13 +359,13 @@ def test_update_season_roster_route_returns_404_for_missing_roster(client):
 
 
 def test_update_season_roster_route_returns_404_for_missing_season(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -375,7 +375,7 @@ def test_update_season_roster_route_returns_404_for_missing_season(
 
     roster_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{roster_id}",
         json={
             "season_id": 999999,
@@ -389,13 +389,13 @@ def test_update_season_roster_route_returns_404_for_missing_season(
 
 
 def test_update_season_roster_route_returns_404_for_missing_player(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -405,7 +405,7 @@ def test_update_season_roster_route_returns_404_for_missing_player(
 
     roster_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{roster_id}",
         json={
             "player_id": 999999,
@@ -419,14 +419,14 @@ def test_update_season_roster_route_returns_404_for_missing_player(
 
 
 def test_update_season_roster_route_returns_409_for_membership_conflict(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    first_player = _create_player(client, "First Player")
-    second_player = _create_player(client, "Second Player")
+    season = _create_season(authenticated_client, db_session)
+    first_player = _create_player(authenticated_client, "First Player")
+    second_player = _create_player(authenticated_client, "Second Player")
 
-    client.post(
+    authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -434,7 +434,7 @@ def test_update_season_roster_route_returns_409_for_membership_conflict(
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -444,7 +444,7 @@ def test_update_season_roster_route_returns_409_for_membership_conflict(
 
     second_roster_id = second_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{second_roster_id}",
         json={
             "player_id": first_player["id"],
@@ -458,14 +458,14 @@ def test_update_season_roster_route_returns_409_for_membership_conflict(
 
 
 def test_update_season_roster_route_returns_409_for_active_jersey_conflict(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    first_player = _create_player(client, "First Player")
-    second_player = _create_player(client, "Second Player")
+    season = _create_season(authenticated_client, db_session)
+    first_player = _create_player(authenticated_client, "First Player")
+    second_player = _create_player(authenticated_client, "Second Player")
 
-    client.post(
+    authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -474,7 +474,7 @@ def test_update_season_roster_route_returns_409_for_active_jersey_conflict(
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -485,7 +485,7 @@ def test_update_season_roster_route_returns_409_for_active_jersey_conflict(
 
     second_roster_id = second_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{second_roster_id}",
         json={
             "jersey_number": 12,
@@ -500,13 +500,13 @@ def test_update_season_roster_route_returns_409_for_active_jersey_conflict(
 
 
 def test_update_season_roster_route_returns_422_for_none_status(
-    client,
+    authenticated_client,
     db_session,
 ):
-    season = _create_season(client, db_session)
-    player = _create_player(client)
+    season = _create_season(authenticated_client, db_session)
+    player = _create_player(authenticated_client)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons-rosters",
         json={
             "season_id": season["id"],
@@ -516,7 +516,7 @@ def test_update_season_roster_route_returns_422_for_none_status(
 
     roster_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons-rosters/{roster_id}",
         json={
             "status": None,

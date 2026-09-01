@@ -5,7 +5,7 @@ from app.models.season_roster import RosterStatus, SeasonRoster
 from app.models.team import Team
 
 
-def _create_game_dependencies(client, db_session):
+def _create_game_dependencies(authenticated_client, db_session):
     season_team = Team(
         name="Jordan Christian Preparatory",
         abbreviation="JCP",
@@ -24,7 +24,7 @@ def _create_game_dependencies(client, db_session):
     db_session.refresh(season_team)
     db_session.refresh(opponent_team)
 
-    season_response = client.post(
+    season_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": season_team.id,
@@ -42,7 +42,7 @@ def _create_game_dependencies(client, db_session):
 
 
 def _create_game(
-    client,
+    authenticated_client,
     season_id,
     opponent_team_id,
     game_date=None,
@@ -53,7 +53,7 @@ def _create_game(
     if game_date is None:
         game_date = date.today()
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season_id,
@@ -71,7 +71,7 @@ def _create_game(
 
 
 def _add_player_game_stats(
-    client,
+    authenticated_client,
     db_session,
     season_id,
     game_id,
@@ -95,7 +95,7 @@ def _add_player_game_stats(
     db_session.commit()
     db_session.refresh(roster)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/player-game-stats",
         json={
             "game_id": game_id,
@@ -110,17 +110,17 @@ def _add_player_game_stats(
 
 
 def test_create_game_route_returns_201_and_expected_values(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game_date = date.today()
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season["id"],
@@ -147,15 +147,15 @@ def test_create_game_route_returns_201_and_expected_values(
 
 
 def test_create_game_route_returns_422_for_direct_completed_creation(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season["id"],
@@ -174,7 +174,7 @@ def test_create_game_route_returns_422_for_direct_completed_creation(
 
 
 def test_create_game_route_returns_404_for_missing_season(
-    client,
+    authenticated_client,
     db_session,
 ):
     opponent_team = Team(
@@ -186,7 +186,7 @@ def test_create_game_route_returns_404_for_missing_season(
     db_session.commit()
     db_session.refresh(opponent_team)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": 999999,
@@ -203,15 +203,15 @@ def test_create_game_route_returns_404_for_missing_season(
 
 
 def test_create_game_route_returns_404_for_missing_opponent(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season["id"],
@@ -228,15 +228,15 @@ def test_create_game_route_returns_404_for_missing_opponent(
 
 
 def test_create_game_route_returns_409_for_season_team_as_opponent(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season["id"],
@@ -253,15 +253,15 @@ def test_create_game_route_returns_409_for_season_team_as_opponent(
 
 
 def test_create_game_route_returns_422_for_invalid_pydantic_data(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season["id"],
@@ -275,15 +275,15 @@ def test_create_game_route_returns_422_for_invalid_pydantic_data(
 
 
 def test_create_game_route_returns_422_for_negative_opponent_score(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    response = client.post(
+    response = authenticated_client.post(
         "/games",
         json={
             "season_id": season["id"],
@@ -298,16 +298,16 @@ def test_create_game_route_returns_422_for_negative_opponent_score(
 
 
 def test_list_games_route_returns_games_in_id_order(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     first_game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         game_date=date.today(),
@@ -315,14 +315,14 @@ def test_list_games_route_returns_games_in_id_order(
     )
 
     second_game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         game_date=date.today() + timedelta(days=1),
         venue_type="AWAY",
     )
 
-    response = client.get("/games")
+    response = authenticated_client.get("/games")
 
     assert response.status_code == 200
 
@@ -335,21 +335,21 @@ def test_list_games_route_returns_games_in_id_order(
 
 
 def test_get_game_route_returns_existing_game(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/games/{game['id']}"
     )
 
@@ -359,8 +359,8 @@ def test_get_game_route_returns_existing_game(
     assert response.json()["opponent_team_id"] == opponent_team.id
 
 
-def test_get_game_route_returns_404_for_missing_game(client):
-    response = client.get(
+def test_get_game_route_returns_404_for_missing_game(authenticated_client):
+    response = authenticated_client.get(
         "/games/999999"
     )
 
@@ -371,23 +371,23 @@ def test_get_game_route_returns_404_for_missing_game(client):
 
 
 def test_update_game_route_partial_update(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         venue_type="HOME",
         notes="Original note",
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "venue_type": "NEUTRAL",
@@ -407,23 +407,23 @@ def test_update_game_route_partial_update(
 
 
 def test_update_game_route_can_clear_optional_fields(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         opponent_score=65,
         notes="Tournament game",
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "opponent_score": None,
@@ -439,8 +439,8 @@ def test_update_game_route_can_clear_optional_fields(
     assert data["notes"] is None
 
 
-def test_update_game_route_returns_404_for_missing_game(client):
-    response = client.patch(
+def test_update_game_route_returns_404_for_missing_game(authenticated_client):
+    response = authenticated_client.patch(
         "/games/999999",
         json={
             "venue_type": "AWAY",
@@ -454,21 +454,21 @@ def test_update_game_route_returns_404_for_missing_game(client):
 
 
 def test_update_game_route_returns_404_for_missing_season(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "season_id": 999999,
@@ -482,21 +482,21 @@ def test_update_game_route_returns_404_for_missing_season(
 
 
 def test_update_game_route_returns_404_for_missing_opponent(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "opponent_team_id": 999999,
@@ -510,21 +510,21 @@ def test_update_game_route_returns_404_for_missing_opponent(
 
 
 def test_update_game_route_returns_409_for_season_team_as_opponent(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "opponent_team_id": season_team.id,
@@ -538,22 +538,22 @@ def test_update_game_route_returns_409_for_season_team_as_opponent(
 
 
 def test_update_draft_game_without_stats_cannot_complete(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         opponent_score=65,
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -567,30 +567,30 @@ def test_update_draft_game_without_stats_cannot_complete(
 
 
 def test_update_draft_game_with_only_dnp_cannot_complete(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         opponent_score=65,
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
         participation_status="DID_NOT_PLAY",
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -605,16 +605,16 @@ def test_update_draft_game_with_only_dnp_cannot_complete(
 
 
 def test_update_draft_game_with_played_stats_can_complete(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         game_date=date.today() - timedelta(days=1),
@@ -622,14 +622,14 @@ def test_update_draft_game_with_played_stats_can_complete(
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
         participation_status="PLAYED",
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -645,28 +645,28 @@ def test_update_draft_game_with_played_stats_can_complete(
 
 
 def test_update_draft_game_without_opponent_score_cannot_complete(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -680,16 +680,16 @@ def test_update_draft_game_without_opponent_score_cannot_complete(
 
 
 def test_update_future_draft_game_cannot_complete(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         game_date=date.today() + timedelta(days=1),
@@ -697,13 +697,13 @@ def test_update_future_draft_game_cannot_complete(
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -717,16 +717,16 @@ def test_update_future_draft_game_cannot_complete(
 
 
 def test_update_completed_game_cannot_clear_opponent_score(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         game_date=date.today() - timedelta(days=1),
@@ -734,13 +734,13 @@ def test_update_completed_game_cannot_clear_opponent_score(
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
     )
 
-    complete_response = client.patch(
+    complete_response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -749,7 +749,7 @@ def test_update_completed_game_cannot_clear_opponent_score(
 
     assert complete_response.status_code == 200
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "opponent_score": None,
@@ -763,16 +763,16 @@ def test_update_completed_game_cannot_clear_opponent_score(
 
 
 def test_update_completed_game_cannot_move_to_future_date(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         game_date=date.today() - timedelta(days=1),
@@ -780,13 +780,13 @@ def test_update_completed_game_cannot_move_to_future_date(
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
     )
 
-    complete_response = client.patch(
+    complete_response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -795,7 +795,7 @@ def test_update_completed_game_cannot_move_to_future_date(
 
     assert complete_response.status_code == 200
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "game_date": (
@@ -811,29 +811,29 @@ def test_update_completed_game_cannot_move_to_future_date(
 
 
 def test_completed_game_remains_editable_when_final_state_valid(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
         opponent_score=65,
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
     )
 
-    complete_response = client.patch(
+    complete_response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": "COMPLETED",
@@ -842,7 +842,7 @@ def test_completed_game_remains_editable_when_final_state_valid(
 
     assert complete_response.status_code == 200
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "notes": "Reviewed after completion",
@@ -859,21 +859,21 @@ def test_completed_game_remains_editable_when_final_state_valid(
 
 
 def test_update_game_route_returns_422_for_required_field_null(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "status": None,
@@ -886,15 +886,15 @@ def test_update_game_route_returns_422_for_required_field_null(
     )
 
     def test_update_game_route_returns_409_when_changing_season_with_stats(
-            client,
+            authenticated_client,
             db_session,
     ):
         season_team, opponent_team, season = _create_game_dependencies(
-            client,
+            authenticated_client,
             db_session,
         )
 
-        second_season_response = client.post(
+        second_season_response = authenticated_client.post(
             "/seasons",
             json={
                 "team_id": season_team.id,
@@ -906,19 +906,19 @@ def test_update_game_route_returns_422_for_required_field_null(
         second_season = second_season_response.json()
 
         game = _create_game(
-            client,
+            authenticated_client,
             season["id"],
             opponent_team.id,
         )
 
         _add_player_game_stats(
-            client,
+            authenticated_client,
             db_session,
             season["id"],
             game["id"],
         )
 
-        response = client.patch(
+        response = authenticated_client.patch(
             f"/games/{game['id']}",
             json={
                 "season_id": second_season["id"],
@@ -931,15 +931,15 @@ def test_update_game_route_returns_422_for_required_field_null(
         )
 
 def test_update_game_route_returns_409_when_changing_season_with_stats(
-    client,
+    authenticated_client,
     db_session,
 ):
     season_team, opponent_team, season = _create_game_dependencies(
-        client,
+        authenticated_client,
         db_session,
     )
 
-    second_season_response = client.post(
+    second_season_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": season_team.id,
@@ -951,19 +951,19 @@ def test_update_game_route_returns_409_when_changing_season_with_stats(
     second_season = second_season_response.json()
 
     game = _create_game(
-        client,
+        authenticated_client,
         season["id"],
         opponent_team.id,
     )
 
     _add_player_game_stats(
-        client,
+        authenticated_client,
         db_session,
         season["id"],
         game["id"],
     )
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/games/{game['id']}",
         json={
             "season_id": second_season["id"],

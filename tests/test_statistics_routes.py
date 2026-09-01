@@ -64,7 +64,7 @@ def _create_statistics_dependencies(db_session):
 
 
 def test_game_statistics_route_returns_expected_summary(
-    client,
+    authenticated_client,
     db_session,
 ):
     (
@@ -109,7 +109,7 @@ def test_game_statistics_route_returns_expected_summary(
     db_session.add(stats)
     db_session.commit()
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/statistics/games/{game.id}"
     )
 
@@ -135,9 +135,9 @@ def test_game_statistics_route_returns_expected_summary(
 
 
 def test_game_statistics_route_returns_404_for_missing_game(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/statistics/games/999999"
     )
 
@@ -147,7 +147,7 @@ def test_game_statistics_route_returns_404_for_missing_game(
     )
 
 def test_player_season_statistics_route_returns_expected_summary(
-    client,
+    authenticated_client,
     db_session,
 ):
     (
@@ -257,7 +257,7 @@ def test_player_season_statistics_route_returns_expected_summary(
     )
     db_session.commit()
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/statistics/seasons-rosters/{roster.id}"
     )
 
@@ -287,9 +287,9 @@ def test_player_season_statistics_route_returns_expected_summary(
 
 
 def test_player_season_statistics_route_returns_404_for_missing_roster(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/statistics/seasons-rosters/999999"
     )
 
@@ -300,7 +300,7 @@ def test_player_season_statistics_route_returns_404_for_missing_roster(
 
 
 def test_team_season_statistics_route_returns_expected_summary(
-    client,
+    authenticated_client,
     db_session,
 ):
     (
@@ -417,7 +417,7 @@ def test_team_season_statistics_route_returns_expected_summary(
     )
     db_session.commit()
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/statistics/seasons/{season.id}"
     )
 
@@ -448,7 +448,7 @@ def test_team_season_statistics_route_returns_expected_summary(
 
 
 def test_team_season_statistics_route_returns_empty_summary(
-    client,
+    authenticated_client,
     db_session,
 ):
     (
@@ -482,7 +482,7 @@ def test_team_season_statistics_route_returns_empty_summary(
     db_session.add(draft_stats)
     db_session.commit()
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/statistics/seasons/{season.id}"
     )
 
@@ -512,9 +512,9 @@ def test_team_season_statistics_route_returns_empty_summary(
 
 
 def test_team_season_statistics_route_returns_404_for_missing_season(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/statistics/seasons/999999"
     )
 

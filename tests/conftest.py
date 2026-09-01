@@ -1,5 +1,5 @@
 import pytest
-
+import re
 from sqlalchemy import create_engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
@@ -11,6 +11,9 @@ from fastapi.testclient import TestClient
 
 from app.database.dependencies import get_db
 from app.main import app
+
+from app.core.security import hash_password
+from app.models.user import User
 
 @pytest.fixture(scope="session")
 def test_engine():
@@ -74,3 +77,62 @@ def client(db_session):
         yield test_client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def logged_in_client(
+    client,
+    db_session,
+):
+    user = User(
+        username="test-coach",
+        password_hash=hash_password(
+            "test-password",
+        ),
+    )
+
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    response = client.post(
+        "/login",
+        data={
+            "username": "test-coach",
+            "password": "test-password",
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+
+    return client
+
+
+@pytest.fixture()
+def authenticated_client(
+    logged_in_client,
+):
+    response = logged_in_client.get(
+        "/app/games/new"
+    )
+
+    assert response.status_code == 200
+
+    match = re.search(
+        r'name="csrf_token"\s+'
+        r'value="([^"]+)"',
+        response.text,
+    )
+
+    assert match is not None
+
+    csrf_token = match.group(1)
+
+    logged_in_client.headers.update(
+        {
+            "X-CSRF-Token": csrf_token,
+        }
+    )
+
+    return logged_in_client

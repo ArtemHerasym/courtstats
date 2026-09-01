@@ -59,6 +59,11 @@
     method="post"
     action="/app/games/{{ game.id }}/stats"
 >
+    <input
+    type="hidden"
+    name="csrf_token"
+    value="{{ request.session.get('csrf_token', '') }}"
+>
     <div class="card game-details-card">
     <div class="form-group game-score-field">
         <label class="form-label" for="opponent_score">

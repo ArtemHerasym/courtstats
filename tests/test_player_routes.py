@@ -1,5 +1,5 @@
-def test_create_player_route(client):
-    response = client.post(
+def test_create_player_route(authenticated_client):
+    response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
@@ -18,15 +18,15 @@ def test_create_player_route(client):
     assert data["updated_at"] is not None
 
 
-def test_create_player_route_allows_duplicate_names(client):
-    first_response = client.post(
+def test_create_player_route_allows_duplicate_names(authenticated_client):
+    first_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
@@ -38,8 +38,8 @@ def test_create_player_route_allows_duplicate_names(client):
     assert first_response.json()["id"] != second_response.json()["id"]
 
 
-def test_create_player_route_returns_422_for_invalid_input(client):
-    response = client.post(
+def test_create_player_route_returns_422_for_invalid_input(authenticated_client):
+    response = authenticated_client.post(
         "/players",
         json={
             "full_name": "   ",
@@ -49,22 +49,22 @@ def test_create_player_route_returns_422_for_invalid_input(client):
     assert response.status_code == 422
 
 
-def test_list_players_route_returns_players_in_id_order(client):
-    first_response = client.post(
+def test_list_players_route_returns_players_in_id_order(authenticated_client):
+    first_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "First Player",
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "Second Player",
         },
     )
 
-    response = client.get("/players")
+    response = authenticated_client.get("/players")
 
     assert response.status_code == 200
 
@@ -76,8 +76,8 @@ def test_list_players_route_returns_players_in_id_order(client):
     ]
 
 
-def test_get_player_route_returns_existing_player(client):
-    create_response = client.post(
+def test_get_player_route_returns_existing_player(authenticated_client):
+    create_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
@@ -87,7 +87,7 @@ def test_get_player_route_returns_existing_player(client):
 
     player_id = create_response.json()["id"]
 
-    response = client.get(f"/players/{player_id}")
+    response = authenticated_client.get(f"/players/{player_id}")
 
     assert response.status_code == 200
     assert response.json()["id"] == player_id
@@ -95,8 +95,8 @@ def test_get_player_route_returns_existing_player(client):
     assert response.json()["display_name"] == "J. Smith"
 
 
-def test_get_player_route_returns_404_for_missing_id(client):
-    response = client.get("/players/999999")
+def test_get_player_route_returns_404_for_missing_id(authenticated_client):
+    response = authenticated_client.get("/players/999999")
 
     assert response.status_code == 404
     assert response.json()["detail"] == (
@@ -104,8 +104,8 @@ def test_get_player_route_returns_404_for_missing_id(client):
     )
 
 
-def test_update_player_route_partial_update(client):
-    create_response = client.post(
+def test_update_player_route_partial_update(authenticated_client):
+    create_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
@@ -115,7 +115,7 @@ def test_update_player_route_partial_update(client):
 
     player_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/players/{player_id}",
         json={
             "display_name": "Johnny",
@@ -130,8 +130,8 @@ def test_update_player_route_partial_update(client):
     assert data["display_name"] == "Johnny"
 
 
-def test_update_player_route_can_clear_display_name(client):
-    create_response = client.post(
+def test_update_player_route_can_clear_display_name(authenticated_client):
+    create_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
@@ -141,7 +141,7 @@ def test_update_player_route_can_clear_display_name(client):
 
     player_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/players/{player_id}",
         json={
             "display_name": None,
@@ -156,8 +156,8 @@ def test_update_player_route_can_clear_display_name(client):
     assert data["display_name"] is None
 
 
-def test_update_player_route_returns_404_for_missing_id(client):
-    response = client.patch(
+def test_update_player_route_returns_404_for_missing_id(authenticated_client):
+    response = authenticated_client.patch(
         "/players/999999",
         json={
             "display_name": "J. Smith",
@@ -170,8 +170,8 @@ def test_update_player_route_returns_404_for_missing_id(client):
     )
 
 
-def test_update_player_route_returns_422_for_none_full_name(client):
-    create_response = client.post(
+def test_update_player_route_returns_422_for_none_full_name(authenticated_client):
+    create_response = authenticated_client.post(
         "/players",
         json={
             "full_name": "John Smith",
@@ -180,7 +180,7 @@ def test_update_player_route_returns_422_for_none_full_name(client):
 
     player_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/players/{player_id}",
         json={
             "full_name": None,

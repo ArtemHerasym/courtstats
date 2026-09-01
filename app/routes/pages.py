@@ -53,12 +53,19 @@ from app.services.season_roster import (
     list_season_rosters_for_season,
 )
 from app.schemas.player_game_stats import PlayerGameStatsCreate
+from app.auth.dependencies import (
+    require_html_csrf,
+    require_html_user,
+)
 
 
 
 router = APIRouter(
     tags=["pages"],
     include_in_schema=False,
+    dependencies=[
+        Depends(require_html_user),
+    ],
 )
 
 def render_new_game_form(
@@ -107,6 +114,9 @@ def new_game_page(
 @router.post(
     "/app/games/new",
     response_class=HTMLResponse,
+    dependencies=[
+        Depends(require_html_csrf),
+    ],
 )
 def create_game_page(
     request: Request,
@@ -323,6 +333,9 @@ def game_stats_page(
 @router.post(
     "/app/games/{game_id}/stats",
     response_class=HTMLResponse,
+    dependencies=[
+        Depends(require_html_csrf),
+    ],
 )
 async def save_game_stats_page(
     request: Request,

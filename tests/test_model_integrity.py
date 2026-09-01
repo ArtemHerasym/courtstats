@@ -10,6 +10,7 @@ from app.models.season_roster import SeasonRoster
 from app.models.team import Team
 from app.models.season import Season, SeasonStatus
 from app.models.season_roster import SeasonRoster, RosterStatus
+from app.models.user import User
 
 
 def test_all_six_models_can_be_persisted(db_session):
@@ -526,6 +527,45 @@ def test_team_names_are_unique_case_insensitively(db_session):
     db_session.flush()
 
     db_session.add(duplicate_team)
+
+    with pytest.raises(IntegrityError):
+        db_session.flush()
+
+
+def test_user_can_be_persisted_and_is_active_by_default(
+    db_session,
+):
+    user = User(
+        username="coach",
+        password_hash="test-hash",
+    )
+
+    db_session.add(user)
+    db_session.flush()
+
+    assert user.id is not None
+    assert user.username == "coach"
+    assert user.password_hash == "test-hash"
+    assert user.is_active is True
+
+
+def test_username_is_case_insensitively_unique(
+    db_session,
+):
+    first_user = User(
+        username="coach",
+        password_hash="hash-one",
+    )
+
+    db_session.add(first_user)
+    db_session.flush()
+
+    duplicate_user = User(
+        username="COACH",
+        password_hash="hash-two",
+    )
+
+    db_session.add(duplicate_user)
 
     with pytest.raises(IntegrityError):
         db_session.flush()

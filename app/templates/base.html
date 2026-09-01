@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>{% block title %}CourtStats{% endblock %}</title>
+    <title>
+        {% block title %}CourtStats{% endblock %}
+    </title>
 
     <link
         rel="stylesheet"
@@ -23,15 +28,55 @@
                 </a>
 
                 <div class="nav-links">
-                    <a href="/" class="nav-link">Dashboard</a>
-                    <span class="nav-link nav-link-disabled">Seasons</span>
-                    <span class="nav-link nav-link-disabled">Roster</span>
-                    <span class="nav-link nav-link-disabled">Games</span>
+                    <a
+                        href="/"
+                        class="nav-link"
+                    >
+                        Dashboard
+                    </a>
+
+                    <span
+                        class="nav-link nav-link-disabled"
+                    >
+                        Seasons
+                    </span>
+
+                    <span
+                        class="nav-link nav-link-disabled"
+                    >
+                        Roster
+                    </span>
+
+                    <span
+                        class="nav-link nav-link-disabled"
+                    >
+                        Games
+                    </span>
                 </div>
 
-                <span class="button button-primary button-disabled">
+                <span
+                    class="button button-primary button-disabled"
+                >
                     Add Game
                 </span>
+
+                <form
+                    method="post"
+                    action="/logout"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ request.session.get('csrf_token', '') }}"
+                    >
+
+                    <button
+                        class="button button-secondary"
+                        type="submit"
+                    >
+                        Log out
+                    </button>
+                </form>
             </nav>
         </div>
     </header>
@@ -40,7 +85,10 @@
         {% block content %}{% endblock %}
     </main>
 
-    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+    <script
+        src="{{ url_for('static', path='js/app.js') }}"
+    ></script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

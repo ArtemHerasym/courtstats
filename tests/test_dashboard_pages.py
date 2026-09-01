@@ -19,7 +19,7 @@ from app.models.team import Team
 
 
 def test_season_dashboard_renders_statistics_leaders_and_charts(
-    client,
+    authenticated_client,
     db_session,
 ):
     team = Team(
@@ -92,7 +92,7 @@ def test_season_dashboard_renders_statistics_leaders_and_charts(
     db_session.add(stats)
     db_session.commit()
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/seasons/{season.id}/dashboard"
     )
 
@@ -134,7 +134,7 @@ def test_season_dashboard_renders_statistics_leaders_and_charts(
 
 
 def test_season_dashboard_empty_state(
-    client,
+    authenticated_client,
     db_session,
 ):
     team = Team(
@@ -152,7 +152,7 @@ def test_season_dashboard_empty_state(
     db_session.add(season)
     db_session.commit()
 
-    response = client.get(
+    response = authenticated_client.get(
         f"/app/seasons/{season.id}/dashboard"
     )
 
@@ -181,9 +181,9 @@ def test_season_dashboard_empty_state(
 
 
 def test_season_dashboard_returns_404_for_missing_season(
-    client,
+    authenticated_client,
 ):
-    response = client.get(
+    response = authenticated_client.get(
         "/app/seasons/999999/dashboard"
     )
 

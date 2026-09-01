@@ -4,3 +4,4 @@ from app.models.season import Season
 from app.models.season_roster import SeasonRoster
 from app.models.game import Game
 from app.models.player_game_stats import PlayerGameStats
+from app.models.user import User

@@ -1,6 +1,6 @@
 from app.models.team import Team
 
-def test_create_season_route(client, db_session):
+def test_create_season_route(authenticated_client, db_session):
     team = Team(
         name="Jordan Christian Preparatory",
         abbreviation="JCP",
@@ -9,7 +9,7 @@ def test_create_season_route(client, db_session):
     db_session.commit()
     db_session.refresh(team)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -30,7 +30,7 @@ def test_create_season_route(client, db_session):
     assert data["status"] == "SETUP"
     assert data["id"] is not None
 
-def test_create_season_route_returns_409_for_duplicate_name(client, db_session):
+def test_create_season_route_returns_409_for_duplicate_name(authenticated_client, db_session):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
     db_session.add(team)
     db_session.commit()
@@ -41,8 +41,8 @@ def test_create_season_route_returns_409_for_duplicate_name(client, db_session):
         "name": "2026-27",
     }
 
-    first_response = client.post("/seasons", json=season_data)
-    second_response = client.post("/seasons", json=season_data)
+    first_response = authenticated_client.post("/seasons", json=season_data)
+    second_response = authenticated_client.post("/seasons", json=season_data)
 
     assert first_response.status_code == 201
     assert second_response.status_code == 409
@@ -51,13 +51,13 @@ def test_create_season_route_returns_409_for_duplicate_name(client, db_session):
     )
 
 
-def test_create_season_route_returns_422_for_invalid_input(client, db_session):
+def test_create_season_route_returns_422_for_invalid_input(authenticated_client, db_session):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
     db_session.add(team)
     db_session.commit()
     db_session.refresh(team)
 
-    response = client.post(
+    response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -68,13 +68,13 @@ def test_create_season_route_returns_422_for_invalid_input(client, db_session):
     assert response.status_code == 422
 
 
-def test_list_seasons_route_returns_seasons_in_id_order(client, db_session):
+def test_list_seasons_route_returns_seasons_in_id_order(authenticated_client, db_session):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
     db_session.add(team)
     db_session.commit()
     db_session.refresh(team)
 
-    first_response = client.post(
+    first_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -82,7 +82,7 @@ def test_list_seasons_route_returns_seasons_in_id_order(client, db_session):
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -90,7 +90,7 @@ def test_list_seasons_route_returns_seasons_in_id_order(client, db_session):
         },
     )
 
-    response = client.get("/seasons")
+    response = authenticated_client.get("/seasons")
 
     assert response.status_code == 200
 
@@ -102,13 +102,13 @@ def test_list_seasons_route_returns_seasons_in_id_order(client, db_session):
     ]
 
 
-def test_get_season_route_returns_existing_season(client, db_session):
+def test_get_season_route_returns_existing_season(authenticated_client, db_session):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
     db_session.add(team)
     db_session.commit()
     db_session.refresh(team)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -118,15 +118,15 @@ def test_get_season_route_returns_existing_season(client, db_session):
 
     season_id = create_response.json()["id"]
 
-    response = client.get(f"/seasons/{season_id}")
+    response = authenticated_client.get(f"/seasons/{season_id}")
 
     assert response.status_code == 200
     assert response.json()["id"] == season_id
     assert response.json()["name"] == "2026-27"
 
 
-def test_get_season_route_returns_404_for_missing_id(client):
-    response = client.get("/seasons/999999")
+def test_get_season_route_returns_404_for_missing_id(authenticated_client):
+    response = authenticated_client.get("/seasons/999999")
 
     assert response.status_code == 404
     assert response.json()["detail"] == (
@@ -134,13 +134,13 @@ def test_get_season_route_returns_404_for_missing_id(client):
     )
 
 
-def test_update_season_route_partial_update(client, db_session):
+def test_update_season_route_partial_update(authenticated_client, db_session):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
     db_session.add(team)
     db_session.commit()
     db_session.refresh(team)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -152,7 +152,7 @@ def test_update_season_route_partial_update(client, db_session):
 
     season_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons/{season_id}",
         json={
             "status": "ACTIVE",
@@ -170,8 +170,8 @@ def test_update_season_route_partial_update(client, db_session):
     assert data["team_id"] == team.id
 
 
-def test_update_season_route_returns_404_for_missing_id(client):
-    response = client.patch(
+def test_update_season_route_returns_404_for_missing_id(authenticated_client):
+    response = authenticated_client.patch(
         "/seasons/999999",
         json={
             "status": "ACTIVE",
@@ -185,7 +185,7 @@ def test_update_season_route_returns_404_for_missing_id(client):
 
 
 def test_update_season_route_returns_409_for_duplicate_name(
-    client,
+    authenticated_client,
     db_session,
 ):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
@@ -193,7 +193,7 @@ def test_update_season_route_returns_409_for_duplicate_name(
     db_session.commit()
     db_session.refresh(team)
 
-    client.post(
+    authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -201,7 +201,7 @@ def test_update_season_route_returns_409_for_duplicate_name(
         },
     )
 
-    second_response = client.post(
+    second_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -211,7 +211,7 @@ def test_update_season_route_returns_409_for_duplicate_name(
 
     second_season_id = second_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons/{second_season_id}",
         json={
             "name": "2025-26",
@@ -225,7 +225,7 @@ def test_update_season_route_returns_409_for_duplicate_name(
 
 
 def test_update_season_route_returns_422_for_invalid_final_date_range(
-    client,
+    authenticated_client,
     db_session,
 ):
     team = Team(name="Jordan Christian Preparatory", abbreviation="JCP")
@@ -233,7 +233,7 @@ def test_update_season_route_returns_422_for_invalid_final_date_range(
     db_session.commit()
     db_session.refresh(team)
 
-    create_response = client.post(
+    create_response = authenticated_client.post(
         "/seasons",
         json={
             "team_id": team.id,
@@ -245,7 +245,7 @@ def test_update_season_route_returns_422_for_invalid_final_date_range(
 
     season_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = authenticated_client.patch(
         f"/seasons/{season_id}",
         json={
             "end_date": "2026-09-01",
