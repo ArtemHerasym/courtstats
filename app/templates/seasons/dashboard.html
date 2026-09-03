@@ -9,13 +9,24 @@
 
 <section class="page-header">
     <div>
-        <p class="eyebrow">Season Dashboard</p>
+        <p class="eyebrow">
+            Season Dashboard
+        </p>
 
         <h1>{{ season.team.name }}</h1>
 
         <p class="page-description">
             {{ season.name }} season performance and analytics
         </p>
+    </div>
+
+    <div class="actions">
+        <a
+            class="button button-primary"
+            href="/exports/seasons/{{ season.id }}.csv"
+        >
+            Export CSV
+        </a>
     </div>
 </section>
 

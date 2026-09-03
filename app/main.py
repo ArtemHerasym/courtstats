@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
+from app.routes.exports import router as exports_router
 
 from app.auth.dependencies import (
     require_api_csrf,
@@ -48,6 +49,7 @@ app.include_router(auth_router)
 # Protected HTML/Jinja routes.
 # pages_router already has require_html_user.
 app.include_router(pages_router)
+app.include_router(exports_router)
 
 # Protected JSON API routes.
 app.include_router(
