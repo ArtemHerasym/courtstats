@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+.idea
+__pycache__
+.pytest_cache
+*.pyc
+.env
+tests
+Stats Evaluation*.xlsx
