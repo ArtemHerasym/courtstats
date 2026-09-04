@@ -999,7 +999,7 @@ def test_player_profile_links_to_csv_export(
     )
 
     response = authenticated_client.get(
-        f"/app/seasons-rosters/"
+        f"/app/season-rosters/"
         f"{roster.id}/profile"
     )
 
