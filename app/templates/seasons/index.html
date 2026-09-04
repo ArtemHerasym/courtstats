@@ -9,16 +9,27 @@ Seasons | CourtStats
 
 <section class="page-header">
 
-    <p class="eyebrow">
-        Basketball Operations
-    </p>
+    <div>
+        <p class="eyebrow">
+            Basketball Operations
+        </p>
 
-    <h1>Seasons</h1>
+        <h1>Seasons</h1>
 
-    <p class="page-description">
-        Select a season to open its dashboard,
-        roster, games, or export.
-    </p>
+        <p class="page-description">
+            Manage seasons and open their
+            basketball workflows.
+        </p>
+    </div>
+
+    <div class="actions">
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_season_page') }}"
+        >
+            Add Season
+        </a>
+    </div>
 
 </section>
 
@@ -61,7 +72,6 @@ Seasons | CourtStats
                     </td>
 
                     <td>
-
                         <div class="actions">
 
                             <a
@@ -91,15 +101,24 @@ Seasons | CourtStats
                             <a
                                 class="button"
                                 href="{{ url_for(
+                                    'edit_season_page',
+                                    season_id=season.id
+                                ) }}"
+                            >
+                                Edit
+                            </a>
+
+                            <a
+                                class="button"
+                                href="{{ url_for(
                                     'export_season_csv',
                                     season_id=season.id
                                 ) }}"
                             >
-                                Export CSV
+                                CSV
                             </a>
 
                         </div>
-
                     </td>
 
                 </tr>
@@ -122,9 +141,18 @@ Seasons | CourtStats
     <h2>No seasons found</h2>
 
     <p>
-        CourtStats does not currently contain
-        any seasons.
+        Create the first season to begin
+        managing the basketball program.
     </p>
+
+    <div class="actions">
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_season_page') }}"
+        >
+            Add Season
+        </a>
+    </div>
 
 </section>
 

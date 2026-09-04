@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% if season %}
+    {% set editing = true %}
+{% else %}
+    {% set editing = false %}
+{% endif %}
+
+
+{% block title %}
+{% if editing %}
+Edit Season
+{% else %}
+Add Season
+{% endif %}
+| CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <p class="eyebrow">
+        Season Management
+    </p>
+
+    <h1>
+        {% if editing %}
+            Edit Season
+        {% else %}
+            Add Season
+        {% endif %}
+    </h1>
+
+</section>
+
+
+{% if errors.get("form") %}
+<div class="message message-error">
+    {{ errors["form"] }}
+</div>
+{% endif %}
+
+
+<section class="card">
+
+<form
+    method="post"
+    action="{% if editing %}{{ url_for('update_season_page', season_id=season.id) }}{% else %}{{ url_for('create_season_page') }}{% endif %}"
+>
+
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ request.session.get('csrf_token', '') }}"
+    >
+
+
+    <div class="form-group">
+
+        <label
+            class="form-label"
+            for="team_id"
+        >
+            Team
+        </label>
+
+        <select
+            class="select"
+            id="team_id"
+            name="team_id"
+            required
+        >
+
+            <option value="">
+                Select team
+            </option>
+
+            {% for team in teams %}
+
+                {% set current_team =
+                    values.get(
+                        "team_id",
+                        season.team_id|string
+                        if season
+                        else ""
+                    )
+                %}
+
+                <option
+                    value="{{ team.id }}"
+                    {% if current_team == team.id|string %}
+                        selected
+                    {% endif %}
+                >
+                    {{ team.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        {% if errors.get("team_id") %}
+            <p class="form-error">
+                {{ errors["team_id"] }}
+            </p>
+        {% endif %}
+
+    </div>
+
+
+    <div class="form-group">
+
+        <label
+            class="form-label"
+            for="name"
+        >
+            Season Name
+        </label>
+
+        <input
+            class="input"
+            id="name"
+            name="name"
+            type="text"
+            required
+            value="{{ values.get('name', season.name if season else '') }}"
+            placeholder="2026-27"
+        >
+
+    </div>
+
+
+    <div class="form-group">
+
+        <label
+            class="form-label"
+            for="start_date"
+        >
+            Start Date
+        </label>
+
+        <input
+            class="input"
+            id="start_date"
+            name="start_date"
+            type="date"
+            value="{{ values.get('start_date', season.start_date.isoformat() if season and season.start_date else '') }}"
+        >
+
+        {% if errors.get("start_date") %}
+            <p class="form-error">
+                {{ errors["start_date"] }}
+            </p>
+        {% endif %}
+
+    </div>
+
+
+    <div class="form-group">
+
+        <label
+            class="form-label"
+            for="end_date"
+        >
+            End Date
+        </label>
+
+        <input
+            class="input"
+            id="end_date"
+            name="end_date"
+            type="date"
+            value="{{ values.get('end_date', season.end_date.isoformat() if season and season.end_date else '') }}"
+        >
+
+        {% if errors.get("end_date") %}
+            <p class="form-error">
+                {{ errors["end_date"] }}
+            </p>
+        {% endif %}
+
+    </div>
+
+
+    {% if editing %}
+
+    <div class="form-group">
+
+        <label
+            class="form-label"
+            for="status"
+        >
+            Status
+        </label>
+
+        <select
+            class="select"
+            id="status"
+            name="status"
+            required
+        >
+
+            {% set current_status =
+                values.get(
+                    "status",
+                    season.status.value
+                )
+            %}
+
+            {% for status in season_statuses %}
+
+                <option
+                    value="{{ status.value }}"
+                    {% if current_status == status.value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ status.value }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+    {% endif %}
+
+
+    <div class="actions">
+
+        <button
+            class="button button-primary"
+            type="submit"
+        >
+            {% if editing %}
+                Save Changes
+            {% else %}
+                Create Season
+            {% endif %}
+        </button>
+
+        <a
+            class="button button-secondary"
+            href="{{ url_for('seasons_page') }}"
+        >
+            Cancel
+        </a>
+
+    </div>
+
+</form>
+
+</section>
+
+{% endblock %}

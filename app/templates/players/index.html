@@ -9,16 +9,29 @@ Players | CourtStats
 
 <section class="page-header">
 
-    <p class="eyebrow">
-        Player Directory
-    </p>
+    <div>
+        <p class="eyebrow">
+            Player Directory
+        </p>
 
-    <h1>Players</h1>
+        <h1>Players</h1>
 
-    <p class="page-description">
-        Browse players and open their
-        season-specific profiles.
-    </p>
+        <p class="page-description">
+            Manage players and open their
+            season-specific profiles.
+        </p>
+    </div>
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_player_page') }}"
+        >
+            Add Player
+        </a>
+
+    </div>
 
 </section>
 
@@ -35,6 +48,7 @@ Players | CourtStats
                 <tr>
                     <th>Player</th>
                     <th>Season Profiles</th>
+                    <th>Manage</th>
                 </tr>
             </thead>
 
@@ -82,10 +96,25 @@ Players | CourtStats
                         {% else %}
 
                             <span class="page-description">
-                                Not assigned to a season roster.
+                                Not assigned to a roster.
                             </span>
 
                         {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            class="button"
+                            href="{{ url_for(
+                                'edit_player_page',
+                                player_id=player.id
+                            ) }}"
+                        >
+                            Edit
+                        </a>
 
                     </td>
 
@@ -109,9 +138,20 @@ Players | CourtStats
     <h2>No players found</h2>
 
     <p>
-        CourtStats does not currently contain
-        any players.
+        Create the first player to begin
+        building the roster.
     </p>
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_player_page') }}"
+        >
+            Add Player
+        </a>
+
+    </div>
 
 </section>
 

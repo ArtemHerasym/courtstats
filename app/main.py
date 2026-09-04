@@ -22,6 +22,9 @@ from app.routers.season_roster import (
     router as season_roster_router,
 )
 from app.routers.statistics import router as statistics_router
+from app.routes.management import (
+    router as management_router,
+)
 
 
 app = FastAPI()
@@ -49,6 +52,7 @@ app.include_router(auth_router)
 # Protected HTML/Jinja routes.
 # pages_router already has require_html_user.
 app.include_router(pages_router)
+app.include_router(management_router)
 app.include_router(exports_router)
 
 # Protected JSON API routes.
