@@ -27,7 +27,23 @@ from app.routes.management import (
 )
 
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=(
+        None
+        if settings.is_production
+        else "/docs"
+    ),
+    redoc_url=(
+        None
+        if settings.is_production
+        else "/redoc"
+    ),
+    openapi_url=(
+        None
+        if settings.is_production
+        else "/openapi.json"
+    ),
+)
 
 app.add_middleware(
     SessionMiddleware,
