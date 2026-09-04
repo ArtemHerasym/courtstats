@@ -28,6 +28,7 @@ from app.services.game import (
     OpponentTeamNotFoundError,
     create_game,
     get_game,
+    list_games,
 )
 from app.services.season import (
     SeasonNotFoundError,
@@ -56,6 +57,9 @@ from app.schemas.player_game_stats import PlayerGameStatsCreate
 from app.auth.dependencies import (
     require_html_csrf,
     require_html_user,
+)
+from app.services.player import (
+    list_players,
 )
 
 
@@ -613,7 +617,7 @@ def game_report_page(
 
 
 @router.get(
-    "/app/seasons-rosters/{season_roster_id}/profile",
+    "/app/season-rosters/{season_roster_id}/profile",
     response_class=HTMLResponse,
 )
 def player_season_profile_page(
@@ -709,5 +713,151 @@ def season_dashboard_page(
             "game_series": game_series,
             "chart_data": chart_data,
             "comparisons": comparisons,
+        },
+    )
+
+@router.get(
+    "/app/seasons",
+    response_class=HTMLResponse,
+)
+def seasons_page(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    seasons = list_seasons(db)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="seasons/index.html",
+        context={
+            "seasons": seasons,
+        },
+    )
+
+
+@router.get(
+    "/app/players",
+    response_class=HTMLResponse,
+)
+def players_page(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    players = list_players(db)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="players/index.html",
+        context={
+            "players": players,
+        },
+    )
+
+
+@router.get(
+    "/app/roster",
+    response_class=HTMLResponse,
+)
+def roster_page(
+    request: Request,
+    season_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    seasons = list_seasons(db)
+
+    selected_season = None
+    roster_entries = []
+
+    if season_id is not None:
+        try:
+            selected_season = get_season(
+                db,
+                season_id,
+            )
+        except SeasonNotFoundError:
+            return HTMLResponse(
+                content="Season not found.",
+                status_code=404,
+            )
+
+    elif seasons:
+        active_seasons = [
+            season
+            for season in seasons
+            if season.status.value == "ACTIVE"
+        ]
+
+        if active_seasons:
+            selected_season = active_seasons[-1]
+        else:
+            selected_season = seasons[-1]
+
+    if selected_season is not None:
+        roster_entries = (
+            list_season_rosters_for_season(
+                db,
+                selected_season.id,
+            )
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="players/roster.html",
+        context={
+            "seasons": seasons,
+            "selected_season": selected_season,
+            "roster_entries": roster_entries,
+        },
+    )
+
+
+@router.get(
+    "/app/games",
+    response_class=HTMLResponse,
+)
+def games_page(
+    request: Request,
+    season_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    seasons = list_seasons(db)
+    games = list_games(db)
+
+    selected_season = None
+
+    if season_id is not None:
+        try:
+            selected_season = get_season(
+                db,
+                season_id,
+            )
+        except SeasonNotFoundError:
+            return HTMLResponse(
+                content="Season not found.",
+                status_code=404,
+            )
+
+        games = [
+            game
+            for game in games
+            if game.season_id == season_id
+        ]
+
+    games = sorted(
+        games,
+        key=lambda game: (
+            game.game_date,
+            game.id,
+        ),
+        reverse=True,
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="games/index.html",
+        context={
+            "games": games,
+            "seasons": seasons,
+            "selected_season": selected_season,
         },
     )

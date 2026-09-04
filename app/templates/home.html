@@ -1,20 +1,75 @@
 {% extends "base.html" %}
 
-{% block title %}CourtStats{% endblock %}
+{% block title %}
+CourtStats
+{% endblock %}
+
 
 {% block content %}
+
 <section class="page-header">
-    <p class="eyebrow">JCP Basketball Analytics</p>
-    <h1>CourtStats</h1>
-    <p class="page-description">
-        Basketball statistics, game reports, and season analytics in one place.
+
+    <p class="eyebrow">
+        JCP Basketball Analytics
     </p>
+
+    <h1>CourtStats</h1>
+
+    <p class="page-description">
+        Basketball statistics, game management,
+        reports, and season analytics in one place.
+    </p>
+
 </section>
 
+
 <section class="card">
-    <h2>Frontend foundation ready</h2>
-    <p>
-        CourtStats is connected to the existing FastAPI backend.
+
+    <h2>Basketball Operations</h2>
+
+    <p class="page-description">
+        Select where you want to work.
     </p>
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="{{ url_for('seasons_page') }}"
+        >
+            Seasons
+        </a>
+
+        <a
+            class="button"
+            href="{{ url_for('games_page') }}"
+        >
+            Games
+        </a>
+
+        <a
+            class="button"
+            href="{{ url_for('roster_page') }}"
+        >
+            Roster
+        </a>
+
+        <a
+            class="button"
+            href="{{ url_for('players_page') }}"
+        >
+            Players
+        </a>
+
+        <a
+            class="button"
+            href="{{ url_for('new_game_page') }}"
+        >
+            Add Game
+        </a>
+
+    </div>
+
 </section>
+
 {% endblock %}

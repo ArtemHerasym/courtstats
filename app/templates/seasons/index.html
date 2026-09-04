@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}
+Seasons | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <p class="eyebrow">
+        Basketball Operations
+    </p>
+
+    <h1>Seasons</h1>
+
+    <p class="page-description">
+        Select a season to open its dashboard,
+        roster, games, or export.
+    </p>
+
+</section>
+
+
+{% if seasons %}
+
+<section class="card">
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Season</th>
+                    <th>Team</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for season in seasons %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ season.name }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ season.team.name }}
+                    </td>
+
+                    <td>
+                        {{ season.status.value }}
+                    </td>
+
+                    <td>
+
+                        <div class="actions">
+
+                            <a
+                                class="button"
+                                href="{{ url_for(
+                                    'season_dashboard_page',
+                                    season_id=season.id
+                                ) }}"
+                            >
+                                Dashboard
+                            </a>
+
+                            <a
+                                class="button"
+                                href="{{ url_for('roster_page') }}?season_id={{ season.id }}"
+                            >
+                                Roster
+                            </a>
+
+                            <a
+                                class="button"
+                                href="{{ url_for('games_page') }}?season_id={{ season.id }}"
+                            >
+                                Games
+                            </a>
+
+                            <a
+                                class="button"
+                                href="{{ url_for(
+                                    'export_season_csv',
+                                    season_id=season.id
+                                ) }}"
+                            >
+                                Export CSV
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+{% else %}
+
+<section class="card">
+
+    <h2>No seasons found</h2>
+
+    <p>
+        CourtStats does not currently contain
+        any seasons.
+    </p>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

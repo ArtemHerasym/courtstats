@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}
+Players | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <p class="eyebrow">
+        Player Directory
+    </p>
+
+    <h1>Players</h1>
+
+    <p class="page-description">
+        Browse players and open their
+        season-specific profiles.
+    </p>
+
+</section>
+
+
+{% if players %}
+
+<section class="card">
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Season Profiles</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for player in players %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ player.display_name or player.full_name }}
+                        </strong>
+
+                        {% if player.display_name %}
+                            <div class="page-description">
+                                {{ player.full_name }}
+                            </div>
+                        {% endif %}
+                    </td>
+
+
+                    <td>
+
+                        {% if player.season_rosters %}
+
+                            <div class="actions">
+
+                                {% for roster in player.season_rosters %}
+
+                                <a
+                                    class="button"
+                                    href="{{ url_for(
+                                        'player_season_profile_page',
+                                        season_roster_id=roster.id
+                                    ) }}"
+                                >
+                                    {{ roster.season.name }}
+                                </a>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <span class="page-description">
+                                Not assigned to a season roster.
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+{% else %}
+
+<section class="card">
+
+    <h2>No players found</h2>
+
+    <p>
+        CourtStats does not currently contain
+        any players.
+    </p>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

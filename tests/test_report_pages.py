@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy import select
 
 from app.models.game import Game
@@ -153,6 +155,7 @@ def _known_stat_line(
     data[
         f"three_point_attempts_{roster_id}"
     ] = "4"
+
     data[
         f"three_point_makes_{roster_id}"
     ] = "2"
@@ -161,6 +164,7 @@ def _known_stat_line(
     data[
         f"two_point_attempts_{roster_id}"
     ] = "6"
+
     data[
         f"two_point_makes_{roster_id}"
     ] = "3"
@@ -169,6 +173,7 @@ def _known_stat_line(
     data[
         f"free_throw_attempts_{roster_id}"
     ] = "4"
+
     data[
         f"free_throw_makes_{roster_id}"
     ] = "3"
@@ -177,6 +182,7 @@ def _known_stat_line(
     data[
         f"turnovers_{roster_id}"
     ] = "2"
+
     data[
         f"assists_{roster_id}"
     ] = "4"
@@ -184,6 +190,7 @@ def _known_stat_line(
     data[
         f"offensive_rebounds_{roster_id}"
     ] = "2"
+
     data[
         f"defensive_rebounds_{roster_id}"
     ] = "3"
@@ -191,9 +198,11 @@ def _known_stat_line(
     data[
         f"steals_{roster_id}"
     ] = "1"
+
     data[
         f"deflections_{roster_id}"
     ] = "2"
+
     data[
         f"personal_fouls_{roster_id}"
     ] = "2"
@@ -261,6 +270,7 @@ def test_game_report_renders_calculated_values(
         "Jordan Christian Preparatory"
         in html
     )
+
     assert "Test Opponent" in html
 
     # 15 - 12 = WIN by 3.
@@ -283,9 +293,9 @@ def test_game_report_renders_calculated_values(
     assert "2.00" in html
 
     assert (
-            f"/app/season-rosters/"
-            f"{roster_id}/profile"
-            in html
+        f"/app/season-rosters/"
+        f"{roster_id}/profile"
+        in html
     )
 
     # Completed stats page links to report.
@@ -357,7 +367,7 @@ def test_player_profile_renders_season_summary_and_game_log(
     )
 
     response = authenticated_client.get(
-        f"/app/seasons-rosters/"
+        f"/app/season-rosters/"
         f"{roster_id}/profile"
     )
 
@@ -404,7 +414,7 @@ def test_player_profile_returns_404_for_missing_roster(
     authenticated_client,
 ):
     response = authenticated_client.get(
-        "/app/seasons-rosters/999999/profile"
+        "/app/season-rosters/999999/profile"
     )
 
     assert response.status_code == 404
@@ -460,7 +470,9 @@ def test_player_profile_excludes_draft_games(
     db_session.add(
         draft_opponent
     )
+
     db_session.commit()
+
     db_session.refresh(
         draft_opponent
     )
@@ -523,7 +535,7 @@ def test_player_profile_excludes_draft_games(
     assert draft_save_response.status_code == 303
 
     response = authenticated_client.get(
-        f"/app/seasons-rosters/"
+        f"/app/season-rosters/"
         f"{roster_id}/profile"
     )
 
@@ -546,7 +558,7 @@ def test_player_profile_excludes_draft_games(
         in html
     )
 
-    # Draft game must not appear in the completed log.
+    # Draft game must not appear in completed log.
     assert "Draft Opponent" not in html
 
 
@@ -640,7 +652,7 @@ def test_dnp_does_not_increase_player_games_played(
     assert finalize_response.status_code == 303
 
     response = authenticated_client.get(
-        f"/app/seasons-rosters/"
+        f"/app/season-rosters/"
         f"{dnp_roster_id}/profile"
     )
 
@@ -674,7 +686,7 @@ def test_player_profile_handles_no_completed_games(
     roster_id = roster["id"]
 
     response = authenticated_client.get(
-        f"/app/seasons-rosters/"
+        f"/app/season-rosters/"
         f"{roster_id}/profile"
     )
 
@@ -695,3 +707,41 @@ def test_player_profile_handles_no_completed_games(
         "for this player."
         in html
     )
+
+
+def test_game_report_player_link_opens_profile(
+    authenticated_client,
+    db_session,
+):
+    game, roster = _setup_game_with_roster(
+        authenticated_client,
+        db_session,
+    )
+
+    _finalize_known_game(
+        authenticated_client,
+        game.id,
+        roster["id"],
+    )
+
+    report_response = authenticated_client.get(
+        f"/app/games/{game.id}/report"
+    )
+
+    assert report_response.status_code == 200
+
+    match = re.search(
+        r'href="(/app/season-rosters/\d+/profile)"',
+        report_response.text,
+    )
+
+    assert match is not None
+
+    profile_url = match.group(1)
+
+    profile_response = authenticated_client.get(
+        profile_url
+    )
+
+    assert profile_response.status_code == 200
+    assert "Test Player" in profile_response.text

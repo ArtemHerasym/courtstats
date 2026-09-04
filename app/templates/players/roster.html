@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}
+Roster | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <p class="eyebrow">
+            Team Management
+        </p>
+
+        <h1>Roster</h1>
+
+        {% if selected_season %}
+
+            <p class="page-description">
+                {{ selected_season.team.name }}
+                · {{ selected_season.name }}
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+{% if seasons %}
+
+<section class="card">
+
+    <form
+        method="get"
+        action="{{ url_for('roster_page') }}"
+    >
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="season_id"
+            >
+                Season
+            </label>
+
+            <select
+                class="select"
+                id="season_id"
+                name="season_id"
+                onchange="this.form.submit()"
+            >
+
+                {% for season in seasons %}
+
+                    <option
+                        value="{{ season.id }}"
+
+                        {% if
+                            selected_season
+                            and selected_season.id == season.id
+                        %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ season.name }}
+                        — {{ season.team.name }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+    </form>
+
+</section>
+
+
+{% if roster_entries %}
+
+<section class="card">
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Position</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th>Profile</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for roster in roster_entries %}
+
+                <tr>
+
+                    <td>
+                        {% if roster.jersey_number is not none %}
+                            #{{ roster.jersey_number }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ roster.player.display_name or roster.player.full_name }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ roster.position or "—" }}
+                    </td>
+
+                    <td>
+                        {{ roster.grade_level or "—" }}
+                    </td>
+
+                    <td>
+                        {{ roster.status.value }}
+                    </td>
+
+                    <td>
+
+                        <a
+                            class="button"
+                            href="{{ url_for(
+                                'player_season_profile_page',
+                                season_roster_id=roster.id
+                            ) }}"
+                        >
+                            View Profile
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+{% else %}
+
+<section class="card">
+
+    <h2>No roster entries</h2>
+
+    <p>
+        No players are assigned to this season.
+    </p>
+
+</section>
+
+{% endif %}
+
+
+{% else %}
+
+<section class="card">
+
+    <h2>No seasons available</h2>
+
+    <p>
+        A season must exist before a roster
+        can be displayed.
+    </p>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

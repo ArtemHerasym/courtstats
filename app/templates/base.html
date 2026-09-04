@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -20,75 +21,107 @@
 </head>
 
 <body>
-    <header class="site-header">
-        <div class="container">
-            <nav class="navbar">
-                <a href="/" class="brand">
-                    CourtStats
+
+<header class="site-header">
+    <div class="container">
+
+        <nav class="navbar">
+
+            <a
+                href="{{ url_for('home_page') }}"
+                class="brand"
+            >
+                CourtStats
+            </a>
+
+
+            <div class="nav-links">
+
+                <a
+                    href="{{ url_for('home_page') }}"
+                    class="nav-link"
+                >
+                    Home
                 </a>
 
-                <div class="nav-links">
-                    <a
-                        href="/"
-                        class="nav-link"
-                    >
-                        Dashboard
-                    </a>
-
-                    <span
-                        class="nav-link nav-link-disabled"
-                    >
-                        Seasons
-                    </span>
-
-                    <span
-                        class="nav-link nav-link-disabled"
-                    >
-                        Roster
-                    </span>
-
-                    <span
-                        class="nav-link nav-link-disabled"
-                    >
-                        Games
-                    </span>
-                </div>
-
-                <span
-                    class="button button-primary button-disabled"
+                <a
+                    href="{{ url_for('seasons_page') }}"
+                    class="nav-link"
                 >
-                    Add Game
-                </span>
+                    Seasons
+                </a>
 
-                <form
-                    method="post"
-                    action="/logout"
+                <a
+                    href="{{ url_for('players_page') }}"
+                    class="nav-link"
                 >
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ request.session.get('csrf_token', '') }}"
-                    >
+                    Players
+                </a>
 
-                    <button
-                        class="button button-secondary"
-                        type="submit"
-                    >
-                        Log out
-                    </button>
-                </form>
-            </nav>
-        </div>
-    </header>
+                <a
+                    href="{{ url_for('roster_page') }}"
+                    class="nav-link"
+                >
+                    Roster
+                </a>
 
-    <main class="container page-content">
-        {% block content %}{% endblock %}
-    </main>
+                <a
+                    href="{{ url_for('games_page') }}"
+                    class="nav-link"
+                >
+                    Games
+                </a>
 
-    <script
-        src="{{ url_for('static', path='js/app.js') }}"
-    ></script>
+            </div>
 
-    {% block scripts %}{% endblock %}
+
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_game_page') }}"
+            >
+                Add Game
+            </a>
+
+
+            <form
+                method="post"
+                action="/logout"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ request.session.get('csrf_token', '') }}"
+                >
+
+                <button
+                    class="button button-secondary"
+                    type="submit"
+                >
+                    Log out
+                </button>
+
+            </form>
+
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container page-content">
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+
+<script
+    src="{{ url_for('static', path='js/app.js') }}"
+></script>
+
+{% block scripts %}{% endblock %}
+
 </body>
 </html>
