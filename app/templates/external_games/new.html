@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add External Game | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <p class="eyebrow">
+        External Games
+    </p>
+
+    <h1>Add External Game</h1>
+
+    <p class="page-description">
+        Record a game that should remain separate
+        from all season statistics.
+    </p>
+
+</section>
+
+
+<section class="card">
+
+    <form
+        method="post"
+        action="/app/external-games/new"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ request.session.get('csrf_token', '') }}"
+        >
+
+
+        {% if errors.get("form") %}
+
+            <div class="message message-error">
+                {{ errors["form"] }}
+            </div>
+
+        {% endif %}
+
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="name"
+            >
+                Game Name
+            </label>
+
+            <input
+                class="input"
+                id="name"
+                name="name"
+                type="text"
+                value="{{ form_values.get('name', '') }}"
+                placeholder="Fall Showcase Game"
+                required
+            >
+
+            {% if errors.get("name") %}
+                <p class="form-error">
+                    {{ errors["name"] }}
+                </p>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="game_date"
+            >
+                Game Date
+            </label>
+
+            <input
+                class="input"
+                id="game_date"
+                name="game_date"
+                type="text"
+                inputmode="numeric"
+                maxlength="10"
+                placeholder="MM/DD/YYYY"
+                autocomplete="off"
+                value="{{ form_values.get('game_date', '') }}"
+                required
+            >
+
+            <p class="form-help">
+                Enter the date manually using
+                MM/DD/YYYY.
+            </p>
+
+            {% if errors.get("game_date") %}
+                <p class="form-error">
+                    {{ errors["game_date"] }}
+                </p>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="opponent_team_id"
+            >
+                Opponent
+            </label>
+
+            <select
+                class="select"
+                id="opponent_team_id"
+                name="opponent_team_id"
+                required
+            >
+
+                <option value="">
+                    Select opponent
+                </option>
+
+                {% for team in teams %}
+
+                    <option
+                        value="{{ team.id }}"
+                        {% if form_values.get(
+                            "opponent_team_id"
+                        ) == team.id|string %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ team.name }}
+
+                        {% if team.abbreviation %}
+                            ({{ team.abbreviation }})
+                        {% endif %}
+                    </option>
+
+                {% endfor %}
+
+                <option
+                    value="new"
+                    {% if form_values.get(
+                        "opponent_team_id"
+                    ) == "new" %}
+                        selected
+                    {% endif %}
+                >
+                    + Add New Opponent
+                </option>
+
+            </select>
+
+            {% if errors.get("opponent_team_id") %}
+                <p class="form-error">
+                    {{ errors["opponent_team_id"] }}
+                </p>
+            {% endif %}
+
+        </div>
+
+
+        <div
+            id="new-opponent-fields"
+            hidden
+        >
+
+            <div class="form-group">
+
+                <label
+                    class="form-label"
+                    for="new_opponent_name"
+                >
+                    New Opponent Name
+                </label>
+
+                <input
+                    class="input"
+                    id="new_opponent_name"
+                    name="new_opponent_name"
+                    type="text"
+                    value="{{ form_values.get(
+                        'new_opponent_name',
+                        ''
+                    ) }}"
+                >
+
+                {% if errors.get(
+                    "new_opponent_name"
+                ) %}
+                    <p class="form-error">
+                        {{ errors[
+                            "new_opponent_name"
+                        ] }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label
+                    class="form-label"
+                    for="new_opponent_abbreviation"
+                >
+                    Abbreviation
+                </label>
+
+                <input
+                    class="input"
+                    id="new_opponent_abbreviation"
+                    name="new_opponent_abbreviation"
+                    type="text"
+                    value="{{ form_values.get(
+                        'new_opponent_abbreviation',
+                        ''
+                    ) }}"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="venue_type"
+            >
+                Venue
+            </label>
+
+            <select
+                class="select"
+                id="venue_type"
+                name="venue_type"
+                required
+            >
+
+                {% for venue in venue_types %}
+
+                    <option
+                        value="{{ venue.value }}"
+                        {% if form_values.get(
+                            "venue_type",
+                            "HOME"
+                        ) == venue.value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ venue.value }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            {% if errors.get("venue_type") %}
+                <p class="form-error">
+                    {{ errors["venue_type"] }}
+                </p>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="opponent_score"
+            >
+                Opponent Score
+            </label>
+
+            <input
+                class="input"
+                id="opponent_score"
+                name="opponent_score"
+                type="number"
+                min="0"
+                step="1"
+                value="{{ form_values.get(
+                    'opponent_score',
+                    ''
+                ) }}"
+            >
+
+            <p class="form-help">
+                Optional while the game is a draft.
+            </p>
+
+            {% if errors.get("opponent_score") %}
+                <p class="form-error">
+                    {{ errors["opponent_score"] }}
+                </p>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                class="form-label"
+                for="notes"
+            >
+                Notes
+            </label>
+
+            <textarea
+                class="textarea"
+                id="notes"
+                name="notes"
+            >{{ form_values.get("notes", "") }}</textarea>
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                class="button button-primary"
+                type="submit"
+            >
+                Create External Game
+            </button>
+
+            <a
+                class="button"
+                href="{{ url_for('external_games_page') }}"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}
+External Games | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <p class="eyebrow">
+            Game Management
+        </p>
+
+        <h1>External Games</h1>
+
+        <p class="page-description">
+            Games recorded outside of a regular season.
+        </p>
+
+    </div>
+
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_external_game_page') }}"
+        >
+            Add External Game
+        </a>
+
+    </div>
+
+</section>
+
+
+{% if external_games %}
+
+<section class="card">
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Opponent</th>
+                    <th>Venue</th>
+                    <th>Status</th>
+                    <th>Opponent Score</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for game in external_games %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ game.name }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ game.game_date.strftime("%m/%d/%Y") }}
+                    </td>
+
+                    <td>
+                        {{ game.opponent_team.name }}
+                    </td>
+
+                    <td>
+                        {{ game.venue_type.value }}
+                    </td>
+
+                    <td>
+                        {{ game.status.value }}
+                    </td>
+
+                    <td>
+                        {% if game.opponent_score is not none %}
+                            {{ game.opponent_score }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        <a
+                            class="button"
+                            href="{{ url_for(
+                                'external_game_players_page',
+                                external_game_id=game.id
+                            ) }}"
+                        >
+                            {% if game.status.value == "DRAFT" %}
+                                Continue
+                            {% else %}
+                                View Players
+                            {% endif %}
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+{% else %}
+
+<section class="card">
+
+    <h2>No external games</h2>
+
+    <p>
+        External games such as preseason games,
+        showcases, tournaments, and scrimmages
+        will appear here.
+    </p>
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_external_game_page') }}"
+        >
+            Add External Game
+        </a>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

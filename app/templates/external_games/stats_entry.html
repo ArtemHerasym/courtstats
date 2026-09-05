@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}
+External Game Statistics | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <p class="eyebrow">
+            External Game Statistics
+        </p>
+
+        <h1>
+            {{ external_game.name }}
+        </h1>
+
+        <p class="page-description">
+            {{ external_game.game_date.strftime("%m/%d/%Y") }}
+            ·
+            {{ external_game.opponent_team.name }}
+            ·
+            {{ external_game.venue_type.value }}
+            ·
+            <strong>
+                {{ external_game.status.value }}
+            </strong>
+        </p>
+
+    </div>
+
+
+    {% if external_game.status.value == "DRAFT" %}
+
+        <div class="actions">
+
+            <a
+                class="button"
+                href="{{ url_for(
+                    'external_game_players_page',
+                    external_game_id=external_game.id
+                ) }}"
+            >
+                Change Players
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+{% if saved %}
+
+<div class="message message-success">
+
+    {% if external_game.status.value == "COMPLETED" %}
+        Changes saved successfully.
+    {% else %}
+        Draft saved successfully.
+    {% endif %}
+
+</div>
+
+{% endif %}
+
+
+{% if row_errors.get(0) %}
+
+<div class="message message-error">
+    {{ row_errors[0] }}
+</div>
+
+{% endif %}
+
+
+{% if not stats_rows %}
+
+<section class="card">
+
+    <div class="message message-warning">
+        No players have been selected for this
+        external game.
+    </div>
+
+    {% if external_game.status.value == "DRAFT" %}
+
+        <div class="actions">
+
+            <a
+                class="button button-primary"
+                href="{{ url_for(
+                    'external_game_players_page',
+                    external_game_id=external_game.id
+                ) }}"
+            >
+                Select Players
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+{% else %}
+
+<form
+    method="post"
+    action="/app/external-games/{{ external_game.id }}/stats"
+>
+
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ request.session.get('csrf_token', '') }}"
+    >
+
+
+    <div class="card game-details-card">
+
+        <div class="form-group game-score-field">
+
+            <label
+                class="form-label"
+                for="opponent_score"
+            >
+                Opponent Score
+            </label>
+
+            <input
+                class="input"
+                id="opponent_score"
+                name="opponent_score"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                value="{% if 'opponent_score' in form_values %}{{ form_values['opponent_score'] }}{% elif external_game.opponent_score is not none %}{{ external_game.opponent_score }}{% endif %}"
+            >
+
+            <p class="form-help">
+                Required before the game can
+                be finalized.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="stats-table-container">
+
+        <table class="table stats-table">
+
+            <thead>
+
+                <tr>
+                    <th class="player-column">
+                        Player
+                    </th>
+
+                    <th>Part.</th>
+                    <th>3PA</th>
+                    <th>3PM</th>
+                    <th>2PA</th>
+                    <th>2PM</th>
+                    <th>FTA</th>
+                    <th>FTM</th>
+                    <th>TO</th>
+                    <th>AST</th>
+                    <th>OREB</th>
+                    <th>DREB</th>
+                    <th>STL</th>
+                    <th>DEF</th>
+                    <th>PF</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% set fields = [
+                    "three_point_attempts",
+                    "three_point_makes",
+                    "two_point_attempts",
+                    "two_point_makes",
+                    "free_throw_attempts",
+                    "free_throw_makes",
+                    "turnovers",
+                    "assists",
+                    "offensive_rebounds",
+                    "defensive_rebounds",
+                    "steals",
+                    "deflections",
+                    "personal_fouls"
+                ] %}
+
+
+                {% for stats in stats_rows %}
+
+                    {% set player = stats.player %}
+
+                    {% set participation_key =
+                        "participation_" ~ player.id
+                    %}
+
+                    <tr
+                        class="stats-row"
+                        data-player-id="{{ player.id }}"
+                    >
+
+                        <td class="player-column">
+
+                            <strong>
+                                {{ player.display_name or player.full_name }}
+                            </strong>
+
+                            <input
+                                type="hidden"
+                                name="player_ids"
+                                value="{{ player.id }}"
+                            >
+
+                            {% if row_errors.get(player.id) %}
+
+                                <p class="form-error stats-row-error">
+                                    {{ row_errors[player.id] }}
+                                </p>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <select
+                                class="select stats-select participation-select"
+                                name="participation_{{ player.id }}"
+                            >
+
+                                {% for status in participation_statuses %}
+
+                                    {% set submitted_participation =
+                                        form_values.get(
+                                            participation_key
+                                        )
+                                    %}
+
+                                    <option
+                                        value="{{ status.value }}"
+
+                                        {% if submitted_participation %}
+
+                                            {% if submitted_participation == status.value %}
+                                                selected
+                                            {% endif %}
+
+                                        {% elif stats.participation_status == status %}
+
+                                            selected
+
+                                        {% endif %}
+                                    >
+
+                                        {% if status.value == "PLAYED" %}
+                                            PLAYED
+                                        {% else %}
+                                            DNP
+                                        {% endif %}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </td>
+
+
+                        {% for field_name in fields %}
+
+                            {% set field_key =
+                                field_name ~ "_" ~ player.id
+                            %}
+
+                            <td>
+
+                                <input
+                                    class="input stats-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    inputmode="numeric"
+                                    name="{{ field_key }}"
+                                    value="{% if field_key in form_values %}{{ form_values[field_key] }}{% else %}{{ stats|attr(field_name) }}{% endif %}"
+                                >
+
+                            </td>
+
+                        {% endfor %}
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="actions stats-actions">
+
+        {% if external_game.status.value == "DRAFT" %}
+
+            <button
+                class="button"
+                type="submit"
+                name="action"
+                value="save"
+            >
+                Save Draft
+            </button>
+
+            <button
+                class="button button-primary"
+                type="submit"
+                name="action"
+                value="finalize"
+            >
+                Finalize Game
+            </button>
+
+        {% else %}
+
+            <button
+                class="button button-primary"
+                type="submit"
+                name="action"
+                value="save"
+            >
+                Save Changes
+            </button>
+
+        {% endif %}
+
+    </div>
+
+</form>
+
+{% endif %}
+
+
+<div class="actions">
+
+    <a
+        class="button"
+        href="{{ url_for('external_games_page') }}"
+    >
+        Back to External Games
+    </a>
+
+</div>
+
+{% endblock %}

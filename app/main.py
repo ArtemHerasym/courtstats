@@ -25,7 +25,9 @@ from app.routers.statistics import router as statistics_router
 from app.routes.management import (
     router as management_router,
 )
-
+from app.routes.external_games import (
+    router as external_games_router,
+)
 
 app = FastAPI(
     docs_url=(
@@ -70,6 +72,7 @@ app.include_router(auth_router)
 app.include_router(pages_router)
 app.include_router(management_router)
 app.include_router(exports_router)
+app.include_router(external_games_router)
 
 # Protected JSON API routes.
 app.include_router(

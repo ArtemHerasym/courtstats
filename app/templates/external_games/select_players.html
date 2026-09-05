@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}
+Select Players | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <p class="eyebrow">
+            External Game
+        </p>
+
+        <h1>Select Players</h1>
+
+        <p class="page-description">
+            {{ external_game.name }}
+            ·
+            {{ external_game.game_date.strftime("%m/%d/%Y") }}
+            ·
+            {{ external_game.status.value }}
+        </p>
+
+    </div>
+
+</section>
+
+
+{% if error %}
+
+<div class="message message-error">
+    {{ error }}
+</div>
+
+{% endif %}
+
+
+{% if not players %}
+
+<section class="card">
+
+    <div class="message message-warning">
+        There are no CourtStats players available.
+        Add players before continuing.
+    </div>
+
+</section>
+
+
+{% else %}
+
+<section class="card">
+
+    {% if external_game.status.value == "COMPLETED" %}
+
+        <div class="message message-warning">
+            Player selection cannot be changed
+            for a completed external game.
+        </div>
+
+    {% endif %}
+
+
+    <form
+        method="post"
+        action="/app/external-games/{{ external_game.id }}/players"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ request.session.get('csrf_token', '') }}"
+        >
+
+
+        <div class="form-group">
+
+            {% for player in players %}
+
+                <label>
+
+                    <input
+                        type="checkbox"
+                        name="player_ids"
+                        value="{{ player.id }}"
+                        {% if player.id in selected_player_ids %}
+                            checked
+                        {% endif %}
+                        {% if external_game.status.value == "COMPLETED" %}
+                            disabled
+                        {% endif %}
+                    >
+
+                    {{ player.display_name or player.full_name }}
+
+                </label>
+
+                <br>
+
+            {% endfor %}
+
+        </div>
+
+
+        {% if external_game.status.value == "DRAFT" %}
+
+            <p class="form-help">
+                You may change this selection while
+                the external game remains a draft.
+            </p>
+
+            <div class="actions">
+
+                <button
+                    class="button button-primary"
+                    type="submit"
+                >
+                    Save Selection and Continue
+                </button>
+
+            </div>
+
+        {% endif %}
+
+    </form>
+
+</section>
+
+{% endif %}
+
+
+<div class="actions">
+
+    <a
+        class="button"
+        href="{{ url_for('external_games_page') }}"
+    >
+        Back to External Games
+    </a>
+
+</div>
+
+{% endblock %}
