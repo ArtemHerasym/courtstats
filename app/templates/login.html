@@ -2,12 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Login | CourtStats</title>
+    <meta
+        name="theme-color"
+        content="#003262"
+    >
+
+    <title>
+        Login | CourtStats
+    </title>
+
+    <script>
+        (function () {
+            const root = document.documentElement;
+
+            root.classList.add("js");
+
+            let savedTheme = null;
+
+            try {
+                savedTheme = localStorage.getItem(
+                    "courtstats-theme"
+                );
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            let theme = savedTheme;
+
+            if (
+                theme !== "light"
+                && theme !== "dark"
+            ) {
+                theme = window.matchMedia(
+                    "(prefers-color-scheme: dark)"
+                ).matches
+                    ? "dark"
+                    : "light";
+            }
+
+            root.dataset.theme = theme;
+        })();
+    </script>
 
     <link
         rel="stylesheet"
@@ -15,78 +56,155 @@
     >
 </head>
 
+
 <body>
-<main class="container page-content">
 
-    <section class="page-header">
-        <p class="eyebrow">CourtStats</p>
-        <h1>Sign In</h1>
-        <p class="page-description">
-            Authorized users only.
-        </p>
-    </section>
+<main class="auth-shell">
 
-    <section class="card">
+    <div class="auth-layout">
 
-        {% if error %}
-            <div class="message message-error">
-                {{ error }}
-            </div>
-        {% endif %}
+        <div class="auth-brand">
 
-        <form
-            method="post"
-            action="/login"
-        >
-            <div class="form-group">
-                <label
-                    class="form-label"
-                    for="username"
+            <div class="auth-brand-identity">
+
+                <span
+                    class="brand-mark"
+                    aria-hidden="true"
                 >
-                    Username
-                </label>
+                    CS
+                </span>
 
-                <input
-                    class="input"
-                    id="username"
-                    name="username"
-                    type="text"
-                    autocomplete="username"
-                    value="{{ username }}"
-                    required
-                >
+                <span>
+                    CourtStats
+                </span>
+
             </div>
 
-            <div class="form-group">
-                <label
-                    class="form-label"
-                    for="password"
-                >
-                    Password
-                </label>
 
-                <input
-                    class="input"
-                    id="password"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                >
-            </div>
+            <button
+                class="theme-toggle"
+                type="button"
+                data-theme-toggle
+                aria-label="Switch theme"
+            >
+                <span data-theme-label>
+                    Theme
+                </span>
+            </button>
 
-            <div class="actions">
-                <button
-                    class="button button-primary"
-                    type="submit"
-                >
+        </div>
+
+
+        <section class="card auth-card">
+
+            <div class="page-header">
+
+                <p class="eyebrow">
+                    JCP Basketball Analytics
+                </p>
+
+                <h1>
                     Sign In
-                </button>
-            </div>
-        </form>
+                </h1>
 
-    </section>
+                <p class="page-description">
+                    Access basketball operations,
+                    statistics, reports, and season
+                    analytics.
+                </p>
+
+            </div>
+
+
+            {% if error %}
+
+                <div
+                    class="message message-error"
+                    style="margin-bottom: 20px;"
+                >
+                    {{ error }}
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                action="/login"
+            >
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="username"
+                    >
+                        Username
+                    </label>
+
+                    <input
+                        class="input"
+                        id="username"
+                        name="username"
+                        type="text"
+                        autocomplete="username"
+                        value="{{ username }}"
+                        required
+                        autofocus
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="password"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        class="input"
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="actions">
+
+                    <button
+                        class="button button-primary"
+                        type="submit"
+                    >
+                        Sign In
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <p class="auth-footnote">
+            Authorized JCP users only.
+        </p>
+
+    </div>
 
 </main>
+
+
+<script
+    src="{{ url_for('static', path='js/app.js') }}"
+></script>
+
 </body>
 </html>

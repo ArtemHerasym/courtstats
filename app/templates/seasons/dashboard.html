@@ -7,53 +7,126 @@
 
 {% block content %}
 
-<section class="page-header">
-    <div>
+<section class="page-header analytics-header dashboard-header">
+
+    <div class="analytics-header-copy">
+
         <p class="eyebrow">
             Season Dashboard
         </p>
 
-        <h1>{{ season.team.name }}</h1>
+        <h1>
+            {{ season.team.name }}
+        </h1>
 
-        <p class="page-description">
-            {{ season.name }} season performance and analytics
-        </p>
+
+        <div class="analytics-context">
+
+            <span class="analytics-context-item">
+                {{ season.name }}
+            </span>
+
+
+            <span class="analytics-context-item">
+
+                {% if season.status.value == "ACTIVE" %}
+
+                    <span
+                        class="status-badge status-badge-success"
+                    >
+                        {{ season.status.value }}
+                    </span>
+
+                {% elif season.status.value == "SETUP" %}
+
+                    <span
+                        class="status-badge status-badge-warning"
+                    >
+                        {{ season.status.value }}
+                    </span>
+
+                {% else %}
+
+                    <span class="status-badge">
+                        {{ season.status.value }}
+                    </span>
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
     </div>
 
+
     <div class="actions">
+
         <a
             class="button button-primary"
             href="/exports/seasons/{{ season.id }}.csv"
         >
             Export CSV
         </a>
+
     </div>
+
 </section>
 
 
 {% if summary.games_played == 0 %}
 
-<section class="card">
-    <h2>No completed games yet</h2>
+<section class="card dashboard-empty">
 
-    <p>
-        Season statistics will appear after the first game is completed.
-    </p>
+    <div class="dashboard-empty-content">
+
+        <p class="eyebrow">
+            Season Analytics
+        </p>
+
+        <h2>No completed games yet</h2>
+
+        <p>Season statistics will appear after the first game is completed.</p>
+
+    </div>
+
 </section>
+
 
 {% else %}
 
 
-<section class="report-section">
-    <h2>Season Overview</h2>
+<section class="analytics-section">
 
-    <div class="report-stat-grid">
+    <div class="analytics-section-header">
 
-        <div class="report-stat">
-            <span class="report-stat-label">Record</span>
+        <div>
+
+            <p class="eyebrow">
+                Season Performance
+            </p>
+
+            <h2>Season Overview</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-overview-grid">
+
+        <div
+            class="
+                analytics-metric
+                dashboard-overview-primary
+                dashboard-record
+            "
+        >
+            <span>RECORD</span>
 
             <strong>
                 {{ summary.wins }}-{{ summary.losses }}
+
                 {% if summary.ties %}
                     -{{ summary.ties }}
                 {% endif %}
@@ -61,8 +134,8 @@
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">GP</span>
+        <div class="analytics-metric">
+            <span>GP</span>
 
             <strong>
                 {{ summary.games_played }}
@@ -70,8 +143,8 @@
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">PPG</span>
+        <div class="analytics-metric analytics-metric-primary">
+            <span>PPG</span>
 
             <strong>
                 {{ "%.1f"|format(summary.points_per_game) }}
@@ -79,8 +152,8 @@
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">OPP PPG</span>
+        <div class="analytics-metric">
+            <span>OPP PPG</span>
 
             <strong>
                 {{ "%.1f"|format(summary.opponent_points_per_game) }}
@@ -88,8 +161,8 @@
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">AVG MARGIN</span>
+        <div class="analytics-metric">
+            <span>AVG MARGIN</span>
 
             <strong>
                 {{ "%+.1f"|format(summary.point_differential_per_game) }}
@@ -97,88 +170,95 @@
         </div>
 
     </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Team Performance</h2>
+<section class="analytics-section">
 
-    <div class="report-stat-grid">
+    <div class="analytics-section-header">
 
-        <div class="report-stat">
-            <span class="report-stat-label">FG%</span>
+        <div>
 
+            <p class="eyebrow">
+                Team Metrics
+            </p>
+
+            <h2>Team Performance</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-performance-grid">
+
+        <div class="analytics-metric">
+            <span>FG%</span>
             <strong>
                 {{ summary.field_goal_percentage|percentage }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">2PT%</span>
-
+        <div class="analytics-metric">
+            <span>2PT%</span>
             <strong>
                 {{ summary.two_point_percentage|percentage }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">3PT%</span>
-
+        <div class="analytics-metric">
+            <span>3PT%</span>
             <strong>
                 {{ summary.three_point_percentage|percentage }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">FT%</span>
-
+        <div class="analytics-metric">
+            <span>FT%</span>
             <strong>
                 {{ summary.free_throw_percentage|percentage }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">TS%</span>
-
+        <div class="analytics-metric analytics-metric-primary">
+            <span>TS%</span>
             <strong>
                 {{ summary.true_shooting_percentage|percentage }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">RPG</span>
-
+        <div class="analytics-metric">
+            <span>RPG</span>
             <strong>
                 {{ "%.1f"|format(summary.rebounds_per_game) }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">APG</span>
-
+        <div class="analytics-metric">
+            <span>APG</span>
             <strong>
                 {{ "%.1f"|format(summary.assists_per_game) }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">TO/G</span>
-
+        <div class="analytics-metric">
+            <span>TO/G</span>
             <strong>
                 {{ "%.1f"|format(summary.turnovers_per_game) }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">A:TO</span>
+        <div class="analytics-metric">
+            <span>A:TO</span>
 
             <strong>
                 {% if summary.assist_turnover_ratio is not none %}
@@ -190,398 +270,738 @@
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">STL/G</span>
-
+        <div class="analytics-metric">
+            <span>STL/G</span>
             <strong>
                 {{ "%.1f"|format(summary.steals_per_game) }}
             </strong>
         </div>
 
 
-        <div class="report-stat">
-            <span class="report-stat-label">DEF/G</span>
-
+        <div class="analytics-metric">
+            <span>DEF/G</span>
             <strong>
                 {{ "%.1f"|format(summary.deflections_per_game) }}
             </strong>
         </div>
 
     </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Player Leaders</h2>
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Player Performance
+            </p>
+
+            <h2>Player Leaders</h2>
+
+        </div>
+
+    </div>
+
 
     <div class="dashboard-leaderboard-grid">
 
-        <div class="card">
-            <h3>Points Per Game</h3>
+
+        <!-- Points -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>Points Per Game</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>PPG</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.ppg[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ "%.1f"|format(player.points_per_game) }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.ppg[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ "%.1f"|format(player.points_per_game) }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
 
-        <div class="card">
-            <h3>Rebounds Per Game</h3>
+        <!-- Rebounds -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>Rebounds Per Game</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>RPG</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.rpg[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ "%.1f"|format(player.rebounds_per_game) }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.rpg[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ "%.1f"|format(player.rebounds_per_game) }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
 
-        <div class="card">
-            <h3>Assists Per Game</h3>
+        <!-- Assists -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>Assists Per Game</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>APG</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.apg[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ "%.1f"|format(player.assists_per_game) }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.apg[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ "%.1f"|format(player.assists_per_game) }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
 
-        <div class="card">
-            <h3>Steals</h3>
+        <!-- Steals -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>Steals</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>STL</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.steals[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ player.steals }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.steals[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ player.steals }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
     </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Shooting Leaders</h2>
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Shooting Efficiency
+            </p>
+
+            <h2>Shooting Leaders</h2>
+
+        </div>
+
+    </div>
+
 
     <div class="dashboard-leaderboard-grid">
 
-        <div class="card">
-            <h3>Field Goal Percentage</h3>
+
+        <!-- FG -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>Field Goal Percentage</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>FG%</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.fg_percentage[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ player.field_goal_percentage|percentage }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.fg_percentage[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ player.field_goal_percentage|percentage }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
 
-        <div class="card">
-            <h3>2-Point Percentage</h3>
+        <!-- 2PT -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>2-Point Percentage</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>2PT%</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.two_point_percentage[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ player.two_point_percentage|percentage }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.two_point_percentage[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ player.two_point_percentage|percentage }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
 
-        <div class="card">
-            <h3>3-Point Percentage</h3>
+        <!-- 3PT -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>3-Point Percentage</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>3PT%</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.three_point_percentage[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ player.three_point_percentage|percentage }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.three_point_percentage[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ player.three_point_percentage|percentage }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
 
-        <div class="card">
-            <h3>Free Throw Percentage</h3>
+        <!-- FT -->
+
+        <div class="card leaderboard-card">
+
+            <div class="leaderboard-card-header">
+                <h3>Free Throw Percentage</h3>
+            </div>
+
 
             <div class="table-container">
+
                 <table class="table">
 
                     <thead>
                         <tr>
+                            <th class="leaderboard-rank">#</th>
                             <th>Player</th>
                             <th>FT%</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        {% for player in leaderboards.free_throw_percentage[:5] %}
-                        <tr>
-                            <td>
-                                <a href="/app/season-rosters/{{ player.season_roster_id }}/profile">
-                                    {{ player.player_name }}
-                                </a>
-                            </td>
 
-                            <td>
-                                {{ player.free_throw_percentage|percentage }}
-                            </td>
-                        </tr>
+                    <tbody>
+
+                        {% for player in leaderboards.free_throw_percentage[:5] %}
+
+                            <tr>
+
+                                <td class="leaderboard-rank">
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td class="leaderboard-player">
+
+                                    <a
+                                        href="/app/season-rosters/{{ player.season_roster_id }}/profile"
+                                    >
+                                        {{ player.player_name }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="leaderboard-value">
+                                    {{ player.free_throw_percentage|percentage }}
+                                </td>
+
+                            </tr>
+
                         {% endfor %}
+
                     </tbody>
 
                 </table>
+
             </div>
+
         </div>
 
     </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Season Analytics</h2>
+<section class="analytics-section">
 
-    <div class="dashboard-chart-grid">
+    <div class="analytics-section-header">
 
-        <div class="card dashboard-chart-card">
-            <h3>Scoring Trend</h3>
+        <div>
 
-            <p class="page-description">
-                Team scoring across completed games in chronological order.
+            <p class="eyebrow">
+                Visual Analysis
             </p>
 
-            <div class="dashboard-chart-wrapper">
-                <canvas id="scoring-trend-chart"></canvas>
-            </div>
-        </div>
+            <h2>Season Analytics</h2>
 
-
-        <div class="card dashboard-chart-card">
-            <h3>Team vs Opponent</h3>
-
-            <p class="page-description">
-                Final team and opponent score for each completed game.
-            </p>
-
-            <div class="dashboard-chart-wrapper">
-                <canvas id="score-comparison-chart"></canvas>
-            </div>
-        </div>
-
-
-        <div class="card dashboard-chart-card">
-            <h3>Shooting Percentage Trends</h3>
-
-            <p class="page-description">
-                Game-by-game shooting efficiency across completed games.
-            </p>
-
-            <div class="dashboard-chart-wrapper">
-                <canvas id="shooting-trend-chart"></canvas>
-            </div>
-        </div>
-
-
-        <div class="card dashboard-chart-card">
-            <h3>Win vs Loss Comparison</h3>
-
-            <p class="page-description">
-                Team performance averages in wins compared with losses.
-            </p>
-
-            <div class="dashboard-chart-wrapper">
-                <canvas id="result-comparison-chart"></canvas>
-            </div>
-        </div>
-
-
-        <div class="card dashboard-chart-card">
-            <h3>Performance by Venue</h3>
-
-            <p class="page-description">
-                Team performance averages at home, away, and neutral venues.
-            </p>
-
-            <div class="dashboard-chart-wrapper">
-                <canvas id="venue-comparison-chart"></canvas>
-            </div>
-        </div>
-
-
-        <div class="card dashboard-chart-card">
-            <h3>Player Scoring Comparison</h3>
-
-            <p class="page-description">
-                Season scoring average for each player with completed-game statistics.
-            </p>
-
-            <div class="dashboard-chart-wrapper">
-                <canvas id="player-scoring-chart"></canvas>
-            </div>
         </div>
 
     </div>
+
+
+    <div class="dashboard-chart-grid">
+
+
+        <div class="card dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <h3>Scoring Trend</h3>
+
+                <p>
+                    Team scoring across completed games
+                    in chronological order.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-chart-wrapper">
+
+                <canvas
+                    id="scoring-trend-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <h3>Team vs Opponent</h3>
+
+                <p>
+                    Final team and opponent score
+                    for every completed game.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-chart-wrapper">
+
+                <canvas
+                    id="score-comparison-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <h3>Shooting Percentage Trends</h3>
+
+                <p>
+                    Game-by-game shooting efficiency
+                    across completed games.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-chart-wrapper">
+
+                <canvas
+                    id="shooting-trend-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <h3>Win vs Loss Comparison</h3>
+
+                <p>
+                    Team performance averages in wins
+                    compared with losses.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-chart-wrapper">
+
+                <canvas
+                    id="result-comparison-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <h3>Performance by Venue</h3>
+
+                <p>
+                    Team averages at home, away,
+                    and neutral venues.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-chart-wrapper">
+
+                <canvas
+                    id="venue-comparison-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+        <div class="card dashboard-chart-card">
+
+            <div class="dashboard-chart-header">
+
+                <h3>Player Scoring Comparison</h3>
+
+                <p>
+                    Season scoring average for every
+                    player with completed-game statistics.
+                </p>
+
+            </div>
+
+
+            <div
+                class="
+                    dashboard-chart-wrapper
+                    dashboard-chart-wrapper-tall
+                "
+            >
+
+                <canvas
+                    id="player-scoring-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
 
 

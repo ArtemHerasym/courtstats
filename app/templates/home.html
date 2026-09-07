@@ -7,7 +7,7 @@ CourtStats
 
 {% block content %}
 
-<section class="page-header">
+<section class="page-header home-header">
 
     <p class="eyebrow">
         JCP Basketball Analytics
@@ -23,49 +23,73 @@ CourtStats
 </section>
 
 
-<section class="card">
+<section class="card home-operations-card">
 
-    <h2>Basketball Operations</h2>
+    <div class="home-operations-header">
 
-    <p class="page-description">
-        Select where you want to work.
-    </p>
+        <p class="eyebrow">
+            Basketball Operations
+        </p>
 
-    <div class="actions">
+        <h2>
+            Manage the program
+        </h2>
+
+        <p class="page-description">
+            Open a CourtStats workspace or begin
+            entering a new game.
+        </p>
+
+    </div>
+
+
+    <div class="home-action-grid">
 
         <a
-            class="button button-primary"
-            href="{{ url_for('seasons_page') }}"
+            class="button home-action home-action-primary"
+            href="{{ url_for('new_game_page') }}"
         >
-            Seasons
+            Add Game
         </a>
 
+
         <a
-            class="button"
+            class="button home-action"
             href="{{ url_for('games_page') }}"
         >
             Games
         </a>
 
+
         <a
-            class="button"
+            class="button home-action"
+            href="{{ url_for('seasons_page') }}"
+        >
+            Seasons
+        </a>
+
+
+        <a
+            class="button home-action"
             href="{{ url_for('roster_page') }}"
         >
             Roster
         </a>
 
+
         <a
-            class="button"
+            class="button home-action"
             href="{{ url_for('players_page') }}"
         >
             Players
         </a>
 
+
         <a
-            class="button"
-            href="{{ url_for('new_game_page') }}"
+            class="button home-action"
+            href="{{ url_for('external_games_page') }}"
         >
-            Add Game
+            External Games
         </a>
 
     </div>

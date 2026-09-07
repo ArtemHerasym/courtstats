@@ -19,288 +19,369 @@ Add Player to Roster
 
 {% block content %}
 
-<section class="page-header">
+<div class="form-page">
 
-    <p class="eyebrow">
-        Roster Management
-    </p>
+    <section class="page-header">
 
-    <h1>
-        {% if editing %}
-            Edit Roster Entry
-        {% else %}
-            Add Player to Roster
-        {% endif %}
-    </h1>
+        <p class="eyebrow">
+            Roster Management
+        </p>
 
-</section>
-
-
-{% if errors.get("form") %}
-<div class="message message-error">
-    {{ errors["form"] }}
-</div>
-{% endif %}
-
-
-<section class="card">
-
-<form
-    method="post"
-    action="{% if editing %}{{ url_for('update_roster_entry_page', roster_id=roster.id) }}{% else %}{{ url_for('create_roster_entry_page') }}{% endif %}"
->
-
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ request.session.get('csrf_token', '') }}"
-    >
-
-
-    <div class="form-group">
-
-        <label
-            class="form-label"
-            for="season_id"
-        >
-            Season
-        </label>
-
-        <select
-            class="select"
-            id="season_id"
-            name="season_id"
-            required
-        >
-
-            <option value="">
-                Select season
-            </option>
-
-            {% set current_season =
-                values.get(
-                    "season_id",
-                    roster.season_id|string
-                    if roster
-                    else selected_season_id|string
-                    if selected_season_id
-                    else ""
-                )
-            %}
-
-            {% for season in seasons %}
-
-                <option
-                    value="{{ season.id }}"
-                    {% if current_season == season.id|string %}
-                        selected
-                    {% endif %}
-                >
-                    {{ season.name }}
-                    — {{ season.team.name }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-        {% if errors.get("season_id") %}
-            <p class="form-error">
-                {{ errors["season_id"] }}
-            </p>
-        {% endif %}
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label
-            class="form-label"
-            for="player_id"
-        >
-            Player
-        </label>
-
-        <select
-            class="select"
-            id="player_id"
-            name="player_id"
-            required
-        >
-
-            <option value="">
-                Select player
-            </option>
-
-            {% set current_player =
-                values.get(
-                    "player_id",
-                    roster.player_id|string
-                    if roster
-                    else ""
-                )
-            %}
-
-            {% for player in players %}
-
-                <option
-                    value="{{ player.id }}"
-                    {% if current_player == player.id|string %}
-                        selected
-                    {% endif %}
-                >
-                    {{ player.display_name or player.full_name }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-        {% if errors.get("player_id") %}
-            <p class="form-error">
-                {{ errors["player_id"] }}
-            </p>
-        {% endif %}
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label
-            class="form-label"
-            for="jersey_number"
-        >
-            Jersey Number
-        </label>
-
-        <input
-            class="input"
-            id="jersey_number"
-            name="jersey_number"
-            type="number"
-            min="0"
-            step="1"
-            value="{{ values.get('jersey_number', roster.jersey_number if roster and roster.jersey_number is not none else '') }}"
-        >
-
-        {% if errors.get("jersey_number") %}
-            <p class="form-error">
-                {{ errors["jersey_number"] }}
-            </p>
-        {% endif %}
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label
-            class="form-label"
-            for="position"
-        >
-            Position
-        </label>
-
-        <input
-            class="input"
-            id="position"
-            name="position"
-            type="text"
-            value="{{ values.get('position', roster.position if roster and roster.position else '') }}"
-        >
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label
-            class="form-label"
-            for="grade_level"
-        >
-            Grade
-        </label>
-
-        <input
-            class="input"
-            id="grade_level"
-            name="grade_level"
-            type="text"
-            value="{{ values.get('grade_level', roster.grade_level if roster and roster.grade_level else '') }}"
-        >
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label
-            class="form-label"
-            for="status"
-        >
-            Status
-        </label>
-
-        {% set current_status =
-            values.get(
-                "status",
-                roster.status.value
-                if roster
-                else "ACTIVE"
-            )
-        %}
-
-        <select
-            class="select"
-            id="status"
-            name="status"
-            required
-        >
-
-            {% for status in roster_statuses %}
-
-                <option
-                    value="{{ status.value }}"
-                    {% if current_status == status.value %}
-                        selected
-                    {% endif %}
-                >
-                    {{ status.value }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-    </div>
-
-
-    <div class="actions">
-
-        <button
-            class="button button-primary"
-            type="submit"
-        >
+        <h1>
             {% if editing %}
-                Save Changes
+                Edit Roster Entry
             {% else %}
-                Add to Roster
+                Add Player to Roster
             {% endif %}
-        </button>
+        </h1>
 
-        <a
-            class="button button-secondary"
-            href="{{ url_for('roster_page') }}"
+        <p class="page-description">
+            Assign a CourtStats player to
+            a season roster.
+        </p>
+
+    </section>
+
+
+    {% if errors.get("form") %}
+
+        <div class="message message-error form-alert">
+            {{ errors["form"] }}
+        </div>
+
+    {% endif %}
+
+
+    <section class="card form-card">
+
+        <form
+            method="post"
+            action="{% if editing %}{{ url_for('update_roster_entry_page', roster_id=roster.id) }}{% else %}{{ url_for('create_roster_entry_page') }}{% endif %}"
         >
-            Cancel
-        </a>
 
-    </div>
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ request.session.get('csrf_token', '') }}"
+            >
 
-</form>
 
-</section>
+            <div class="form-section">
+
+                <div class="form-section-header">
+
+                    <h2>Assignment</h2>
+
+                    <p>
+                        Select the season and player
+                        for this roster position.
+                    </p>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="season_id"
+                        >
+                            Season
+                        </label>
+
+
+                        <select
+                            class="select"
+                            id="season_id"
+                            name="season_id"
+                            required
+                        >
+
+                            <option value="">
+                                Select season
+                            </option>
+
+
+                            {% set current_season =
+                                values.get(
+                                    "season_id",
+                                    roster.season_id|string
+                                    if roster
+                                    else selected_season_id|string
+                                    if selected_season_id
+                                    else ""
+                                )
+                            %}
+
+
+                            {% for season in seasons %}
+
+                                <option
+                                    value="{{ season.id }}"
+                                    {% if current_season == season.id|string %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ season.name }}
+                                    — {{ season.team.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+
+                        {% if errors.get("season_id") %}
+
+                            <p class="form-error">
+                                {{ errors["season_id"] }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="player_id"
+                        >
+                            Player
+                        </label>
+
+
+                        <select
+                            class="select"
+                            id="player_id"
+                            name="player_id"
+                            required
+                        >
+
+                            <option value="">
+                                Select player
+                            </option>
+
+
+                            {% set current_player =
+                                values.get(
+                                    "player_id",
+                                    roster.player_id|string
+                                    if roster
+                                    else ""
+                                )
+                            %}
+
+
+                            {% for player in players %}
+
+                                <option
+                                    value="{{ player.id }}"
+                                    {% if current_player == player.id|string %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ player.display_name or player.full_name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+
+                        {% if errors.get("player_id") %}
+
+                            <p class="form-error">
+                                {{ errors["player_id"] }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-section">
+
+                <div class="form-section-header">
+
+                    <h2>Basketball details</h2>
+
+                    <p>
+                        Add season-specific roster
+                        information for the player.
+                    </p>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="jersey_number"
+                        >
+                            Jersey Number
+                            <span class="field-optional">
+                                Optional
+                            </span>
+                        </label>
+
+
+                        <input
+                            class="input"
+                            id="jersey_number"
+                            name="jersey_number"
+                            type="number"
+                            min="0"
+                            step="1"
+                            value="{{ values.get('jersey_number', roster.jersey_number if roster and roster.jersey_number is not none else '') }}"
+                        >
+
+
+                        {% if errors.get("jersey_number") %}
+
+                            <p class="form-error">
+                                {{ errors["jersey_number"] }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="position"
+                        >
+                            Position
+                            <span class="field-optional">
+                                Optional
+                            </span>
+                        </label>
+
+
+                        <input
+                            class="input"
+                            id="position"
+                            name="position"
+                            type="text"
+                            value="{{ values.get('position', roster.position if roster and roster.position else '') }}"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="grade_level"
+                        >
+                            Grade
+                            <span class="field-optional">
+                                Optional
+                            </span>
+                        </label>
+
+
+                        <input
+                            class="input"
+                            id="grade_level"
+                            name="grade_level"
+                            type="text"
+                            value="{{ values.get('grade_level', roster.grade_level if roster and roster.grade_level else '') }}"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="status"
+                        >
+                            Status
+                        </label>
+
+
+                        {% set current_status =
+                            values.get(
+                                "status",
+                                roster.status.value
+                                if roster
+                                else "ACTIVE"
+                            )
+                        %}
+
+
+                        <select
+                            class="select"
+                            id="status"
+                            name="status"
+                            required
+                        >
+
+                            {% for status in roster_statuses %}
+
+                                <option
+                                    value="{{ status.value }}"
+                                    {% if current_status == status.value %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ status.value }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="actions form-actions">
+
+                <button
+                    class="button button-primary"
+                    type="submit"
+                >
+                    {% if editing %}
+                        Save Changes
+                    {% else %}
+                        Add to Roster
+                    {% endif %}
+                </button>
+
+
+                <a
+                    class="button button-secondary"
+                    href="{{ url_for('roster_page') }}"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
 
 {% endblock %}

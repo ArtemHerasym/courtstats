@@ -1,51 +1,155 @@
 {% extends "base.html" %}
 
-{% block title %}Player Profile | CourtStats{% endblock %}
+{% block title %}
+Player Profile | CourtStats
+{% endblock %}
+
 
 {% block content %}
 
-<section class="page-header">
-    <p class="eyebrow">Player Season Profile</p>
+<section class="page-header analytics-header">
 
-    <h1>
-        {% if roster.jersey_number is not none %}
-            #{{ roster.jersey_number }}
-        {% endif %}
-        {{ roster.player.display_name or roster.player.full_name }}
-    </h1>
+    <div class="analytics-header-copy">
 
-    <p class="page-description">
-        {{ roster.season.name }}
+        <p class="eyebrow">
+            Player Season Profile
+        </p>
 
-        {% if roster.position %}
-            · {{ roster.position }}
-        {% endif %}
 
-        {% if roster.grade_level %}
-            · {{ roster.grade_level }}
-        {% endif %}
+        <div class="player-profile-heading">
 
-        · {{ roster.status.value }}
-    </p>
+            {% if roster.jersey_number is not none %}
+
+                <span class="player-profile-number">
+                    #{{ roster.jersey_number }}
+                </span>
+
+            {% endif %}
+
+
+            <div class="player-profile-name">
+
+                <h1>
+                    {{ roster.player.display_name or roster.player.full_name }}
+                </h1>
+
+            </div>
+
+        </div>
+
+
+        <div class="analytics-context">
+
+            <span class="analytics-context-item">
+                {{ roster.season.name }}
+            </span>
+
+
+            {% if roster.position %}
+
+                <span class="analytics-context-item">
+                    {{ roster.position }}
+                </span>
+
+            {% endif %}
+
+
+            {% if roster.grade_level %}
+
+                <span class="analytics-context-item">
+                    {{ roster.grade_level }}
+                </span>
+
+            {% endif %}
+
+
+            <span class="analytics-context-item">
+
+                {% if roster.status.value == "ACTIVE" %}
+
+                    <span
+                        class="status-badge status-badge-success"
+                    >
+                        {{ roster.status.value }}
+                    </span>
+
+                {% elif roster.status.value == "LEFT_TEAM" %}
+
+                    <span
+                        class="status-badge status-badge-warning"
+                    >
+                        {{ roster.status.value }}
+                    </span>
+
+                {% else %}
+
+                    <span class="status-badge">
+                        {{ roster.status.value }}
+                    </span>
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="/exports/season-rosters/{{ roster.id }}.csv"
+        >
+            Export CSV
+        </a>
+
+    </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Season Summary</h2>
+<section class="analytics-section">
 
-    <div class="report-stat-grid">
-        <div class="report-stat">
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Season Performance
+            </p>
+
+            <h2>Season Summary</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="analytics-metric-grid">
+
+        <!--
+            Keep GP and PTS markup semantically unchanged.
+            Existing regression tests verify these values
+            directly in the rendered profile.
+        -->
+
+        <div class="analytics-metric">
             <span>GP</span>
             <strong>{{ summary.games_played }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric analytics-metric-primary">
             <span>PTS</span>
             <strong>{{ summary.points }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric analytics-metric-primary">
             <span>PPG</span>
+
             <strong>
                 {% if summary.points_per_game is not none %}
                     {{ "%.1f"|format(summary.points_per_game) }}
@@ -55,13 +159,16 @@
             </strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>REB</span>
             <strong>{{ summary.rebounds }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>RPG</span>
+
             <strong>
                 {% if summary.rebounds_per_game is not none %}
                     {{ "%.1f"|format(summary.rebounds_per_game) }}
@@ -71,13 +178,16 @@
             </strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>AST</span>
             <strong>{{ summary.assists }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>APG</span>
+
             <strong>
                 {% if summary.assists_per_game is not none %}
                     {{ "%.1f"|format(summary.assists_per_game) }}
@@ -87,15 +197,19 @@
             </strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>TS%</span>
+
             <strong>
                 {{ summary.true_shooting_percentage|percentage }}
             </strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>A:TO</span>
+
             <strong>
                 {% if summary.assist_turnover_ratio is not none %}
                     {{ "%.2f"|format(summary.assist_turnover_ratio) }}
@@ -104,179 +218,316 @@
                 {% endif %}
             </strong>
         </div>
+
     </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Shooting</h2>
+<section class="analytics-section">
 
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>M</th>
-                    <th>A</th>
-                    <th>%</th>
-                </tr>
-            </thead>
+    <div class="analytics-section-header">
 
-            <tbody>
-                <tr>
-                    <td>FG</td>
-                    <td>{{ summary.field_goal_makes }}</td>
-                    <td>{{ summary.field_goal_attempts }}</td>
-                    <td>{{ summary.field_goal_percentage|percentage }}</td>
-                </tr>
+        <div>
 
-                <tr>
-                    <td>2PT</td>
-                    <td>{{ summary.two_point_makes }}</td>
-                    <td>{{ summary.two_point_attempts }}</td>
-                    <td>{{ summary.two_point_percentage|percentage }}</td>
-                </tr>
+            <p class="eyebrow">
+                Efficiency
+            </p>
 
-                <tr>
-                    <td>3PT</td>
-                    <td>{{ summary.three_point_makes }}</td>
-                    <td>{{ summary.three_point_attempts }}</td>
-                    <td>{{ summary.three_point_percentage|percentage }}</td>
-                </tr>
+            <h2>Shooting</h2>
 
-                <tr>
-                    <td>FT</td>
-                    <td>{{ summary.free_throw_makes }}</td>
-                    <td>{{ summary.free_throw_attempts }}</td>
-                    <td>{{ summary.free_throw_percentage|percentage }}</td>
-                </tr>
-            </tbody>
-        </table>
+        </div>
+
     </div>
+
+
+    <div class="card shooting-card">
+
+        <div class="table-container">
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+                        <th>Type</th>
+                        <th>Makes</th>
+                        <th>Attempts</th>
+                        <th>Percentage</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+                        <td>FG</td>
+                        <td>{{ summary.field_goal_makes }}</td>
+                        <td>{{ summary.field_goal_attempts }}</td>
+                        <td>
+                            {{ summary.field_goal_percentage|percentage }}
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>2PT</td>
+                        <td>{{ summary.two_point_makes }}</td>
+                        <td>{{ summary.two_point_attempts }}</td>
+                        <td>
+                            {{ summary.two_point_percentage|percentage }}
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>3PT</td>
+                        <td>{{ summary.three_point_makes }}</td>
+                        <td>{{ summary.three_point_attempts }}</td>
+                        <td>
+                            {{ summary.three_point_percentage|percentage }}
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>FT</td>
+                        <td>{{ summary.free_throw_makes }}</td>
+                        <td>{{ summary.free_throw_attempts }}</td>
+                        <td>
+                            {{ summary.free_throw_percentage|percentage }}
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Other Totals</h2>
+<section class="analytics-section">
 
-    <div class="report-stat-grid">
-        <div class="report-stat">
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Supporting Statistics
+            </p>
+
+            <h2>Other Totals</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="analytics-metric-grid">
+
+        <div class="analytics-metric">
             <span>OREB</span>
             <strong>{{ summary.offensive_rebounds }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>DREB</span>
             <strong>{{ summary.defensive_rebounds }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>TO</span>
             <strong>{{ summary.turnovers }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>STL</span>
             <strong>{{ summary.steals }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>DEF</span>
             <strong>{{ summary.deflections }}</strong>
         </div>
 
-        <div class="report-stat">
+
+        <div class="analytics-metric">
             <span>PF</span>
             <strong>{{ summary.personal_fouls }}</strong>
         </div>
+
     </div>
+
 </section>
 
 
-<section class="report-section">
-    <h2>Completed Game Log</h2>
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Season History
+            </p>
+
+            <h2>Completed Game Log</h2>
+
+        </div>
+
+    </div>
+
 
     {% if game_log %}
 
-    <div class="table-container">
-        <table class="table report-player-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Opponent</th>
-                    <th>Result</th>
-                    <th>Part.</th>
-                    <th>PTS</th>
-                    <th>REB</th>
-                    <th>AST</th>
-                    <th>TO</th>
-                    <th>FG</th>
-                    <th>3PT</th>
-                    <th>FT</th>
-                </tr>
-            </thead>
+        <div class="card analytics-table-card">
 
-            <tbody>
-                {% for row in game_log %}
-                <tr>
-                    <td>
-                        <a href="/app/games/{{ row.game_id }}/report">
-                            {{ row.game_date.strftime("%m/%d/%Y") }}
-                        </a>
-                    </td>
+            <div class="table-container">
 
-                    <td>{{ row.opponent_name }}</td>
+                <table class="table game-log-table">
 
-                    <td>
-                        {{ row.result }}
-                        {{ row.team_score }}-{{ row.opponent_score }}
-                    </td>
+                    <thead>
 
-                    <td>
-                        {% if row.participation_status.value == "DID_NOT_PLAY" %}
-                            DNP
-                        {% else %}
-                            PLAYED
-                        {% endif %}
-                    </td>
+                        <tr>
+                            <th>Date</th>
+                            <th>Opponent</th>
+                            <th>Result</th>
+                            <th>Part.</th>
+                            <th>PTS</th>
+                            <th>REB</th>
+                            <th>AST</th>
+                            <th>TO</th>
+                            <th>FG</th>
+                            <th>3PT</th>
+                            <th>FT</th>
+                        </tr>
 
-                    <td>{{ row.points }}</td>
-                    <td>{{ row.rebounds }}</td>
-                    <td>{{ row.assists }}</td>
-                    <td>{{ row.turnovers }}</td>
+                    </thead>
 
-                    <td>
-                        {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
-                    </td>
 
-                    <td>
-                        {{ row.three_point_makes }}/{{ row.three_point_attempts }}
-                    </td>
+                    <tbody>
 
-                    <td>
-                        {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                        {% for row in game_log %}
+
+                            <tr>
+
+                                <td>
+
+                                    <a
+                                        href="/app/games/{{ row.game_id }}/report"
+                                    >
+                                        {{ row.game_date.strftime("%m/%d/%Y") }}
+                                    </a>
+
+                                </td>
+
+
+                                <td class="game-log-opponent">
+                                    {{ row.opponent_name }}
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="
+                                            game-result-inline
+                                            {% if row.result == 'WIN' %}
+                                                game-result-win
+                                            {% elif row.result == 'LOSS' %}
+                                                game-result-loss
+                                            {% else %}
+                                                game-result-tie
+                                            {% endif %}
+                                        "
+                                    >
+                                        {{ row.result }}
+                                        {{ row.team_score }}-{{ row.opponent_score }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if row.participation_status.value == "DID_NOT_PLAY" %}
+
+                                        <span
+                                            class="participation-badge participation-dnp"
+                                        >
+                                            DNP
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="participation-badge participation-played"
+                                        >
+                                            PLAYED
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+                                    <strong>{{ row.points }}</strong>
+                                </td>
+
+                                <td>{{ row.rebounds }}</td>
+                                <td>{{ row.assists }}</td>
+                                <td>{{ row.turnovers }}</td>
+
+
+                                <td>
+                                    {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
+                                </td>
+
+
+                                <td>
+                                    {{ row.three_point_makes }}/{{ row.three_point_attempts }}
+                                </td>
+
+
+                                <td>
+                                    {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
 
     {% else %}
 
-        <div class="message">
-            No completed games are available for this player.
+        <div class="card analytics-empty">
+
+            <p>
+                No completed games are available for this player.
+            </p>
+
         </div>
 
     {% endif %}
-    <div class="actions">
-    <a
-        class="button button-primary"
-        href="/exports/season-rosters/{{ roster.id }}.csv"
-    >
-        Export CSV
-    </a>
-</div>
+
 </section>
 
 {% endblock %}

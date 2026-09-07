@@ -7,9 +7,10 @@ Players | CourtStats
 
 {% block content %}
 
-<section class="page-header">
+<section class="page-header page-header-split">
 
-    <div>
+    <div class="page-header-copy">
+
         <p class="eyebrow">
             Player Directory
         </p>
@@ -17,10 +18,12 @@ Players | CourtStats
         <h1>Players</h1>
 
         <p class="page-description">
-            Manage players and open their
-            season-specific profiles.
+            Manage CourtStats players and open
+            their season-specific profiles.
         </p>
+
     </div>
+
 
     <div class="actions">
 
@@ -38,7 +41,7 @@ Players | CourtStats
 
 {% if players %}
 
-<section class="card">
+<section class="card table-card">
 
     <div class="table-container">
 
@@ -52,6 +55,7 @@ Players | CourtStats
                 </tr>
             </thead>
 
+
             <tbody>
 
                 {% for player in players %}
@@ -59,15 +63,20 @@ Players | CourtStats
                 <tr>
 
                     <td>
-                        <strong>
+
+                        <span class="data-primary">
                             {{ player.display_name or player.full_name }}
-                        </strong>
+                        </span>
+
 
                         {% if player.display_name %}
-                            <div class="page-description">
+
+                            <div class="cell-meta">
                                 {{ player.full_name }}
                             </div>
+
                         {% endif %}
+
                     </td>
 
 
@@ -75,19 +84,19 @@ Players | CourtStats
 
                         {% if player.season_rosters %}
 
-                            <div class="actions">
+                            <div class="profile-links">
 
                                 {% for roster in player.season_rosters %}
 
-                                <a
-                                    class="button"
-                                    href="{{ url_for(
-                                        'player_season_profile_page',
-                                        season_roster_id=roster.id
-                                    ) }}"
-                                >
-                                    {{ roster.season.name }}
-                                </a>
+                                    <a
+                                        class="button button-small"
+                                        href="{{ url_for(
+                                            'player_season_profile_page',
+                                            season_roster_id=roster.id
+                                        ) }}"
+                                    >
+                                        {{ roster.season.name }}
+                                    </a>
 
                                 {% endfor %}
 
@@ -95,8 +104,8 @@ Players | CourtStats
 
                         {% else %}
 
-                            <span class="page-description">
-                                Not assigned to a roster.
+                            <span class="data-secondary">
+                                Not assigned to a roster
                             </span>
 
                         {% endif %}
@@ -107,7 +116,7 @@ Players | CourtStats
                     <td>
 
                         <a
-                            class="button"
+                            class="button button-small"
                             href="{{ url_for(
                                 'edit_player_page',
                                 player_id=player.id
@@ -133,23 +142,32 @@ Players | CourtStats
 
 {% else %}
 
-<section class="card">
+<section class="card empty-state">
 
-    <h2>No players found</h2>
+    <div class="empty-state-content">
 
-    <p>
-        Create the first player to begin
-        building the roster.
-    </p>
+        <p class="eyebrow">
+            Player Directory
+        </p>
 
-    <div class="actions">
+        <h2>No players found</h2>
 
-        <a
-            class="button button-primary"
-            href="{{ url_for('new_player_page') }}"
-        >
-            Add Player
-        </a>
+        <p class="page-description">
+            Create the first CourtStats player
+            to begin building team rosters.
+        </p>
+
+
+        <div class="actions">
+
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_player_page') }}"
+            >
+                Add Player
+            </a>
+
+        </div>
 
     </div>
 

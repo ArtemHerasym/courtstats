@@ -7,9 +7,10 @@ Seasons | CourtStats
 
 {% block content %}
 
-<section class="page-header">
+<section class="page-header page-header-split">
 
-    <div>
+    <div class="page-header-copy">
+
         <p class="eyebrow">
             Basketball Operations
         </p>
@@ -20,15 +21,19 @@ Seasons | CourtStats
             Manage seasons and open their
             basketball workflows.
         </p>
+
     </div>
 
+
     <div class="actions">
+
         <a
             class="button button-primary"
             href="{{ url_for('new_season_page') }}"
         >
             Add Season
         </a>
+
     </div>
 
 </section>
@@ -36,7 +41,7 @@ Seasons | CourtStats
 
 {% if seasons %}
 
-<section class="card">
+<section class="card table-card">
 
     <div class="table-container">
 
@@ -51,6 +56,7 @@ Seasons | CourtStats
                 </tr>
             </thead>
 
+
             <tbody>
 
                 {% for season in seasons %}
@@ -58,24 +64,52 @@ Seasons | CourtStats
                 <tr>
 
                     <td>
-                        <strong>
+                        <span class="data-primary">
                             {{ season.name }}
-                        </strong>
+                        </span>
                     </td>
+
 
                     <td>
                         {{ season.team.name }}
                     </td>
 
+
                     <td>
-                        {{ season.status.value }}
+
+                        {% if season.status.value == "ACTIVE" %}
+
+                            <span
+                                class="status-badge status-badge-success"
+                            >
+                                {{ season.status.value }}
+                            </span>
+
+                        {% elif season.status.value == "SETUP" %}
+
+                            <span
+                                class="status-badge status-badge-warning"
+                            >
+                                {{ season.status.value }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge">
+                                {{ season.status.value }}
+                            </span>
+
+                        {% endif %}
+
                     </td>
 
+
                     <td>
-                        <div class="actions">
+
+                        <div class="actions data-actions">
 
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for(
                                     'season_dashboard_page',
                                     season_id=season.id
@@ -84,22 +118,25 @@ Seasons | CourtStats
                                 Dashboard
                             </a>
 
+
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for('roster_page') }}?season_id={{ season.id }}"
                             >
                                 Roster
                             </a>
 
+
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for('games_page') }}?season_id={{ season.id }}"
                             >
                                 Games
                             </a>
 
+
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for(
                                     'edit_season_page',
                                     season_id=season.id
@@ -108,8 +145,9 @@ Seasons | CourtStats
                                 Edit
                             </a>
 
+
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for(
                                     'export_season_csv',
                                     season_id=season.id
@@ -119,6 +157,7 @@ Seasons | CourtStats
                             </a>
 
                         </div>
+
                     </td>
 
                 </tr>
@@ -136,22 +175,33 @@ Seasons | CourtStats
 
 {% else %}
 
-<section class="card">
+<section class="card empty-state">
 
-    <h2>No seasons found</h2>
+    <div class="empty-state-content">
 
-    <p>
-        Create the first season to begin
-        managing the basketball program.
-    </p>
+        <p class="eyebrow">
+            Get Started
+        </p>
 
-    <div class="actions">
-        <a
-            class="button button-primary"
-            href="{{ url_for('new_season_page') }}"
-        >
-            Add Season
-        </a>
+        <h2>No seasons found</h2>
+
+        <p class="page-description">
+            Create the first season to begin
+            managing the basketball program.
+        </p>
+
+
+        <div class="actions">
+
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_season_page') }}"
+            >
+                Add Season
+            </a>
+
+        </div>
+
     </div>
 
 </section>

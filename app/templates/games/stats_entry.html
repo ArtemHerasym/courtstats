@@ -1,57 +1,138 @@
 {% extends "base.html" %}
 
-{% block title %}Enter Statistics | CourtStats{% endblock %}
+{% block title %}
+Enter Statistics | CourtStats
+{% endblock %}
+
 
 {% block content %}
 
-<section class="page-header">
-    <p class="eyebrow">Game Statistics</p>
+<section class="page-header stats-entry-header">
 
-    <h1>Enter Stats</h1>
+    <div class="page-header-copy">
 
-    <p class="page-description">
-        {{ game.game_date.strftime("%m/%d/%Y") }}
-        · {{ game.venue_type.value }}
-        · <strong>{{ game.status.value }}</strong>
-    </p>
+        <p class="eyebrow">
+            Game Statistics
+        </p>
+
+        <h1>Enter Stats</h1>
+
+
+        <div class="stats-context">
+
+            <span class="stats-context-item">
+                <strong>
+                    {{ game.opponent_team.name }}
+                </strong>
+            </span>
+
+
+            <span class="stats-context-item">
+                {{ game.game_date.strftime("%m/%d/%Y") }}
+            </span>
+
+
+            <span class="stats-context-item">
+                {{ game.venue_type.value }}
+            </span>
+
+
+            <span class="stats-context-item">
+
+                {% if game.status.value == "COMPLETED" %}
+
+                    <span
+                        class="status-badge status-badge-success"
+                    >
+                        {{ game.status.value }}
+                    </span>
+
+                {% else %}
+
+                    <span
+                        class="status-badge status-badge-warning"
+                    >
+                        {{ game.status.value }}
+                    </span>
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+    </div>
+
 
     {% if game.status.value == "COMPLETED" %}
+
         <div class="actions">
+
             <a
-                class="button"
+                class="button button-secondary"
                 href="/app/games/{{ game.id }}/report"
             >
                 View Report
             </a>
+
         </div>
+
     {% endif %}
+
 </section>
 
+
 {% if finalized %}
-    <div class="message message-success">
+
+    <div class="message message-success form-alert">
         Game finalized successfully.
     </div>
+
 {% elif saved %}
-    <div class="message message-success">
+
+    <div class="message message-success form-alert">
+
         {% if game.status.value == "COMPLETED" %}
             Changes saved successfully.
         {% else %}
             Draft saved successfully.
         {% endif %}
+
     </div>
+
 {% endif %}
 
+
 {% if row_errors.get(0) %}
-    <div class="message message-error">
+
+    <div class="message message-error form-alert">
         {{ row_errors[0] }}
     </div>
+
 {% endif %}
+
 
 {% if not roster_entries %}
 
-    <div class="message message-warning">
-        This season does not have any roster entries.
-    </div>
+    <section class="card empty-state">
+
+        <div class="empty-state-content">
+
+            <p class="eyebrow">
+                Game Statistics
+            </p>
+
+            <h2>No roster entries</h2>
+
+            <p class="page-description">
+                This season does not have any
+                players available for stat entry.
+            </p>
+
+        </div>
+
+    </section>
+
 
 {% else %}
 
@@ -59,57 +140,208 @@
     method="post"
     action="/app/games/{{ game.id }}/stats"
 >
+
     <input
-    type="hidden"
-    name="csrf_token"
-    value="{{ request.session.get('csrf_token', '') }}"
->
-    <div class="card game-details-card">
-    <div class="form-group game-score-field">
-        <label class="form-label" for="opponent_score">
-            Opponent Score
-        </label>
+        type="hidden"
+        name="csrf_token"
+        value="{{ request.session.get('csrf_token', '') }}"
+    >
 
-        <input
-            class="input"
-            id="opponent_score"
-            name="opponent_score"
-            type="number"
-            min="0"
-            step="1"
-            inputmode="numeric"
-            value="{% if 'opponent_score' in form_values %}{{ form_values['opponent_score'] }}{% elif game.opponent_score is not none %}{{ game.opponent_score }}{% endif %}"
-        >
 
-        <p class="form-help">
-            Required before the game can be finalized.
-        </p>
+    <div class="card stats-game-panel">
+
+        <div class="stats-game-panel-copy">
+
+            <strong>
+                Game score
+            </strong>
+
+            <p>
+                Enter the opponent's final score
+                before finalizing the game.
+            </p>
+
+        </div>
+
+
+        <div class="form-group game-score-field">
+
+            <label
+                class="form-label"
+                for="opponent_score"
+            >
+                Opponent Score
+            </label>
+
+
+            <input
+                class="input"
+                id="opponent_score"
+                name="opponent_score"
+                type="number"
+                min="0"
+                step="1"
+                inputmode="numeric"
+                value="{% if 'opponent_score' in form_values %}{{ form_values['opponent_score'] }}{% elif game.opponent_score is not none %}{{ game.opponent_score }}{% endif %}"
+            >
+
+        </div>
+
     </div>
-</div>
+
+
+    <p class="stats-scroll-hint">
+        Scroll horizontally to view all statistical categories.
+    </p>
+
 
     <div class="stats-table-container">
 
         <table class="table stats-table">
 
             <thead>
-                <tr>
-                    <th class="player-column">Player</th>
-                    <th>Part.</th>
-                    <th>3PA</th>
-                    <th>3PM</th>
-                    <th>2PA</th>
-                    <th>2PM</th>
-                    <th>FTA</th>
-                    <th>FTM</th>
-                    <th>TO</th>
-                    <th>AST</th>
-                    <th>OREB</th>
-                    <th>DREB</th>
-                    <th>STL</th>
-                    <th>DEF</th>
-                    <th>PF</th>
+
+                <tr class="stats-group-row">
+
+                    <th
+                        class="player-column"
+                        rowspan="2"
+                    >
+                        Player
+                    </th>
+
+                    <th rowspan="2">
+                        Part.
+                    </th>
+
+                    <th
+                        class="stats-group"
+                        colspan="2"
+                    >
+                        3 Point
+                    </th>
+
+                    <th
+                        class="stats-group"
+                        colspan="2"
+                    >
+                        2 Point
+                    </th>
+
+                    <th
+                        class="stats-group"
+                        colspan="2"
+                    >
+                        Free Throw
+                    </th>
+
+                    <th
+                        class="stats-group"
+                        colspan="2"
+                    >
+                        Ball
+                    </th>
+
+                    <th
+                        class="stats-group"
+                        colspan="2"
+                    >
+                        Rebounding
+                    </th>
+
+                    <th
+                        class="stats-group"
+                        colspan="2"
+                    >
+                        Defense
+                    </th>
+
+                    <th colspan="1">
+                        Fouls
+                    </th>
+
                 </tr>
+
+
+                <tr class="stats-field-row">
+
+                    <th title="3-Point Attempts">
+                        3PA
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="3-Point Makes"
+                    >
+                        3PM
+                    </th>
+
+                    <th title="2-Point Attempts">
+                        2PA
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="2-Point Makes"
+                    >
+                        2PM
+                    </th>
+
+                    <th title="Free Throw Attempts">
+                        FTA
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="Free Throw Makes"
+                    >
+                        FTM
+                    </th>
+
+                    <th title="Turnovers">
+                        TO
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="Assists"
+                    >
+                        AST
+                    </th>
+
+                    <th title="Offensive Rebounds">
+                        OREB
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="Defensive Rebounds"
+                    >
+                        DREB
+                    </th>
+
+                    <th title="Steals">
+                        STL
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="Deflections"
+                    >
+                        DEF
+                    </th>
+
+                    <th
+                        class="stats-field-group-end"
+                        title="Personal Fouls"
+                    >
+                        PF
+                    </th>
+
+                </tr>
+
             </thead>
+
 
             <tbody>
 
@@ -129,10 +361,33 @@
                     "personal_fouls"
                 ] %}
 
+
+                {% set group_end_fields = [
+                    "three_point_makes",
+                    "two_point_makes",
+                    "free_throw_makes",
+                    "assists",
+                    "defensive_rebounds",
+                    "deflections",
+                    "personal_fouls"
+                ] %}
+
+
                 {% for roster in roster_entries %}
 
-                    {% set stats = stats_by_roster_id.get(roster.id) %}
-                    {% set participation_key = "participation_" ~ roster.id %}
+                    {% set stats =
+                        stats_by_roster_id.get(roster.id)
+                    %}
+
+                    {% set participation_key =
+                        "participation_" ~ roster.id
+                    %}
+
+                    {% set player_name =
+                        roster.player.display_name
+                        or roster.player.full_name
+                    %}
+
 
                     <tr
                         class="stats-row"
@@ -140,13 +395,22 @@
                     >
 
                         <td class="player-column">
-                            <strong>
+
+                            <span class="stats-player-name">
+
                                 {% if roster.jersey_number is not none %}
                                     #{{ roster.jersey_number }}
                                 {% endif %}
 
-                                {{ roster.player.display_name or roster.player.full_name }}
-                            </strong>
+                                {{ player_name }}
+
+                            </span>
+
+
+                            <span class="stats-player-meta">
+                                {{ roster.position or "Player" }}
+                            </span>
+
 
                             <input
                                 type="hidden"
@@ -154,57 +418,85 @@
                                 value="{{ roster.id }}"
                             >
 
+
                             {% if row_errors.get(roster.id) %}
+
                                 <p class="form-error stats-row-error">
                                     {{ row_errors[roster.id] }}
                                 </p>
+
                             {% endif %}
+
                         </td>
 
+
                         <td>
+
                             <select
                                 class="select stats-select participation-select"
                                 name="participation_{{ roster.id }}"
+                                aria-label="{{ player_name }} participation"
                             >
+
                                 {% for status in participation_statuses %}
 
                                     {% set submitted_participation =
-                                        form_values.get(participation_key)
+                                        form_values.get(
+                                            participation_key
+                                        )
                                     %}
+
 
                                     <option
                                         value="{{ status.value }}"
 
                                         {% if submitted_participation %}
+
                                             {% if submitted_participation == status.value %}
                                                 selected
                                             {% endif %}
 
                                         {% elif stats %}
+
                                             {% if stats.participation_status == status %}
                                                 selected
                                             {% endif %}
 
                                         {% elif status.value == "PLAYED" %}
+
                                             selected
+
                                         {% endif %}
                                     >
+
                                         {% if status.value == "PLAYED" %}
                                             PLAYED
                                         {% else %}
                                             DNP
                                         {% endif %}
+
                                     </option>
 
                                 {% endfor %}
+
                             </select>
+
                         </td>
+
 
                         {% for field_name in fields %}
 
-                            {% set field_key = field_name ~ "_" ~ roster.id %}
+                            {% set field_key =
+                                field_name ~ "_" ~ roster.id
+                            %}
 
-                            <td>
+
+                            <td
+                                {% if field_name in group_end_fields %}
+                                    class="stats-cell-group-end"
+                                {% endif %}
+                            >
+
                                 <input
                                     class="input stats-input"
                                     type="number"
@@ -212,8 +504,10 @@
                                     step="1"
                                     inputmode="numeric"
                                     name="{{ field_key }}"
+                                    aria-label="{{ player_name }} {{ field_name|replace('_', ' ') }}"
                                     value="{% if field_key in form_values %}{{ form_values[field_key] }}{% elif stats %}{{ stats|attr(field_name) }}{% else %}0{% endif %}"
                                 >
+
                             </td>
 
                         {% endfor %}
@@ -228,36 +522,44 @@
 
     </div>
 
-    <div class="actions stats-actions">
-    {% if game.status.value == "DRAFT" %}
-        <button
-            class="button"
-            type="submit"
-            name="action"
-            value="save"
-        >
-            Save Draft
-        </button>
 
-        <button
-            class="button button-primary"
-            type="submit"
-            name="action"
-            value="finalize"
-        >
-            Finalize Game
-        </button>
-    {% else %}
-        <button
-            class="button button-primary"
-            type="submit"
-            name="action"
-            value="save"
-        >
-            Save Changes
-        </button>
-    {% endif %}
-</div>
+    <div class="actions stats-actions">
+
+        {% if game.status.value == "DRAFT" %}
+
+            <button
+                class="button button-secondary"
+                type="submit"
+                name="action"
+                value="save"
+            >
+                Save Draft
+            </button>
+
+
+            <button
+                class="button button-primary"
+                type="submit"
+                name="action"
+                value="finalize"
+            >
+                Finalize Game
+            </button>
+
+        {% else %}
+
+            <button
+                class="button button-primary"
+                type="submit"
+                name="action"
+                value="save"
+            >
+                Save Changes
+            </button>
+
+        {% endif %}
+
+    </div>
 
 </form>
 

@@ -7,9 +7,9 @@ External Games | CourtStats
 
 {% block content %}
 
-<section class="page-header">
+<section class="page-header page-header-split">
 
-    <div>
+    <div class="page-header-copy">
 
         <p class="eyebrow">
             Game Management
@@ -40,7 +40,7 @@ External Games | CourtStats
 
 {% if external_games %}
 
-<section class="card">
+<section class="card table-card">
 
     <div class="table-container">
 
@@ -58,6 +58,7 @@ External Games | CourtStats
                 </tr>
             </thead>
 
+
             <tbody>
 
                 {% for game in external_games %}
@@ -65,50 +66,92 @@ External Games | CourtStats
                 <tr>
 
                     <td>
-                        <strong>
+                        <span class="data-primary">
                             {{ game.name }}
-                        </strong>
+                        </span>
                     </td>
+
 
                     <td>
                         {{ game.game_date.strftime("%m/%d/%Y") }}
                     </td>
 
+
                     <td>
                         {{ game.opponent_team.name }}
                     </td>
+
 
                     <td>
                         {{ game.venue_type.value }}
                     </td>
 
-                    <td>
-                        {{ game.status.value }}
-                    </td>
 
                     <td>
+
+                        {% if game.status.value == "COMPLETED" %}
+
+                            <span
+                                class="status-badge status-badge-success"
+                            >
+                                {{ game.status.value }}
+                            </span>
+
+                        {% else %}
+
+                            <span
+                                class="status-badge status-badge-warning"
+                            >
+                                {{ game.status.value }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
                         {% if game.opponent_score is not none %}
                             {{ game.opponent_score }}
                         {% else %}
                             —
                         {% endif %}
+
                     </td>
+
 
                     <td>
 
-                        <a
-                            class="button"
-                            href="{{ url_for(
-                                'external_game_players_page',
-                                external_game_id=game.id
-                            ) }}"
-                        >
+                        <div class="actions data-actions">
+
                             {% if game.status.value == "DRAFT" %}
-                                Continue
+
+                                <a
+                                    class="button button-small"
+                                    href="{{ url_for(
+                                        'external_game_players_page',
+                                        external_game_id=game.id
+                                    ) }}"
+                                >
+                                    Continue
+                                </a>
+
                             {% else %}
-                                View Players
+
+                                <a
+                                    class="button button-small"
+                                    href="{{ url_for(
+                                        'external_game_stats_page',
+                                        external_game_id=game.id
+                                    ) }}"
+                                >
+                                    Edit Stats
+                                </a>
+
                             {% endif %}
-                        </a>
+
+                        </div>
 
                     </td>
 
@@ -127,24 +170,33 @@ External Games | CourtStats
 
 {% else %}
 
-<section class="card">
+<section class="card empty-state">
 
-    <h2>No external games</h2>
+    <div class="empty-state-content">
 
-    <p>
-        External games such as preseason games,
-        showcases, tournaments, and scrimmages
-        will appear here.
-    </p>
+        <p class="eyebrow">
+            External Game Library
+        </p>
 
-    <div class="actions">
+        <h2>No external games</h2>
 
-        <a
-            class="button button-primary"
-            href="{{ url_for('new_external_game_page') }}"
-        >
-            Add External Game
-        </a>
+        <p class="page-description">
+            Preseason games, showcases,
+            tournaments, scrimmages, and other
+            non-season games will appear here.
+        </p>
+
+
+        <div class="actions">
+
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_external_game_page') }}"
+            >
+                Add External Game
+            </a>
+
+        </div>
 
     </div>
 

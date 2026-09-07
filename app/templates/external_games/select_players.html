@@ -7,9 +7,9 @@ Select Players | CourtStats
 
 {% block content %}
 
-<section class="page-header">
+<div class="player-selection-shell">
 
-    <div>
+    <section class="page-header">
 
         <p class="eyebrow">
             External Game
@@ -17,131 +17,890 @@ Select Players | CourtStats
 
         <h1>Select Players</h1>
 
-        <p class="page-description">
-            {{ external_game.name }}
-            ·
-            {{ external_game.game_date.strftime("%m/%d/%Y") }}
-            ·
-            {{ external_game.status.value }}
-        </p>
 
-    </div>
+        <div class="selection-context">
 
-</section>
+            <span class="selection-context-item">
 
+                <strong>
+                    {{ external_game.name }}
+                </strong>
 
-{% if error %}
-
-<div class="message message-error">
-    {{ error }}
-</div>
-
-{% endif %}
+            </span>
 
 
-{% if not players %}
+            <span class="selection-context-item">
 
-<section class="card">
+                {{ external_game.opponent_team.name }}
 
-    <div class="message message-warning">
-        There are no CourtStats players available.
-        Add players before continuing.
-    </div>
-
-</section>
+            </span>
 
 
-{% else %}
+            <span class="selection-context-item">
 
-<section class="card">
+                {{ external_game.game_date.strftime("%m/%d/%Y") }}
 
-    {% if external_game.status.value == "COMPLETED" %}
+            </span>
 
-        <div class="message message-warning">
-            Player selection cannot be changed
-            for a completed external game.
+
+            <span class="selection-context-item">
+
+                {{ external_game.venue_type.value }}
+
+            </span>
+
+
+            <span class="selection-context-item">
+
+                {% if external_game.status.value == "COMPLETED" %}
+
+                    <span
+                        class="status-badge status-badge-success"
+                    >
+                        {{ external_game.status.value }}
+                    </span>
+
+                {% else %}
+
+                    <span
+                        class="status-badge status-badge-warning"
+                    >
+                        {{ external_game.status.value }}
+                    </span>
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+    </section>
+
+
+    {% if error %}
+
+        <div class="message message-error form-alert">
+
+            {{ error }}
+
         </div>
 
     {% endif %}
 
 
-    <form
-        method="post"
-        action="/app/external-games/{{ external_game.id }}/players"
-    >
+    {% if not players %}
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="{{ request.session.get('csrf_token', '') }}"
-        >
+        <section class="card player-selection-empty">
+
+            <div class="player-selection-empty-content">
+
+                <p class="eyebrow">
+                    Player Directory
+                </p>
+
+                <h2>No players available</h2>
+
+                <p class="page-description">
+                    Add players to the global CourtStats
+                    player directory before selecting a
+                    lineup for this External Game.
+                </p>
 
 
-        <div class="form-group">
+                <div class="actions">
 
-            {% for player in players %}
-
-                <label>
-
-                    <input
-                        type="checkbox"
-                        name="player_ids"
-                        value="{{ player.id }}"
-                        {% if player.id in selected_player_ids %}
-                            checked
-                        {% endif %}
-                        {% if external_game.status.value == "COMPLETED" %}
-                            disabled
-                        {% endif %}
+                    <a
+                        class="button button-primary"
+                        href="{{ url_for('new_player_page') }}"
                     >
-
-                    {{ player.display_name or player.full_name }}
-
-                </label>
-
-                <br>
-
-            {% endfor %}
-
-        </div>
+                        Add Player
+                    </a>
 
 
-        {% if external_game.status.value == "DRAFT" %}
+                    <a
+                        class="button button-secondary"
+                        href="{{ url_for('external_games_page') }}"
+                    >
+                        Back to External Games
+                    </a>
 
-            <p class="form-help">
-                You may change this selection while
-                the external game remains a draft.
-            </p>
-
-            <div class="actions">
-
-                <button
-                    class="button button-primary"
-                    type="submit"
-                >
-                    Save Selection and Continue
-                </button>
+                </div>
 
             </div>
 
-        {% endif %}
-
-    </form>
-
-</section>
-
-{% endif %}
+        </section>
 
 
-<div class="actions">
+    {% else %}
 
-    <a
-        class="button"
-        href="{{ url_for('external_games_page') }}"
-    >
-        Back to External Games
-    </a>
+        <section class="card player-selection-card">
+
+            <div class="player-selection-intro">
+
+                <div class="player-selection-copy">
+
+                    <h2>
+                        Game lineup
+                    </h2>
+
+
+                    {% if external_game.status.value == "DRAFT" %}
+
+                        <p>
+                            Select the CourtStats players
+                            who should have statistical rows
+                            for this game.
+                        </p>
+
+                    {% else %}
+
+                        <p>
+                            These are the players attached
+                            to this completed External Game.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if external_game.status.value == "COMPLETED" %}
+
+                    <span
+                        class="status-badge status-badge-info"
+                    >
+                        Selection Locked
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if external_game.status.value == "COMPLETED" %}
+
+                <div
+                    class="message message-info"
+                    style="margin-bottom: 20px;"
+                >
+                    Player selection cannot be changed
+                    for a completed external game.
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                action="/app/external-games/{{ external_game.id }}/players"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ request.session.get('csrf_token', '') }}"
+                >
+
+
+                <div
+                    class="player-option-grid{% if external_game.status.value == 'COMPLETED' %} player-selection-readonly{% endif %}"
+                >
+
+                    {% for player in players %}
+
+                        <div class="player-option">
+
+                            <label class="player-option-label">
+
+                                <input
+                                    class="player-option-checkbox"
+                                    type="checkbox"
+                                    name="player_ids"
+                                    value="{{ player.id }}"
+
+                                    {% if player.id in selected_player_ids %}
+                                        checked
+                                    {% endif %}
+
+                                    {% if external_game.status.value == "COMPLETED" %}
+                                        disabled
+                                    {% endif %}
+                                >
+
+
+                                <span class="player-option-identity">
+
+                                    <span class="player-option-name">
+
+                                        {{ player.display_name or player.full_name }}
+
+                                    </span>
+
+
+                                    {% if player.display_name %}
+
+                                        <span class="player-option-meta">
+
+                                            {{ player.full_name }}
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="player-option-meta">
+
+                                            CourtStats Player
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                {% if external_game.status.value == "DRAFT" %}
+
+                    <p class="player-selection-help">
+                        You may change this selection
+                        while the External Game remains
+                        a draft.
+                    </p>
+
+
+                    <div class="actions player-selection-actions">
+
+                        <button
+                            class="button button-primary"
+                            type="submit"
+                        >
+                            Save Selection and Continue
+                        </button>
+
+
+                        <a
+                            class="button button-secondary"
+                            href="{{ url_for('external_games_page') }}"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="actions player-selection-actions">
+
+                        <a
+                            class="button button-primary"
+                            href="{{ url_for(
+                                'external_game_stats_page',
+                                external_game_id=external_game.id
+                            ) }}"
+                        >
+                            View Stats
+                        </a>
+
+
+                        <a
+                            class="button button-secondary"
+                            href="{{ url_for('external_games_page') }}"
+                        >
+                            Back to External Games
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </form>
+
+        </section>
+
+    {% endif %}
+
+
+    {% if players and external_game.status.value == "DRAFT" %}
+
+        <div class="actions player-selection-footer">
+
+            <a
+                class="button button-ghost"
+                href="{{ url_for('external_games_page') }}"
+            >
+                Back to External Games
+            </a>
+
+        </div>
+
+    {% endif %}
 
 </div>
 
 {% endblock %}
+
+/* ==========================================================
+   Phase 40 — Reports and Player Profiles
+   ========================================================== */
+
+
+/* ---------- Shared analytics header ---------- */
+
+.analytics-header {
+    max-width: none;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 28px;
+}
+
+.analytics-header-copy {
+    min-width: 0;
+    max-width: 780px;
+}
+
+.analytics-header > .actions {
+    flex-shrink: 0;
+
+    margin-top: 0;
+}
+
+.analytics-context {
+    display: flex;
+    align-items: center;
+    gap: 8px 12px;
+
+    flex-wrap: wrap;
+
+    margin-top: 10px;
+}
+
+.analytics-context-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.86rem;
+}
+
+.analytics-context-item
++ .analytics-context-item::before {
+    content: "·";
+
+    margin-right: 6px;
+
+    color: var(--color-border-strong);
+}
+
+
+/* ---------- Analytics sections ---------- */
+
+.analytics-section {
+    margin-top: 30px;
+}
+
+.analytics-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 14px;
+}
+
+.analytics-section-header h2 {
+    margin: 0;
+
+    font-size: 1.18rem;
+}
+
+.analytics-section-header p {
+    margin: 4px 0 0;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+
+/* ---------- Game scoreboard ---------- */
+
+.game-scoreboard {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr);
+
+    align-items: center;
+
+    gap: 28px;
+
+    margin-top: 4px;
+
+    padding: 30px 34px;
+
+    overflow: hidden;
+}
+
+.game-scoreboard::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: var(--brand-primary);
+}
+
+.game-score-side {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+}
+
+.game-score-side-away {
+    justify-content: flex-end;
+
+    text-align: right;
+}
+
+.game-score-team {
+    min-width: 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 0.88rem;
+    font-weight: 650;
+
+    line-height: 1.35;
+}
+
+.game-score-number {
+    flex-shrink: 0;
+
+    color: var(--color-text);
+
+    font-size: clamp(2.7rem, 6vw, 4.5rem);
+    font-weight: 780;
+    line-height: 0.95;
+
+    letter-spacing: -0.055em;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.game-score-result {
+    min-width: 98px;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    gap: 5px;
+
+    padding: 12px 16px;
+
+    background: var(--color-surface-subtle);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+
+    text-align: center;
+}
+
+.game-score-result strong {
+    font-size: 0.82rem;
+    font-weight: 780;
+
+    letter-spacing: 0.06em;
+}
+
+.game-score-result span {
+    color: var(--color-text-muted);
+
+    font-size: 0.78rem;
+    font-weight: 650;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.game-score-result-win strong {
+    color: var(--color-success);
+}
+
+.game-score-result-loss strong {
+    color: var(--color-danger);
+}
+
+.game-score-result-tie strong {
+    color: var(--color-warning);
+}
+
+
+/* ---------- Metric cards ---------- */
+
+.analytics-metric-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0, 1fr)
+        );
+
+    gap: 10px;
+}
+
+.analytics-metric {
+    min-width: 0;
+
+    padding: 18px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.analytics-metric span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.69rem;
+    font-weight: 760;
+
+    letter-spacing: 0.06em;
+}
+
+.analytics-metric strong {
+    display: block;
+
+    color: var(--color-text);
+
+    font-size: 1.55rem;
+    font-weight: 730;
+    line-height: 1;
+
+    letter-spacing: -0.025em;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.analytics-metric-primary {
+    background: var(--color-primary-soft);
+
+    border-color: rgba(0, 127, 255, 0.25);
+}
+
+.analytics-metric-primary strong {
+    color: var(--color-link);
+}
+
+
+/* ---------- Shooting presentation ---------- */
+
+.shooting-card,
+.analytics-table-card {
+    padding: 0;
+
+    overflow: hidden;
+}
+
+.shooting-card .table-container,
+.analytics-table-card .table-container {
+    border: 0;
+    border-radius: 0;
+}
+
+.shooting-card table td:first-child {
+    color: var(--color-text);
+
+    font-weight: 680;
+}
+
+.shooting-card table td:not(:first-child),
+.shooting-card table th:not(:first-child) {
+    text-align: right;
+}
+
+
+/* ---------- Box score ---------- */
+
+.box-score-table {
+    min-width: 1050px;
+}
+
+.box-score-table th,
+.box-score-table td {
+    white-space: nowrap;
+}
+
+.box-score-player {
+    min-width: 170px;
+
+    font-weight: 680;
+}
+
+.box-score-player a {
+    color: var(--color-text);
+
+    text-decoration: none;
+}
+
+.box-score-player a:hover {
+    color: var(--color-link);
+}
+
+.participation-badge {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 25px;
+
+    padding: 0 8px;
+
+    border-radius: var(--radius-pill);
+
+    font-size: 0.66rem;
+    font-weight: 760;
+
+    letter-spacing: 0.045em;
+}
+
+.participation-played {
+    background: var(--color-success-soft);
+
+    color: var(--color-success);
+}
+
+.participation-dnp {
+    background: var(--color-surface-subtle);
+
+    color: var(--color-text-muted);
+}
+
+
+/* ---------- Player profile identity ---------- */
+
+.player-profile-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.player-profile-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 54px;
+    height: 54px;
+
+    padding-inline: 12px;
+
+    background: var(--brand-secondary);
+
+    color: var(--brand-white);
+
+    border-radius: var(--radius-md);
+
+    font-size: 1.1rem;
+    font-weight: 760;
+
+    letter-spacing: -0.02em;
+
+    box-shadow: var(--shadow-xs);
+}
+
+.player-profile-name {
+    min-width: 0;
+}
+
+
+/* ---------- Game log ---------- */
+
+.game-log-table {
+    min-width: 900px;
+}
+
+.game-log-table td,
+.game-log-table th {
+    white-space: nowrap;
+}
+
+.game-log-opponent {
+    color: var(--color-text);
+
+    font-weight: 650;
+}
+
+.game-result-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    font-weight: 650;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.game-result-win {
+    color: var(--color-success);
+}
+
+.game-result-loss {
+    color: var(--color-danger);
+}
+
+.game-result-tie {
+    color: var(--color-warning);
+}
+
+
+/* ---------- Empty report state ---------- */
+
+.analytics-empty {
+    padding: 30px;
+
+    text-align: center;
+}
+
+.analytics-empty p {
+    max-width: 520px;
+
+    margin: 0 auto;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.86rem;
+    line-height: 1.55;
+}
+
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1000px) {
+    .analytics-metric-grid {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+
+@media (max-width: 760px) {
+    .analytics-header {
+        align-items: stretch;
+        flex-direction: column;
+
+        gap: 18px;
+    }
+
+    .analytics-header > .actions {
+        width: 100%;
+    }
+
+    .analytics-header > .actions .button {
+        flex: 1;
+    }
+
+    .analytics-context {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 5px;
+    }
+
+    .analytics-context-item
+    + .analytics-context-item::before {
+        display: none;
+    }
+
+    .game-scoreboard {
+        grid-template-columns: 1fr;
+
+        gap: 18px;
+
+        padding: 26px 22px;
+    }
+
+    .game-score-side,
+    .game-score-side-away {
+        justify-content: space-between;
+
+        text-align: left;
+    }
+
+    .game-score-side-away {
+        flex-direction: row-reverse;
+    }
+
+    .game-score-result {
+        justify-self: center;
+    }
+
+    .analytics-metric-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+    .analytics-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 10px;
+    }
+}
+
+
+@media (max-width: 460px) {
+    .analytics-metric-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .analytics-metric {
+        padding: 15px;
+    }
+
+    .analytics-metric strong {
+        font-size: 1.3rem;
+    }
+
+    .player-profile-number {
+        min-width: 48px;
+        height: 48px;
+    }
+}

@@ -7,9 +7,9 @@ Roster | CourtStats
 
 {% block content %}
 
-<section class="page-header">
+<section class="page-header page-header-split">
 
-    <div>
+    <div class="page-header-copy">
 
         <p class="eyebrow">
             Team Management
@@ -17,11 +17,19 @@ Roster | CourtStats
 
         <h1>Roster</h1>
 
+
         {% if selected_season %}
 
             <p class="page-description">
                 {{ selected_season.team.name }}
                 · {{ selected_season.name }}
+            </p>
+
+        {% else %}
+
+            <p class="page-description">
+                Manage season rosters and player
+                assignments.
             </p>
 
         {% endif %}
@@ -31,16 +39,16 @@ Roster | CourtStats
 
     {% if selected_season %}
 
-    <div class="actions">
+        <div class="actions">
 
-        <a
-            class="button button-primary"
-            href="{{ url_for('new_roster_entry_page') }}?season_id={{ selected_season.id }}"
-        >
-            Add Player to Roster
-        </a>
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_roster_entry_page') }}?season_id={{ selected_season.id }}"
+            >
+                Add Player to Roster
+            </a>
 
-    </div>
+        </div>
 
     {% endif %}
 
@@ -49,7 +57,7 @@ Roster | CourtStats
 
 {% if seasons %}
 
-<section class="card">
+<section class="card filter-card">
 
     <form
         method="get"
@@ -65,6 +73,7 @@ Roster | CourtStats
                 Season
             </label>
 
+
             <select
                 class="select"
                 id="season_id"
@@ -76,6 +85,7 @@ Roster | CourtStats
 
                     <option
                         value="{{ season.id }}"
+
                         {% if
                             selected_season
                             and selected_season.id == season.id
@@ -100,7 +110,7 @@ Roster | CourtStats
 
 {% if roster_entries %}
 
-<section class="card">
+<section class="card table-card">
 
     <div class="table-container">
 
@@ -117,6 +127,7 @@ Roster | CourtStats
                 </tr>
             </thead>
 
+
             <tbody>
 
                 {% for roster in roster_entries %}
@@ -124,37 +135,80 @@ Roster | CourtStats
                 <tr>
 
                     <td>
+
                         {% if roster.jersey_number is not none %}
-                            #{{ roster.jersey_number }}
+
+                            <span class="jersey-number">
+                                #{{ roster.jersey_number }}
+                            </span>
+
                         {% else %}
-                            —
+
+                            <span class="data-secondary">
+                                —
+                            </span>
+
                         {% endif %}
+
                     </td>
 
+
                     <td>
-                        <strong>
+
+                        <span class="data-primary">
                             {{ roster.player.display_name or roster.player.full_name }}
-                        </strong>
+                        </span>
+
                     </td>
+
 
                     <td>
                         {{ roster.position or "—" }}
                     </td>
 
+
                     <td>
                         {{ roster.grade_level or "—" }}
                     </td>
 
+
                     <td>
-                        {{ roster.status.value }}
+
+                        {% if roster.status.value == "ACTIVE" %}
+
+                            <span
+                                class="status-badge status-badge-success"
+                            >
+                                {{ roster.status.value }}
+                            </span>
+
+
+                        {% elif roster.status.value == "LEFT_TEAM" %}
+
+                            <span
+                                class="status-badge status-badge-warning"
+                            >
+                                {{ roster.status.value }}
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="status-badge">
+                                {{ roster.status.value }}
+                            </span>
+
+                        {% endif %}
+
                     </td>
 
+
                     <td>
 
-                        <div class="actions">
+                        <div class="actions data-actions">
 
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for(
                                     'player_season_profile_page',
                                     season_roster_id=roster.id
@@ -163,8 +217,9 @@ Roster | CourtStats
                                 Profile
                             </a>
 
+
                             <a
-                                class="button"
+                                class="button button-small"
                                 href="{{ url_for(
                                     'edit_roster_entry_page',
                                     roster_id=roster.id
@@ -192,22 +247,31 @@ Roster | CourtStats
 
 {% else %}
 
-<section class="card">
+<section class="card empty-state">
 
-    <h2>No roster entries</h2>
+    <div class="empty-state-content">
 
-    <p>
-        No players are assigned to this season.
-    </p>
+        <p class="eyebrow">
+            Season Roster
+        </p>
 
-    <div class="actions">
+        <h2>No roster entries</h2>
 
-        <a
-            class="button button-primary"
-            href="{{ url_for('new_roster_entry_page') }}?season_id={{ selected_season.id }}"
-        >
-            Add Player to Roster
-        </a>
+        <p class="page-description">
+            No players are assigned to this season.
+        </p>
+
+
+        <div class="actions">
+
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_roster_entry_page') }}?season_id={{ selected_season.id }}"
+            >
+                Add Player to Roster
+            </a>
+
+        </div>
 
     </div>
 
@@ -218,22 +282,32 @@ Roster | CourtStats
 
 {% else %}
 
-<section class="card">
+<section class="card empty-state">
 
-    <h2>No seasons available</h2>
+    <div class="empty-state-content">
 
-    <p>
-        Create a season before building a roster.
-    </p>
+        <p class="eyebrow">
+            Season Roster
+        </p>
 
-    <div class="actions">
+        <h2>No seasons available</h2>
 
-        <a
-            class="button button-primary"
-            href="{{ url_for('new_season_page') }}"
-        >
-            Add Season
-        </a>
+        <p class="page-description">
+            Create a season before building
+            a roster.
+        </p>
+
+
+        <div class="actions">
+
+            <a
+                class="button button-primary"
+                href="{{ url_for('new_season_page') }}"
+            >
+                Add Season
+            </a>
+
+        </div>
 
     </div>
 

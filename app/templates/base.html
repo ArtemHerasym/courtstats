@@ -8,9 +8,51 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="theme-color"
+        content="#003262"
+    >
+
     <title>
         {% block title %}CourtStats{% endblock %}
     </title>
+
+    <!--
+        Apply the saved/system theme before the page renders.
+        This prevents a light-theme flash when dark mode is active.
+    -->
+    <script>
+        (function () {
+            const root = document.documentElement;
+
+            root.classList.add("js");
+
+            let savedTheme = null;
+
+            try {
+                savedTheme = localStorage.getItem(
+                    "courtstats-theme"
+                );
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            let theme = savedTheme;
+
+            if (
+                theme !== "light"
+                && theme !== "dark"
+            ) {
+                theme = window.matchMedia(
+                    "(prefers-color-scheme: dark)"
+                ).matches
+                    ? "dark"
+                    : "light";
+            }
+
+            root.dataset.theme = theme;
+        })();
+    </script>
 
     <link
         rel="stylesheet"
@@ -20,95 +62,171 @@
     {% block head %}{% endblock %}
 </head>
 
+{% set current_path = request.url.path %}
+
 <body>
 
 <header class="site-header">
     <div class="container">
 
-        <nav class="navbar">
+        <nav
+            class="navbar"
+            aria-label="Primary navigation"
+            data-navbar
+        >
 
+            <!-- CourtStats identity -->
             <a
                 href="{{ url_for('home_page') }}"
                 class="brand"
+                aria-label="CourtStats home"
             >
-                CourtStats
+                <span
+                    class="brand-mark"
+                    aria-hidden="true"
+                >
+                    CS
+                </span>
+
+                <span>
+                    CourtStats
+                </span>
             </a>
 
 
-            <div class="nav-links">
+            <!-- Mobile menu control -->
+            <button
+                class="nav-menu-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="primary-navigation"
+                data-nav-toggle
+            >
+                Menu
+            </button>
 
-                <a
-                    href="{{ url_for('home_page') }}"
-                    class="nav-link"
-                >
-                    Home
-                </a>
 
-                <a
-                    href="{{ url_for('seasons_page') }}"
-                    class="nav-link"
-                >
-                    Seasons
-                </a>
+            <div
+                class="nav-panel"
+                id="primary-navigation"
+                data-nav-panel
+            >
 
-                <a
-                    href="{{ url_for('players_page') }}"
-                    class="nav-link"
-                >
-                    Players
-                </a>
+                <div class="nav-links">
 
-                <a
-                    href="{{ url_for('roster_page') }}"
-                    class="nav-link"
-                >
-                    Roster
-                </a>
+                    <a
+                        href="{{ url_for('home_page') }}"
+                        class="nav-link{% if current_path == '/' %} nav-link-active{% endif %}"
+                        {% if current_path == "/" %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Home
+                    </a>
 
-                <a
-                    href="{{ url_for('games_page') }}"
-                    class="nav-link"
-                >
-                    Games
-                </a>
 
-                <a
-                    href="{{ url_for('external_games_page') }}"
-                    class="nav-link"
-                >
-                    External Games
-                </a>
+                    <a
+                        href="{{ url_for('seasons_page') }}"
+                        class="nav-link{% if current_path.startswith('/app/seasons') %} nav-link-active{% endif %}"
+                        {% if current_path.startswith("/app/seasons") %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Seasons
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('players_page') }}"
+                        class="nav-link{% if current_path.startswith('/app/players') or current_path.startswith('/app/season-rosters') %} nav-link-active{% endif %}"
+                        {% if current_path.startswith("/app/players") or current_path.startswith("/app/season-rosters") %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Players
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('roster_page') }}"
+                        class="nav-link{% if current_path.startswith('/app/roster') %} nav-link-active{% endif %}"
+                        {% if current_path.startswith("/app/roster") %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Roster
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('games_page') }}"
+                        class="nav-link{% if current_path.startswith('/app/games') %} nav-link-active{% endif %}"
+                        {% if current_path.startswith("/app/games") %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Games
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('external_games_page') }}"
+                        class="nav-link{% if current_path.startswith('/app/external-games') %} nav-link-active{% endif %}"
+                        {% if current_path.startswith("/app/external-games") %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        External Games
+                    </a>
+
+                </div>
+
+
+                <div class="nav-actions">
+
+                    <a
+                        class="button button-primary nav-add-game"
+                        href="{{ url_for('new_game_page') }}"
+                    >
+                        Add Game
+                    </a>
+
+
+                    <button
+                        class="theme-toggle"
+                        type="button"
+                        data-theme-toggle
+                        aria-label="Switch theme"
+                    >
+                        <span data-theme-label>
+                            Theme
+                        </span>
+                    </button>
+
+
+                    <form
+                        method="post"
+                        action="/logout"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ request.session.get('csrf_token', '') }}"
+                        >
+
+                        <button
+                            class="button button-secondary"
+                            type="submit"
+                        >
+                            Log out
+                        </button>
+
+                    </form>
+
+                </div>
 
             </div>
-
-
-            <a
-                class="button button-primary"
-                href="{{ url_for('new_game_page') }}"
-            >
-                Add Game
-            </a>
-
-
-            <form
-                method="post"
-                action="/logout"
-            >
-
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ request.session.get('csrf_token', '') }}"
-                >
-
-                <button
-                    class="button button-secondary"
-                    type="submit"
-                >
-                    Log out
-                </button>
-
-            </form>
 
         </nav>
 
