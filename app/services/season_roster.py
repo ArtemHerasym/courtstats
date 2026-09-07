@@ -1,9 +1,25 @@
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import (
+    IntegrityError,
+    SQLAlchemyError,
+)
 from sqlalchemy.orm import Session
 
-from app.models.season_roster import RosterStatus, SeasonRoster
-from app.schemas.season_roster import SeasonRosterCreate, SeasonRosterUpdate
+from app.models.game import (
+    Game,
+    GameStatus,
+)
+from app.models.player_game_stats import (
+    PlayerGameStats,
+)
+from app.models.season_roster import (
+    RosterStatus,
+    SeasonRoster,
+)
+from app.schemas.season_roster import (
+    SeasonRosterCreate,
+    SeasonRosterUpdate,
+)
 from app.services.player import get_player
 from app.services.season import get_season
 
@@ -12,71 +28,134 @@ class SeasonRosterNotFoundError(Exception):
     pass
 
 
-class SeasonRosterMembershipConflictError(Exception):
+class SeasonRosterMembershipConflictError(
+    Exception
+):
     pass
 
 
-class SeasonRosterJerseyConflictError(Exception):
+class SeasonRosterJerseyConflictError(
+    Exception
+):
     pass
+
+
+class SeasonRosterRemovalBlockedError(
+    Exception
+):
+    pass
+
+
+RAW_STAT_FIELDS = (
+    "three_point_attempts",
+    "three_point_makes",
+    "two_point_attempts",
+    "two_point_makes",
+    "free_throw_attempts",
+    "free_throw_makes",
+    "turnovers",
+    "assists",
+    "offensive_rebounds",
+    "defensive_rebounds",
+    "steals",
+    "deflections",
+    "personal_fouls",
+)
+
 
 def _ensure_membership_available(
-         db: Session,
-         season_id: int,
-         player_id: int,
-         exclude_roster_id: int | None = None,
- ) -> None:
-     statement = select(SeasonRoster).where(
-         SeasonRoster.season_id == season_id,
-         SeasonRoster.player_id == player_id,
-     )
-     if exclude_roster_id is not None:
-         statement = statement.where(
-             SeasonRoster.id != exclude_roster_id
-         )
-     existing_membership = db.scalar(statement)
-     if existing_membership is not None:
-         raise SeasonRosterMembershipConflictError(
-             "Player is already on this seasons roster."
-         )
+    db: Session,
+    season_id: int,
+    player_id: int,
+    exclude_roster_id: int | None = None,
+) -> None:
+    statement = select(
+        SeasonRoster
+    ).where(
+        SeasonRoster.season_id
+        == season_id,
+        SeasonRoster.player_id
+        == player_id,
+    )
+
+    if exclude_roster_id is not None:
+        statement = statement.where(
+            SeasonRoster.id
+            != exclude_roster_id
+        )
+
+    existing_membership = db.scalar(
+        statement
+    )
+
+    if existing_membership is not None:
+        raise (
+            SeasonRosterMembershipConflictError(
+                (
+                    "Player is already on this "
+                    "seasons roster."
+                )
+            )
+        )
+
 
 def _ensure_active_jersey_available(
-        db: Session,
-        season_id: int,
-        jersey_number: int | None,
-        status: RosterStatus,
-        exclude_roster_id: int | None = None,
-):
+    db: Session,
+    season_id: int,
+    jersey_number: int | None,
+    status: RosterStatus,
+    exclude_roster_id: int | None = None,
+) -> None:
     if jersey_number is None:
         return
 
     if status != RosterStatus.ACTIVE:
         return
 
-    statement = select(SeasonRoster).where(
-        SeasonRoster.season_id == season_id,
-        SeasonRoster.jersey_number == jersey_number,
-        SeasonRoster.status == RosterStatus.ACTIVE,
+    statement = select(
+        SeasonRoster
+    ).where(
+        SeasonRoster.season_id
+        == season_id,
+        SeasonRoster.jersey_number
+        == jersey_number,
+        SeasonRoster.status
+        == RosterStatus.ACTIVE,
     )
 
     if exclude_roster_id is not None:
         statement = statement.where(
-            SeasonRoster.id != exclude_roster_id
+            SeasonRoster.id
+            != exclude_roster_id
         )
 
-    existing_roster = db.scalar(statement)
+    existing_roster = db.scalar(
+        statement
+    )
 
     if existing_roster is not None:
         raise SeasonRosterJerseyConflictError(
-            f"Jersey number {jersey_number} is already assigned "
-            "to an active player in this seasons."
+            (
+                f"Jersey number {jersey_number} "
+                "is already assigned to an "
+                "active player in this seasons."
+            )
         )
 
+
 def create_season_roster(
-        db: Session,
-        roster_data: SeasonRosterCreate,
+    db: Session,
+    roster_data: SeasonRosterCreate,
 ) -> SeasonRoster:
-    get_season(db, roster_data.season_id)
-    get_player(db, roster_data.player_id)
+    get_season(
+        db,
+        roster_data.season_id,
+    )
+
+    get_player(
+        db,
+        roster_data.player_id,
+    )
 
     _ensure_membership_available(
         db,
@@ -91,22 +170,39 @@ def create_season_roster(
         roster_data.status,
     )
 
-    roster = SeasonRoster(**roster_data.model_dump())
+    roster = SeasonRoster(
+        **roster_data.model_dump()
+    )
 
     try:
         db.add(roster)
         db.commit()
         db.refresh(roster)
+
     except IntegrityError as exc:
         db.rollback()
+
         constraint_name = getattr(
-            getattr(exc.orig, "diag", None),
+            getattr(
+                exc.orig,
+                "diag",
+                None,
+            ),
             "constraint_name",
             None,
         )
-        if constraint_name == "uq_season_rosters_season_player":
-            raise SeasonRosterMembershipConflictError(
-                "Player is already on this seasons roster."
+
+        if (
+            constraint_name
+            == "uq_season_rosters_season_player"
+        ):
+            raise (
+                SeasonRosterMembershipConflictError(
+                    (
+                        "Player is already on this "
+                        "seasons roster."
+                    )
+                )
             ) from exc
 
         raise
@@ -122,33 +218,51 @@ def get_season_roster(
     db: Session,
     roster_id: int,
 ) -> SeasonRoster:
-
-    roster = db.get(SeasonRoster, roster_id)
+    roster = db.get(
+        SeasonRoster,
+        roster_id,
+    )
 
     if roster is None:
         raise SeasonRosterNotFoundError(
-            f"Season roster entry with ID {roster_id} was not found."
+            (
+                "Season roster entry with ID "
+                f"{roster_id} was not found."
+            )
         )
 
     return roster
 
+
 def list_season_rosters(
     db: Session,
 ) -> list[SeasonRoster]:
+    statement = select(
+        SeasonRoster
+    ).order_by(
+        SeasonRoster.id
+    )
 
-    statement = select(SeasonRoster).order_by(SeasonRoster.id)
+    return list(
+        db.scalars(statement).all()
+    )
 
-    return list(db.scalars(statement).all())
 
 def update_season_roster(
-        db: Session,
-        roster_id: int,
-        roster_data: SeasonRosterUpdate,
+    db: Session,
+    roster_id: int,
+    roster_data: SeasonRosterUpdate,
 ) -> SeasonRoster:
+    roster = get_season_roster(
+        db,
+        roster_id,
+    )
 
-    roster = get_season_roster(db, roster_id)
-
-    update_data = roster_data.model_dump(exclude_unset=True)
+    update_data = (
+        roster_data.model_dump(
+            exclude_unset=True
+        )
+    )
 
     final_jersey_number = update_data.get(
         "jersey_number",
@@ -171,16 +285,38 @@ def update_season_roster(
     )
 
     if final_season_id is None:
-        raise ValueError("Season roster season_id cannot be None")
+        raise ValueError(
+            (
+                "Season roster season_id "
+                "cannot be None"
+            )
+        )
 
     if final_player_id is None:
-        raise ValueError("Season roster player_id cannot be None")
+        raise ValueError(
+            (
+                "Season roster player_id "
+                "cannot be None"
+            )
+        )
 
     if final_status is None:
-        raise ValueError("Season roster status cannot be None")
+        raise ValueError(
+            (
+                "Season roster status "
+                "cannot be None"
+            )
+        )
 
-    get_season(db, final_season_id)
-    get_player(db, final_player_id)
+    get_season(
+        db,
+        final_season_id,
+    )
+
+    get_player(
+        db,
+        final_player_id,
+    )
 
     _ensure_membership_available(
         db,
@@ -197,8 +333,14 @@ def update_season_roster(
         exclude_roster_id=roster.id,
     )
 
-    for field, value in update_data.items():
-        setattr(roster, field, value)
+    for field, value in (
+        update_data.items()
+    ):
+        setattr(
+            roster,
+            field,
+            value,
+        )
 
     try:
         db.commit()
@@ -208,14 +350,26 @@ def update_season_roster(
         db.rollback()
 
         constraint_name = getattr(
-            getattr(exc.orig, "diag", None),
+            getattr(
+                exc.orig,
+                "diag",
+                None,
+            ),
             "constraint_name",
             None,
         )
 
-        if constraint_name == "uq_season_rosters_season_player":
-            raise SeasonRosterMembershipConflictError(
-                "Player is already on this seasons roster."
+        if (
+            constraint_name
+            == "uq_season_rosters_season_player"
+        ):
+            raise (
+                SeasonRosterMembershipConflictError(
+                    (
+                        "Player is already on this "
+                        "seasons roster."
+                    )
+                )
             ) from exc
 
         raise
@@ -231,15 +385,142 @@ def list_season_rosters_for_season(
     db: Session,
     season_id: int,
 ) -> list[SeasonRoster]:
-    get_season(db, season_id)
+    get_season(
+        db,
+        season_id,
+    )
 
     statement = (
         select(SeasonRoster)
-        .where(SeasonRoster.season_id == season_id)
+        .where(
+            SeasonRoster.season_id
+            == season_id
+        )
         .order_by(
-            SeasonRoster.jersey_number.asc().nulls_last(),
+            SeasonRoster.jersey_number
+            .asc()
+            .nulls_last(),
             SeasonRoster.id,
         )
     )
 
-    return list(db.scalars(statement).all())
+    return list(
+        db.scalars(statement).all()
+    )
+
+
+def season_has_usable_game_roster(
+    db: Session,
+    season_id: int,
+) -> bool:
+    get_season(
+        db,
+        season_id,
+    )
+
+    statement = (
+        select(
+            SeasonRoster.id
+        )
+        .where(
+            SeasonRoster.season_id
+            == season_id,
+            SeasonRoster.status
+            == RosterStatus.ACTIVE,
+        )
+        .limit(1)
+    )
+
+    roster_id = db.scalar(
+        statement
+    )
+
+    return roster_id is not None
+
+
+def _stats_row_has_meaningful_history(
+    stats: PlayerGameStats,
+) -> bool:
+    return any(
+        getattr(
+            stats,
+            field,
+        )
+        != 0
+        for field in RAW_STAT_FIELDS
+    )
+
+
+def remove_season_roster(
+    db: Session,
+    roster_id: int,
+) -> None:
+    roster = get_season_roster(
+        db,
+        roster_id,
+    )
+
+    statement = (
+        select(
+            PlayerGameStats,
+            Game.status,
+        )
+        .join(
+            Game,
+            PlayerGameStats.game_id
+            == Game.id,
+        )
+        .where(
+            PlayerGameStats.season_roster_id
+            == roster.id
+        )
+        .order_by(
+            PlayerGameStats.id
+        )
+    )
+
+    history_rows = list(
+        db.execute(statement).all()
+    )
+
+    # Validate every historical row before
+    # deleting or modifying anything.
+    for stats, game_status in history_rows:
+        if game_status == GameStatus.COMPLETED:
+            raise SeasonRosterRemovalBlockedError(
+                (
+                    "This player has completed-game "
+                    "history and cannot be removed "
+                    "from the season. Use INACTIVE "
+                    "or LEFT_TEAM instead."
+                )
+            )
+
+        if _stats_row_has_meaningful_history(
+            stats
+        ):
+            raise SeasonRosterRemovalBlockedError(
+                (
+                    "This player has statistical "
+                    "history and cannot be removed "
+                    "from the season. Use INACTIVE "
+                    "or LEFT_TEAM instead."
+                )
+            )
+
+    try:
+        # At this point every associated row is
+        # from a DRAFT game and contains zero raw
+        # statistics. These rows are disposable.
+        for stats, _ in history_rows:
+            db.delete(stats)
+
+        # Delete only the SeasonRoster membership.
+        # The global Player is never deleted.
+        db.delete(roster)
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise

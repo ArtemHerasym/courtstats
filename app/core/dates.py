@@ -2,24 +2,39 @@ import re
 from datetime import date, datetime
 
 
-GAME_DATE_PATTERN = re.compile(r"^\d{2}/\d{2}/\d{4}$")
+DATE_PATTERN = re.compile(
+    r"^\d{2}/\d{2}/\d{4}$"
+)
 
 
-class GameDateValidationError(ValueError):
+class DateValidationError(ValueError):
     pass
 
 
-def parse_game_date(value: str) -> date:
+class GameDateValidationError(
+    DateValidationError
+):
+    pass
+
+
+def parse_required_date(
+    value: str,
+    *,
+    field_name: str = "Date",
+) -> date:
     value = value.strip()
 
     if not value:
-        raise GameDateValidationError(
-            "Game date is required."
+        raise DateValidationError(
+            f"{field_name} is required."
         )
 
-    if GAME_DATE_PATTERN.fullmatch(value) is None:
-        raise GameDateValidationError(
-            "Game date must use exactly MM/DD/YYYY."
+    if DATE_PATTERN.fullmatch(value) is None:
+        raise DateValidationError(
+            (
+                f"{field_name} must use exactly "
+                "MM/DD/YYYY."
+            )
         )
 
     try:
@@ -27,7 +42,42 @@ def parse_game_date(value: str) -> date:
             value,
             "%m/%d/%Y",
         ).date()
+
     except ValueError as exc:
+        raise DateValidationError(
+            (
+                f"{field_name} is not a valid "
+                "calendar date."
+            )
+        ) from exc
+
+
+def parse_optional_date(
+    value: str,
+    *,
+    field_name: str = "Date",
+) -> date | None:
+    value = value.strip()
+
+    if not value:
+        return None
+
+    return parse_required_date(
+        value,
+        field_name=field_name,
+    )
+
+
+def parse_game_date(
+    value: str,
+) -> date:
+    try:
+        return parse_required_date(
+            value,
+            field_name="Game date",
+        )
+
+    except DateValidationError as exc:
         raise GameDateValidationError(
-            "Game date is not a valid calendar date."
+            str(exc)
         ) from exc
