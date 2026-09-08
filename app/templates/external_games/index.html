@@ -33,12 +33,32 @@ External Games | CourtStats
             Add External Game
         </a>
 
+        {% if external_games %}
+
+            <button
+                class="button button-secondary"
+                id="analyze-games-button"
+                type="button"
+            >
+                Analyze Games
+            </button>
+
+        {% endif %}
+
     </div>
 
 </section>
 
 
 {% if external_games %}
+
+<form
+    id="external-games-analysis-form"
+    action="{{ url_for(
+        'external_games_analysis_page'
+    ) }}"
+    method="get"
+>
 
 <section class="card table-card">
 
@@ -47,7 +67,16 @@ External Games | CourtStats
         <table class="table">
 
             <thead>
+
                 <tr>
+
+                    <th
+                        class="analysis-selection-column"
+                        hidden
+                    >
+                        Select
+                    </th>
+
                     <th>Name</th>
                     <th>Date</th>
                     <th>Opponent</th>
@@ -55,7 +84,9 @@ External Games | CourtStats
                     <th>Status</th>
                     <th>Opponent Score</th>
                     <th>Actions</th>
+
                 </tr>
+
             </thead>
 
 
@@ -65,10 +96,51 @@ External Games | CourtStats
 
                 <tr>
 
+                    <td
+                        class="analysis-selection-column"
+                        hidden
+                    >
+
+                        {% if game.status.value == "COMPLETED" %}
+
+                            <input
+                                type="checkbox"
+                                name="game_ids"
+                                value="{{ game.id }}"
+                                class="analysis-game-checkbox"
+                                aria-label="Select {{ game.name }}"
+                            >
+
+                        {% else %}
+
+                            <input
+                                type="checkbox"
+                                disabled
+                                aria-label="{{ game.name }} cannot be analyzed"
+                            >
+
+                        {% endif %}
+
+                    </td>
+
+
                     <td>
+
                         <span class="data-primary">
                             {{ game.name }}
                         </span>
+
+                        {% if game.status.value == "DRAFT" %}
+
+                            <div
+                                class="analysis-selection-note"
+                                hidden
+                            >
+                                Finalize to analyze
+                            </div>
+
+                        {% endif %}
+
                     </td>
 
 
@@ -140,6 +212,16 @@ External Games | CourtStats
                             {% else %}
 
                                 <a
+                                    class="button button-small button-primary"
+                                    href="{{ url_for(
+                                        'external_game_report_page',
+                                        external_game_id=game.id
+                                    ) }}"
+                                >
+                                    View Report
+                                </a>
+
+                                <a
                                     class="button button-small"
                                     href="{{ url_for(
                                         'external_game_stats_page',
@@ -166,6 +248,56 @@ External Games | CourtStats
     </div>
 
 </section>
+
+
+<section
+    id="analysis-selection-actions"
+    class="card"
+    hidden
+>
+
+    <div class="page-header-split">
+
+        <div>
+
+            <strong id="analysis-selection-count">
+                0 games selected
+            </strong>
+
+            <p class="page-description">
+                Only completed External Games
+                can be analyzed.
+            </p>
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                class="button button-primary"
+                id="view-analysis-button"
+                type="submit"
+                disabled
+            >
+                View Statistics
+            </button>
+
+            <button
+                class="button button-secondary"
+                id="cancel-analysis-button"
+                type="button"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+</form>
 
 
 {% else %}
@@ -201,6 +333,114 @@ External Games | CourtStats
     </div>
 
 </section>
+
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+{% if external_games %}
+
+<script>
+(() => {
+    const analyzeButton = document.getElementById(
+        "analyze-games-button"
+    );
+
+    const cancelButton = document.getElementById(
+        "cancel-analysis-button"
+    );
+
+    const submitButton = document.getElementById(
+        "view-analysis-button"
+    );
+
+    const count = document.getElementById(
+        "analysis-selection-count"
+    );
+
+    const actions = document.getElementById(
+        "analysis-selection-actions"
+    );
+
+    const columns = document.querySelectorAll(
+        ".analysis-selection-column"
+    );
+
+    const notes = document.querySelectorAll(
+        ".analysis-selection-note"
+    );
+
+    const checkboxes = document.querySelectorAll(
+        ".analysis-game-checkbox"
+    );
+
+
+    function updateCount() {
+        const selected = document.querySelectorAll(
+            ".analysis-game-checkbox:checked"
+        ).length;
+
+        count.textContent = (
+            `${selected} ${
+                selected === 1
+                    ? "game"
+                    : "games"
+            } selected`
+        );
+
+        submitButton.disabled = (
+            selected === 0
+        );
+    }
+
+
+    function setAnalysisMode(active) {
+        columns.forEach((element) => {
+            element.hidden = !active;
+        });
+
+        notes.forEach((element) => {
+            element.hidden = !active;
+        });
+
+        actions.hidden = !active;
+        analyzeButton.hidden = active;
+
+        if (!active) {
+            checkboxes.forEach(
+                (checkbox) => {
+                    checkbox.checked = false;
+                }
+            );
+
+            updateCount();
+        }
+    }
+
+
+    analyzeButton.addEventListener(
+        "click",
+        () => setAnalysisMode(true)
+    );
+
+    cancelButton.addEventListener(
+        "click",
+        () => setAnalysisMode(false)
+    );
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener(
+            "change",
+            updateCount
+        );
+    });
+
+    updateCount();
+})();
+</script>
 
 {% endif %}
 

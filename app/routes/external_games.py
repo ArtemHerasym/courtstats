@@ -42,6 +42,12 @@ from app.services.external_game import (
     get_external_game,
     list_external_games,
 )
+from app.services.external_game_analysis import (
+    ExternalGameAnalysisSelectionError,
+    ExternalGameNotCompletedError,
+    analyze_external_games,
+    get_external_game_report,
+)
 from app.services.external_game_player_stats import (
     ExternalGamePlayerStatsConflictError,
     RAW_STAT_FIELDS,
@@ -200,13 +206,89 @@ def external_games_page(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    external_games = list_external_games(db)
-
     return templates.TemplateResponse(
         request=request,
         name="external_games/index.html",
         context={
-            "external_games": external_games,
+            "external_games": (
+                list_external_games(db)
+            ),
+        },
+    )
+
+
+@router.get(
+    "/app/external-games/analysis",
+    response_class=HTMLResponse,
+)
+def external_games_analysis_page(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    raw_ids = request.query_params.getlist(
+        "game_ids"
+    )
+
+    try:
+        game_ids = [
+            int(raw_id)
+            for raw_id in raw_ids
+        ]
+
+    except ValueError:
+        return HTMLResponse(
+            content=(
+                "Invalid external game selection."
+            ),
+            status_code=422,
+        )
+
+    try:
+        analysis = analyze_external_games(
+            db,
+            game_ids,
+        )
+
+    except ExternalGameAnalysisSelectionError as exc:
+        return HTMLResponse(
+            content=str(exc),
+            status_code=422,
+        )
+
+    except ExternalGameNotFoundError:
+        return HTMLResponse(
+            content="External game not found.",
+            status_code=404,
+        )
+
+    except ExternalGameNotCompletedError as exc:
+        return HTMLResponse(
+            content=str(exc),
+            status_code=409,
+        )
+
+    if len(game_ids) == 1:
+        return RedirectResponse(
+            url=(
+                "/app/external-games/"
+                f"{game_ids[0]}/report"
+            ),
+            status_code=303,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="external_games/analysis.html",
+        context={
+            "summary": (
+                analysis["team_summary"]
+            ),
+            "player_rows": (
+                analysis["player_rows"]
+            ),
+            "game_breakdown": (
+                analysis["game_breakdown"]
+            ),
         },
     )
 
@@ -418,9 +500,9 @@ def create_external_game_page(
     except (
         ExternalGameOpponentNotFoundError
     ) as exc:
-        errors["opponent_team_id"] = (
-            str(exc)
-        )
+        errors[
+            "opponent_team_id"
+        ] = str(exc)
 
     except ValueError as exc:
         errors["form"] = str(exc)
@@ -465,7 +547,9 @@ def external_game_players_page(
                 request,
                 db,
                 external_game,
-                new_player_id=new_player_id,
+                new_player_id=(
+                    new_player_id
+                ),
             )
         )
 
@@ -594,10 +678,14 @@ def external_game_stats_page(
         db,
         external_game,
         saved=(
-            request.query_params.get("saved")
+            request.query_params.get(
+                "saved"
+            )
             == "1"
             or
-            request.query_params.get("finalized")
+            request.query_params.get(
+                "finalized"
+            )
             == "1"
         ),
     )
@@ -705,7 +793,10 @@ async def save_external_game_stats_page(
             for field in RAW_STAT_FIELDS:
                 raw_value = str(
                     form.get(
-                        f"{field}_{player_id}",
+                        (
+                            f"{field}_"
+                            f"{player_id}"
+                        ),
                         "",
                     )
                 ).strip()
@@ -718,7 +809,9 @@ async def save_external_game_stats_page(
                         )
                     )
 
-                value = int(raw_value)
+                value = int(
+                    raw_value
+                )
 
                 if value < 0:
                     raise ValueError(
@@ -728,7 +821,9 @@ async def save_external_game_stats_page(
                         )
                     )
 
-                parsed_stats[field] = value
+                parsed_stats[
+                    field
+                ] = value
 
             stats_rows.append(
                 ExternalGamePlayerStatsCreate(
@@ -763,7 +858,6 @@ async def save_external_game_stats_page(
                             "Value error, "
                         )
                     )
-
             else:
                 message = str(exc)
 
@@ -811,7 +905,6 @@ async def save_external_game_stats_page(
                 stats_rows,
                 opponent_score,
             )
-
         else:
             save_external_game_stats(
                 db,
@@ -851,4 +944,45 @@ async def save_external_game_stats_page(
             f"?{query_flag}"
         ),
         status_code=303,
+    )
+
+
+@router.get(
+    "/app/external-games/"
+    "{external_game_id}/report",
+    response_class=HTMLResponse,
+)
+def external_game_report_page(
+    request: Request,
+    external_game_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        report = get_external_game_report(
+            db,
+            external_game_id,
+        )
+
+    except ExternalGameNotFoundError:
+        return HTMLResponse(
+            content="External game not found.",
+            status_code=404,
+        )
+
+    except ExternalGameNotCompletedError as exc:
+        return HTMLResponse(
+            content=str(exc),
+            status_code=409,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="external_games/report.html",
+        context={
+            "game": report["game"],
+            "summary": report["summary"],
+            "player_rows": report[
+                "player_rows"
+            ],
+        },
     )

@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+
+{% block title %}
+External Game Analysis | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header analytics-header">
+
+    <div class="analytics-header-copy">
+
+        <p class="eyebrow">
+            External Game Analysis
+        </p>
+
+        <h1>{{ summary.games_played }} Selected Games</h1>
+
+        <div class="analytics-context">
+
+            <span class="analytics-context-item">
+                Record:
+                {{ summary.wins }}-{{ summary.losses }}
+                {% if summary.ties %}
+                    -{{ summary.ties }}
+                {% endif %}
+            </span>
+
+            <span class="analytics-context-item">
+                Completed External Games Only
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="actions">
+
+        <a
+            class="button button-secondary"
+            href="{{ url_for(
+                'external_games_page'
+            ) }}"
+        >
+            Back to External Games
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Team Performance
+            </p>
+
+            <h2>Combined Summary</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="analytics-metric-grid">
+
+        <div class="analytics-metric">
+            <span>GP</span>
+            <strong>{{ summary.games_played }}</strong>
+        </div>
+
+        <div class="analytics-metric analytics-metric-primary">
+            <span>PTS</span>
+            <strong>{{ summary.points }}</strong>
+        </div>
+
+        <div class="analytics-metric analytics-metric-primary">
+            <span>PPG</span>
+            <strong>
+                {{ "%.1f"|format(summary.points_per_game) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>OPP PPG</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.opponent_points_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>DIFF/G</span>
+
+            <strong>
+                {% if summary.point_differential_per_game > 0 %}+{% endif %}{{ "%.1f"|format(summary.point_differential_per_game) }}
+            </strong>
+
+        </div>
+
+        <div class="analytics-metric">
+            <span>REB</span>
+            <strong>{{ summary.rebounds }}</strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>RPG</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.rebounds_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>AST</span>
+            <strong>{{ summary.assists }}</strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>APG</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.assists_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>TO/G</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.turnovers_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>STL/G</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.steals_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>DEF/G</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.deflections_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>PF/G</span>
+            <strong>
+                {{ "%.1f"|format(
+                    summary.personal_fouls_per_game
+                ) }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>TS%</span>
+            <strong>
+                {{ summary.true_shooting_percentage|percentage }}
+            </strong>
+        </div>
+
+        <div class="analytics-metric">
+            <span>A:TO</span>
+
+            <strong>
+                {% if summary.assist_turnover_ratio is not none %}
+                    {{ "%.2f"|format(
+                        summary.assist_turnover_ratio
+                    ) }}
+                {% else %}
+                    —
+                {% endif %}
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Efficiency
+            </p>
+
+            <h2>Combined Shooting</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="card shooting-card">
+
+        <div class="table-container">
+
+            <table class="table">
+
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Makes</th>
+                        <th>Attempts</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>FG</td>
+                        <td>{{ summary.field_goal_makes }}</td>
+                        <td>{{ summary.field_goal_attempts }}</td>
+                        <td>
+                            {{ summary.field_goal_percentage|percentage }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2PT</td>
+                        <td>{{ summary.two_point_makes }}</td>
+                        <td>{{ summary.two_point_attempts }}</td>
+                        <td>
+                            {{ summary.two_point_percentage|percentage }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>3PT</td>
+                        <td>{{ summary.three_point_makes }}</td>
+                        <td>{{ summary.three_point_attempts }}</td>
+                        <td>
+                            {{ summary.three_point_percentage|percentage }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>FT</td>
+                        <td>{{ summary.free_throw_makes }}</td>
+                        <td>{{ summary.free_throw_attempts }}</td>
+                        <td>
+                            {{ summary.free_throw_percentage|percentage }}
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Player Performance
+            </p>
+
+            <h2>Player Aggregates</h2>
+
+        </div>
+
+    </div>
+
+
+    {% if player_rows %}
+
+    <div class="card analytics-table-card">
+
+        <div class="table-container">
+
+            <table class="table box-score-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Player</th>
+                        <th>GP</th>
+                        <th>PTS</th>
+                        <th>PPG</th>
+                        <th>REB</th>
+                        <th>RPG</th>
+                        <th>AST</th>
+                        <th>APG</th>
+                        <th>TO</th>
+                        <th>STL</th>
+                        <th>DEF</th>
+                        <th>PF</th>
+                        <th>FG</th>
+                        <th>2PT</th>
+                        <th>3PT</th>
+                        <th>FT</th>
+                        <th>TS%</th>
+                        <th>A:TO</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for row in player_rows %}
+
+                    <tr>
+
+                        <td class="box-score-player">
+                            {{ row.player_name }}
+                        </td>
+
+                        <td>
+                            {{ row.games_played }}
+                        </td>
+
+                        <td>
+                            <strong>{{ row.points }}</strong>
+                        </td>
+
+                        <td>
+                            {% if row.points_per_game is not none %}
+                                {{ "%.1f"|format(row.points_per_game) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>{{ row.rebounds }}</td>
+
+                        <td>
+                            {% if row.rebounds_per_game is not none %}
+                                {{ "%.1f"|format(row.rebounds_per_game) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>{{ row.assists }}</td>
+
+                        <td>
+                            {% if row.assists_per_game is not none %}
+                                {{ "%.1f"|format(row.assists_per_game) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>{{ row.turnovers }}</td>
+                        <td>{{ row.steals }}</td>
+                        <td>{{ row.deflections }}</td>
+                        <td>{{ row.personal_fouls }}</td>
+
+                        <td>
+                            {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
+                            <br>
+                            {{ row.field_goal_percentage|percentage }}
+                        </td>
+
+                        <td>
+                            {{ row.two_point_makes }}/{{ row.two_point_attempts }}
+                            <br>
+                            {{ row.two_point_percentage|percentage }}
+                        </td>
+
+                        <td>
+                            {{ row.three_point_makes }}/{{ row.three_point_attempts }}
+                            <br>
+                            {{ row.three_point_percentage|percentage }}
+                        </td>
+
+                        <td>
+                            {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
+                            <br>
+                            {{ row.free_throw_percentage|percentage }}
+                        </td>
+
+                        <td>
+                            {{ row.true_shooting_percentage|percentage }}
+                        </td>
+
+                        <td>
+                            {% if row.assist_turnover_ratio is not none %}
+                                {{ "%.2f"|format(
+                                    row.assist_turnover_ratio
+                                ) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+<section class="analytics-section">
+
+    <div class="analytics-section-header">
+
+        <div>
+
+            <p class="eyebrow">
+                Selected Games
+            </p>
+
+            <h2>Game Breakdown</h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="card analytics-table-card">
+
+        <div class="table-container">
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Opponent</th>
+                        <th>Venue</th>
+                        <th>Result</th>
+                        <th>Score</th>
+                        <th>Margin</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for game in game_breakdown %}
+
+                    <tr>
+
+                        <td>
+                            <a
+                                href="{{ url_for(
+                                    'external_game_report_page',
+                                    external_game_id=game.external_game_id
+                                ) }}"
+                            >
+                                {{ game.game_name }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{ game.game_date.strftime("%m/%d/%Y") }}
+                        </td>
+
+                        <td>
+                            {{ game.opponent_name }}
+                        </td>
+
+                        <td>
+                            {{ game.venue_type.value }}
+                        </td>
+
+                        <td>
+                            {{ game.result }}
+                        </td>
+
+                        <td>
+                            {{ game.team_score }}-{{ game.opponent_score }}
+                        </td>
+
+                        <td>
+                            {% if game.score_margin > 0 %}
+                                +{{ game.score_margin }}
+                            {% else %}
+                                {{ game.score_margin }}
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
