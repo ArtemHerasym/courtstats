@@ -88,55 +88,56 @@ Add Season
 
                     <div class="form-group">
 
-                        <label
-                            class="form-label"
-                            for="team_id"
-                        >
-                            Team
-                        </label>
+                        {% if editing %}
+
+                            <label
+                                class="form-label"
+                                for="team_display"
+                            >
+                                Team
+                            </label>
 
 
-                        <select
-                            class="select"
-                            id="team_id"
-                            name="team_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select team
-                            </option>
+                            <input
+                                class="input"
+                                id="team_display"
+                                type="text"
+                                value="{{ season.team.name }}"
+                                readonly
+                                aria-readonly="true"
+                            >
 
 
-                            {% for team in teams %}
+                            <p class="form-help">
+                                The Team identity is not
+                                changed from the Season form.
+                            </p>
 
-                                {% set current_team =
-                                    values.get(
-                                        "team_id",
-                                        season.team_id|string
-                                        if season
-                                        else ""
-                                    )
-                                %}
+                        {% else %}
 
-                                <option
-                                    value="{{ team.id }}"
-                                    {% if current_team == team.id|string %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    {{ team.name }}
-                                </option>
-
-                            {% endfor %}
-
-                        </select>
+                            <label
+                                class="form-label"
+                                for="team_name"
+                            >
+                                Team Name
+                            </label>
 
 
-                        {% if errors.get("team_id") %}
+                            <input
+                                class="input"
+                                id="team_name"
+                                name="team_name"
+                                type="text"
+                                required
+                                autocomplete="organization"
+                                value="{{ values.get('team_name', '') }}"
+                                placeholder="Jordan Christian Preparatory"
+                            >
 
-                            <p class="form-error">
-                                {{ errors["team_id"] }}
+
+                            <p class="form-help">
+                                An existing matching Team
+                                will be reused automatically.
                             </p>
 
                         {% endif %}
@@ -161,7 +162,7 @@ Add Season
                             type="text"
                             required
                             value="{{ values.get('name', season.name if season else '') }}"
-                            placeholder="2026-27"
+                            placeholder="2027-2028"
                         >
 
                     </div>
@@ -203,8 +204,18 @@ Add Season
                             class="input"
                             id="start_date"
                             name="start_date"
-                            type="date"
-                            value="{{ values.get('start_date', season.start_date.isoformat() if season and season.start_date else '') }}"
+                            type="text"
+                            inputmode="numeric"
+                            maxlength="10"
+                            placeholder="MM/DD/YYYY"
+                            autocomplete="off"
+                            data-date-input
+                            value="{{ values.get(
+                                'start_date',
+                                season.start_date.strftime('%m/%d/%Y')
+                                if season and season.start_date
+                                else ''
+                            ) }}"
                         >
 
 
@@ -236,8 +247,18 @@ Add Season
                             class="input"
                             id="end_date"
                             name="end_date"
-                            type="date"
-                            value="{{ values.get('end_date', season.end_date.isoformat() if season and season.end_date else '') }}"
+                            type="text"
+                            inputmode="numeric"
+                            maxlength="10"
+                            placeholder="MM/DD/YYYY"
+                            autocomplete="off"
+                            data-date-input
+                            value="{{ values.get(
+                                'end_date',
+                                season.end_date.strftime('%m/%d/%Y')
+                                if season and season.end_date
+                                else ''
+                            ) }}"
                         >
 
 

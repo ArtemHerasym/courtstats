@@ -54,6 +54,7 @@ from app.services.external_game_workflow import (
 )
 from app.services.player import (
     PlayerNotFoundError,
+    get_player,
     list_players,
 )
 from app.services.team import (
@@ -99,6 +100,7 @@ def render_external_game_players_form(
     external_game,
     *,
     selected_player_ids: set[int] | None = None,
+    new_player_id: int | None = None,
     error: str | None = None,
     status_code: int = 200,
 ):
@@ -115,6 +117,25 @@ def render_external_game_players_form(
             for stats in existing_stats
         }
 
+    else:
+        selected_player_ids = set(
+            selected_player_ids
+        )
+
+    if (
+        new_player_id is not None
+        and external_game.status
+        == GameStatus.DRAFT
+    ):
+        get_player(
+            db,
+            new_player_id,
+        )
+
+        selected_player_ids.add(
+            new_player_id
+        )
+
     return templates.TemplateResponse(
         request=request,
         name=(
@@ -127,6 +148,7 @@ def render_external_game_players_form(
             "selected_player_ids": (
                 selected_player_ids
             ),
+            "new_player_id": new_player_id,
             "error": error,
         },
         status_code=status_code,
@@ -429,6 +451,7 @@ def create_external_game_page(
 def external_game_players_page(
     request: Request,
     external_game_id: int,
+    new_player_id: int | None = None,
     db: Session = Depends(get_db),
 ):
     try:
@@ -437,17 +460,26 @@ def external_game_players_page(
             external_game_id,
         )
 
+        return (
+            render_external_game_players_form(
+                request,
+                db,
+                external_game,
+                new_player_id=new_player_id,
+            )
+        )
+
     except ExternalGameNotFoundError:
         return HTMLResponse(
             content="External game not found.",
             status_code=404,
         )
 
-    return render_external_game_players_form(
-        request,
-        db,
-        external_game,
-    )
+    except PlayerNotFoundError:
+        return HTMLResponse(
+            content="Player not found.",
+            status_code=404,
+        )
 
 
 @router.post(
@@ -562,11 +594,11 @@ def external_game_stats_page(
         db,
         external_game,
         saved=(
-                request.query_params.get("saved")
-                == "1"
-                or
-                request.query_params.get("finalized")
-                == "1"
+            request.query_params.get("saved")
+            == "1"
+            or
+            request.query_params.get("finalized")
+            == "1"
         ),
     )
 

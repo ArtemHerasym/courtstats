@@ -72,8 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     theme
                 );
             } catch (error) {
-                // Theme still works for this page
-                // if browser storage is unavailable.
+                // Storage may be unavailable.
             }
         }
 
@@ -110,9 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateThemeControls();
 
-
-    // Follow operating-system theme changes only when
-    // the user has not manually selected a preference.
 
     const colorSchemeQuery = window.matchMedia(
         "(prefers-color-scheme: dark)"
@@ -206,9 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 link.addEventListener(
                     "click",
                     () => {
-                        if (
-                            mobileQuery.matches
-                        ) {
+                        if (mobileQuery.matches) {
                             setNavigationOpen(
                                 false
                             );
@@ -228,7 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     ) === "true"
                 ) {
                     setNavigationOpen(false);
-
                     navToggle.focus();
                 }
             }
@@ -241,6 +234,382 @@ document.addEventListener("DOMContentLoaded", () => {
                 setNavigationOpen(false);
             }
         );
+    }
+
+
+    // ==================================================
+    // Date input formatting
+    // ==================================================
+
+    const formatDateDigits = (
+        value,
+        appendBoundarySlash = true
+    ) => {
+        const digits = value
+            .replace(/\D/g, "")
+            .slice(0, 8);
+
+        if (digits.length <= 2) {
+            if (
+                digits.length === 2
+                && appendBoundarySlash
+            ) {
+                return `${digits}/`;
+            }
+
+            return digits;
+        }
+
+        if (digits.length <= 4) {
+            const month = digits.slice(
+                0,
+                2
+            );
+
+            const day = digits.slice(
+                2,
+                4
+            );
+
+            if (
+                digits.length === 4
+                && appendBoundarySlash
+            ) {
+                return `${month}/${day}/`;
+            }
+
+            return `${month}/${day}`;
+        }
+
+        return (
+            `${digits.slice(0, 2)}/`
+            + `${digits.slice(2, 4)}/`
+            + digits.slice(4, 8)
+        );
+    };
+
+
+    document
+        .querySelectorAll(
+            "[data-date-input]"
+        )
+        .forEach((input) => {
+            input.addEventListener(
+                "input",
+                (event) => {
+                    const isDeleting = (
+                        event.inputType
+                        && event.inputType.startsWith(
+                            "delete"
+                        )
+                    );
+
+                    input.value = formatDateDigits(
+                        input.value,
+                        !isDeleting
+                    );
+                }
+            );
+        });
+
+
+    // ==================================================
+    // Player picker
+    // ==================================================
+
+    const playerPicker = document.querySelector(
+        "[data-player-picker]"
+    );
+
+
+    if (playerPicker) {
+        const searchInput = (
+            playerPicker.querySelector(
+                "[data-player-search]"
+            )
+        );
+
+        const playerIdInput = (
+            playerPicker.querySelector(
+                "[data-player-id]"
+            )
+        );
+
+        const resultsContainer = (
+            playerPicker.querySelector(
+                "[data-player-results]"
+            )
+        );
+
+        const statusText = (
+            playerPicker.querySelector(
+                "[data-player-search-status]"
+            )
+        );
+
+        const selectedCard = (
+            playerPicker.querySelector(
+                "[data-player-selected]"
+            )
+        );
+
+        const selectedName = (
+            playerPicker.querySelector(
+                "[data-player-selected-name]"
+            )
+        );
+
+        const clearButton = (
+            playerPicker.querySelector(
+                "[data-player-clear]"
+            )
+        );
+
+        let searchTimer = null;
+
+
+        const clearResults = () => {
+            resultsContainer.replaceChildren();
+        };
+
+
+        const choosePlayer = (
+            playerId,
+            playerName
+        ) => {
+            playerIdInput.value = String(
+                playerId
+            );
+
+            selectedName.textContent = (
+                playerName
+            );
+
+            selectedCard.hidden = false;
+
+            searchInput.value = "";
+
+            clearResults();
+
+            statusText.textContent = (
+                "Player selected."
+            );
+        };
+
+
+        const renderPlayers = (players) => {
+            clearResults();
+
+            if (players.length === 0) {
+                statusText.textContent = (
+                    "No matching players found. "
+                    + "You can create a new Player."
+                );
+
+                return;
+            }
+
+            statusText.textContent = (
+                `${players.length} matching `
+                + "player"
+                + (
+                    players.length === 1
+                        ? ""
+                        : "s"
+                )
+                + " found."
+            );
+
+
+            players.forEach((player) => {
+                const button = (
+                    document.createElement(
+                        "button"
+                    )
+                );
+
+                button.type = "button";
+
+                button.className = (
+                    "button button-secondary"
+                );
+
+                const playerName = (
+                    player.display_name
+                    || player.full_name
+                );
+
+                button.textContent = playerName;
+
+                if (
+                    player.display_name
+                    && player.display_name
+                    !== player.full_name
+                ) {
+                    button.textContent += (
+                        ` — ${player.full_name}`
+                    );
+                }
+
+                button.addEventListener(
+                    "click",
+                    () => {
+                        choosePlayer(
+                            player.id,
+                            playerName
+                        );
+                    }
+                );
+
+                resultsContainer.appendChild(
+                    button
+                );
+            });
+        };
+
+
+        const runSearch = async () => {
+            const query = (
+                searchInput.value.trim()
+            );
+
+            if (!query) {
+                clearResults();
+
+                statusText.textContent = (
+                    "Search the global CourtStats "
+                    + "player directory."
+                );
+
+                return;
+            }
+
+            statusText.textContent = (
+                "Searching..."
+            );
+
+            try {
+                const response = await fetch(
+                    (
+                        "/app/players/search?q="
+                        + encodeURIComponent(
+                            query
+                        )
+                    ),
+                    {
+                        headers: {
+                            "Accept":
+                                "application/json",
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Player search failed."
+                    );
+                }
+
+                const players = (
+                    await response.json()
+                );
+
+                renderPlayers(players);
+
+            } catch (error) {
+                clearResults();
+
+                statusText.textContent = (
+                    "Player search is unavailable. "
+                    + "Please try again."
+                );
+            }
+        };
+
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+                window.clearTimeout(
+                    searchTimer
+                );
+
+                searchTimer = (
+                    window.setTimeout(
+                        runSearch,
+                        180
+                    )
+                );
+            }
+        );
+
+
+        if (clearButton) {
+            clearButton.addEventListener(
+                "click",
+                () => {
+                    playerIdInput.value = "";
+                    selectedCard.hidden = true;
+
+                    searchInput.focus();
+
+                    statusText.textContent = (
+                        "Search for another Player."
+                    );
+                }
+            );
+        }
+
+
+        const createPlayerLink = (
+            playerPicker.querySelector(
+                "[data-create-player-link]"
+            )
+        );
+
+        const seasonSelect = (
+            document.querySelector(
+                'select[name="season_id"]'
+            )
+        );
+
+
+        if (
+            createPlayerLink
+            && seasonSelect
+        ) {
+            const updateCreatePlayerLink = () => {
+                const baseHref = (
+                    createPlayerLink.dataset
+                        .baseHref
+                );
+
+                const url = new URL(
+                    baseHref,
+                    window.location.origin
+                );
+
+                if (seasonSelect.value) {
+                    url.searchParams.set(
+                        "season_id",
+                        seasonSelect.value
+                    );
+                }
+
+                createPlayerLink.href = (
+                    url.pathname
+                    + url.search
+                );
+            };
+
+
+            seasonSelect.addEventListener(
+                "change",
+                updateCreatePlayerLink
+            );
+
+            updateCreatePlayerLink();
+        }
     }
 
 
@@ -287,7 +656,6 @@ document.addEventListener("DOMContentLoaded", () => {
             ".participation-select"
         )
         .forEach((select) => {
-
             const row = select.closest(
                 ".stats-row"
             );
@@ -295,7 +663,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!row) {
                 return;
             }
-
 
             const statInputs = (
                 row.querySelectorAll(
@@ -310,14 +677,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     === "DID_NOT_PLAY"
                 );
 
-
-                // Provides a visual DNP state
-                // without changing backend behavior.
                 row.classList.toggle(
                     "is-dnp",
                     isDnp
                 );
-
 
                 statInputs.forEach((input) => {
                     if (isDnp) {

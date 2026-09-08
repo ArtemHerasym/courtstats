@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}
+Set Up Roster | CourtStats
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header page-header-split">
+
+    <div class="page-header-copy">
+
+        <p class="eyebrow">
+            Season Setup
+        </p>
+
+        <h1>Set Up Roster</h1>
+
+        <p class="page-description">
+            {{ season.team.name }}
+            · {{ season.name }}
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="card">
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                Step 2 of 2
+            </p>
+
+            <h2>
+                Add players to this season
+            </h2>
+
+            <p class="page-description">
+                Build the roster now, or skip
+                this step and return later.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="actions">
+
+        <a
+            class="button button-primary"
+            href="{{ url_for('new_roster_entry_page') }}?season_id={{ season.id }}&return_context=season_setup"
+        >
+            {% if roster_entries %}
+                Add Another Player
+            {% else %}
+                Add Player
+            {% endif %}
+        </a>
+
+
+        {% if roster_entries %}
+
+            <a
+                class="button button-secondary"
+                href="{{ url_for('roster_page') }}?season_id={{ season.id }}"
+            >
+                Finish Setup
+            </a>
+
+        {% endif %}
+
+
+        <a
+            class="button button-ghost"
+            href="{{ url_for(
+                'season_dashboard_page',
+                season_id=season.id
+            ) }}"
+        >
+            Skip for Now
+        </a>
+
+    </div>
+
+</section>
+
+
+{% if roster_entries %}
+
+<section
+    class="card table-card"
+    style="margin-top: 24px;"
+>
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Position</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th>Manage</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for roster in roster_entries %}
+
+                    <tr>
+
+                        <td>
+
+                            {% if roster.jersey_number is not none %}
+
+                                <span class="jersey-number">
+                                    #{{ roster.jersey_number }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="data-secondary">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="data-primary">
+                                {{ roster.player.display_name or roster.player.full_name }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+                            {{ roster.position or "—" }}
+                        </td>
+
+
+                        <td>
+                            {{ roster.grade_level or "—" }}
+                        </td>
+
+
+                        <td>
+
+                            {% if roster.status.value == "ACTIVE" %}
+
+                                <span
+                                    class="status-badge status-badge-success"
+                                >
+                                    ACTIVE
+                                </span>
+
+                            {% elif roster.status.value == "LEFT_TEAM" %}
+
+                                <span
+                                    class="status-badge status-badge-warning"
+                                >
+                                    LEFT_TEAM
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge">
+                                    {{ roster.status.value }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                class="button button-small"
+                                href="{{ url_for(
+                                    'edit_roster_entry_page',
+                                    roster_id=roster.id
+                                ) }}"
+                            >
+                                Edit
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+{% else %}
+
+<section
+    class="card empty-state"
+    style="margin-top: 24px;"
+>
+
+    <div class="empty-state-content">
+
+        <p class="eyebrow">
+            Season Roster
+        </p>
+
+        <h2>No players yet</h2>
+
+        <p class="page-description">
+            Add the first player to begin
+            building this season's roster.
+        </p>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

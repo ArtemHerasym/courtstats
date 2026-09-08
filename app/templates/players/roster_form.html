@@ -36,8 +36,16 @@ Add Player to Roster
         </h1>
 
         <p class="page-description">
-            Assign a CourtStats player to
-            a season roster.
+            {% if editing %}
+                Update this player's
+                season-specific basketball details.
+            {% elif return_context == "season_setup" %}
+                Add a player to the new
+                season roster.
+            {% else %}
+                Search for an existing player
+                or explicitly create a new one.
+            {% endif %}
         </p>
 
     </section>
@@ -66,6 +74,17 @@ Add Player to Roster
             >
 
 
+            {% if not editing and return_context %}
+
+                <input
+                    type="hidden"
+                    name="return_context"
+                    value="{{ return_context }}"
+                >
+
+            {% endif %}
+
+
             <div class="form-section">
 
                 <div class="form-section-header">
@@ -73,14 +92,80 @@ Add Player to Roster
                     <h2>Assignment</h2>
 
                     <p>
-                        Select the season and player
-                        for this roster position.
+                        {% if editing %}
+                            Player and Season identity
+                            are fixed for this membership.
+                        {% else %}
+                            Choose the Season and Player
+                            for this roster membership.
+                        {% endif %}
                     </p>
 
                 </div>
 
 
-                <div class="form-grid form-grid-2">
+                {% if editing %}
+
+                    <div class="form-grid form-grid-2">
+
+                        <div class="form-group">
+
+                            <label
+                                class="form-label"
+                                for="season_display"
+                            >
+                                Season
+                            </label>
+
+
+                            <input
+                                class="input"
+                                id="season_display"
+                                type="text"
+                                readonly
+                                aria-readonly="true"
+                                value="{{ roster.season.name }} — {{ roster.season.team.name }}"
+                            >
+
+
+                            <p class="form-help">
+                                Season membership cannot
+                                be reassigned here.
+                            </p>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label
+                                class="form-label"
+                                for="player_display"
+                            >
+                                Player
+                            </label>
+
+
+                            <input
+                                class="input"
+                                id="player_display"
+                                type="text"
+                                readonly
+                                aria-readonly="true"
+                                value="{{ roster.player.display_name or roster.player.full_name }}"
+                            >
+
+
+                            <p class="form-help">
+                                Global Player identity
+                                remains unchanged.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
 
                     <div class="form-group">
 
@@ -92,45 +177,74 @@ Add Player to Roster
                         </label>
 
 
-                        <select
-                            class="select"
-                            id="season_id"
-                            name="season_id"
-                            required
-                        >
+                        {% if
+                            return_context == "season_setup"
+                            and selected_season
+                        %}
 
-                            <option value="">
-                                Select season
-                            </option>
+                            <input
+                                type="hidden"
+                                name="season_id"
+                                value="{{ selected_season.id }}"
+                            >
 
+
+                            <input
+                                class="input"
+                                id="season_id"
+                                type="text"
+                                readonly
+                                aria-readonly="true"
+                                value="{{ selected_season.name }} — {{ selected_season.team.name }}"
+                            >
+
+
+                            <p class="form-help">
+                                This player will be added
+                                to the Season you are setting up.
+                            </p>
+
+                        {% else %}
 
                             {% set current_season =
                                 values.get(
                                     "season_id",
-                                    roster.season_id|string
-                                    if roster
-                                    else selected_season_id|string
+                                    selected_season_id|string
                                     if selected_season_id
                                     else ""
                                 )
                             %}
 
 
-                            {% for season in seasons %}
+                            <select
+                                class="select"
+                                id="season_id"
+                                name="season_id"
+                                required
+                            >
 
-                                <option
-                                    value="{{ season.id }}"
-                                    {% if current_season == season.id|string %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    {{ season.name }}
-                                    — {{ season.team.name }}
+                                <option value="">
+                                    Select season
                                 </option>
 
-                            {% endfor %}
 
-                        </select>
+                                {% for season in seasons %}
+
+                                    <option
+                                        value="{{ season.id }}"
+                                        {% if current_season == season.id|string %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ season.name }}
+                                        — {{ season.team.name }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        {% endif %}
 
 
                         {% if errors.get("season_id") %}
@@ -146,50 +260,12 @@ Add Player to Roster
 
                     <div class="form-group">
 
-                        <label
-                            class="form-label"
-                            for="player_id"
-                        >
+                        <label class="form-label">
                             Player
                         </label>
 
 
-                        <select
-                            class="select"
-                            id="player_id"
-                            name="player_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select player
-                            </option>
-
-
-                            {% set current_player =
-                                values.get(
-                                    "player_id",
-                                    roster.player_id|string
-                                    if roster
-                                    else ""
-                                )
-                            %}
-
-
-                            {% for player in players %}
-
-                                <option
-                                    value="{{ player.id }}"
-                                    {% if current_player == player.id|string %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    {{ player.display_name or player.full_name }}
-                                </option>
-
-                            {% endfor %}
-
-                        </select>
+                        {% include "components/player_picker.html" %}
 
 
                         {% if errors.get("player_id") %}
@@ -202,7 +278,7 @@ Add Player to Roster
 
                     </div>
 
-                </div>
+                {% endif %}
 
             </div>
 
@@ -348,6 +424,15 @@ Add Player to Roster
 
                         </select>
 
+
+                        {% if errors.get("status") %}
+
+                            <p class="form-error">
+                                {{ errors["status"] }}
+                            </p>
+
+                        {% endif %}
+
                     </div>
 
                 </div>
@@ -369,12 +454,32 @@ Add Player to Roster
                 </button>
 
 
-                <a
-                    class="button button-secondary"
-                    href="{{ url_for('roster_page') }}"
-                >
-                    Cancel
-                </a>
+                {% if
+                    not editing
+                    and return_context == "season_setup"
+                    and selected_season
+                %}
+
+                    <a
+                        class="button button-secondary"
+                        href="{{ url_for(
+                            'season_setup_roster_page',
+                            season_id=selected_season.id
+                        ) }}"
+                    >
+                        Cancel
+                    </a>
+
+                {% else %}
+
+                    <a
+                        class="button button-secondary"
+                        href="{{ url_for('roster_page') }}"
+                    >
+                        Cancel
+                    </a>
+
+                {% endif %}
 
             </div>
 

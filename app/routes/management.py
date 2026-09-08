@@ -1,5 +1,3 @@
-from datetime import date
-
 from fastapi import (
     APIRouter,
     Depends,
@@ -8,6 +6,7 @@ from fastapi import (
 )
 from fastapi.responses import (
     HTMLResponse,
+    JSONResponse,
     RedirectResponse,
 )
 from pydantic import ValidationError
@@ -17,6 +16,10 @@ from app.auth.dependencies import (
     require_html_csrf,
     require_html_user,
 )
+from app.core.dates import (
+    DateValidationError,
+    parse_optional_date,
+)
 from app.core.templates import templates
 from app.database.dependencies import get_db
 from app.models.season import SeasonStatus
@@ -25,25 +28,26 @@ from app.schemas.player import (
     PlayerCreate,
     PlayerUpdate,
 )
-from app.schemas.season import (
-    SeasonCreate,
-    SeasonUpdate,
-)
+from app.schemas.season import SeasonUpdate
 from app.schemas.season_roster import (
     SeasonRosterCreate,
     SeasonRosterUpdate,
+)
+from app.services.external_game import (
+    ExternalGameNotFoundError,
+    get_external_game,
 )
 from app.services.player import (
     PlayerNotFoundError,
     create_player,
     get_player,
-    list_players,
+    search_players,
     update_player,
 )
 from app.services.season import (
     SeasonNameConflictError,
     SeasonNotFoundError,
-    create_season,
+    create_season_for_team_name,
     get_season,
     list_seasons,
     update_season,
@@ -52,11 +56,14 @@ from app.services.season_roster import (
     SeasonRosterJerseyConflictError,
     SeasonRosterMembershipConflictError,
     SeasonRosterNotFoundError,
+    SeasonRosterRemovalBlockedError,
     create_season_roster,
     get_season_roster,
+    list_season_rosters_for_season,
+    remove_season_roster,
     update_season_roster,
 )
-from app.services.team import list_teams
+from app.services.team import TeamNameConflictError
 
 
 router = APIRouter(
@@ -66,6 +73,13 @@ router = APIRouter(
         Depends(require_html_user),
     ],
 )
+
+
+PLAYER_RETURN_CONTEXTS = {
+    "season_setup",
+    "roster",
+    "external_game",
+}
 
 
 def _first_validation_message(
@@ -79,22 +93,6 @@ def _first_validation_message(
         )
 
     return message
-
-
-def _parse_optional_date(
-    value: str,
-) -> date | None:
-    value = value.strip()
-
-    if not value:
-        return None
-
-    try:
-        return date.fromisoformat(value)
-    except ValueError as exc:
-        raise ValueError(
-            "Please enter a valid date."
-        ) from exc
 
 
 def _parse_optional_jersey(
@@ -120,6 +118,15 @@ def _parse_optional_jersey(
     return jersey_number
 
 
+def _normalize_return_context(
+    value: str | None,
+) -> str | None:
+    if value in PLAYER_RETURN_CONTEXTS:
+        return value
+
+    return None
+
+
 # =========================================================
 # Seasons
 # =========================================================
@@ -127,7 +134,6 @@ def _parse_optional_jersey(
 
 def _render_season_form(
     request: Request,
-    db: Session,
     *,
     season=None,
     errors: dict[str, str] | None = None,
@@ -139,7 +145,6 @@ def _render_season_form(
         name="seasons/form.html",
         context={
             "season": season,
-            "teams": list_teams(db),
             "season_statuses": list(
                 SeasonStatus
             ),
@@ -156,11 +161,9 @@ def _render_season_form(
 )
 def new_season_page(
     request: Request,
-    db: Session = Depends(get_db),
 ):
     return _render_season_form(
         request,
-        db,
     )
 
 
@@ -172,14 +175,14 @@ def new_season_page(
 )
 def create_season_page(
     request: Request,
-    team_id: str = Form(""),
+    team_name: str = Form(""),
     name: str = Form(""),
     start_date: str = Form(""),
     end_date: str = Form(""),
     db: Session = Depends(get_db),
 ):
     values = {
-        "team_id": team_id,
+        "team_name": team_name,
         "name": name,
         "start_date": start_date,
         "end_date": end_date,
@@ -188,53 +191,38 @@ def create_season_page(
     errors: dict[str, str] = {}
 
     try:
-        parsed_team_id = int(team_id)
-    except ValueError:
-        parsed_team_id = 0
-        errors["team_id"] = (
-            "Please select a valid team."
+        parsed_start_date = parse_optional_date(
+            start_date,
+            field_name="Start date",
         )
-
-    try:
-        parsed_start_date = (
-            _parse_optional_date(
-                start_date
-            )
-        )
-    except ValueError as exc:
+    except DateValidationError as exc:
         parsed_start_date = None
         errors["start_date"] = str(exc)
 
     try:
-        parsed_end_date = (
-            _parse_optional_date(
-                end_date
-            )
+        parsed_end_date = parse_optional_date(
+            end_date,
+            field_name="End date",
         )
-    except ValueError as exc:
+    except DateValidationError as exc:
         parsed_end_date = None
         errors["end_date"] = str(exc)
 
     if errors:
         return _render_season_form(
             request,
-            db,
             errors=errors,
             values=values,
             status_code=422,
         )
 
     try:
-        season_data = SeasonCreate(
-            team_id=parsed_team_id,
-            name=name,
+        season = create_season_for_team_name(
+            db,
+            team_name=team_name,
+            season_name=name,
             start_date=parsed_start_date,
             end_date=parsed_end_date,
-        )
-
-        season = create_season(
-            db,
-            season_data,
         )
 
     except ValidationError as exc:
@@ -242,16 +230,16 @@ def create_season_page(
             _first_validation_message(exc)
         )
 
-    except SeasonNameConflictError as exc:
-        errors["form"] = str(exc)
-
-    except Exception as exc:
+    except (
+        SeasonNameConflictError,
+        TeamNameConflictError,
+        ValueError,
+    ) as exc:
         errors["form"] = str(exc)
 
     if errors:
         return _render_season_form(
             request,
-            db,
             errors=errors,
             values=values,
             status_code=422,
@@ -260,9 +248,47 @@ def create_season_page(
     return RedirectResponse(
         url=(
             f"/app/seasons/"
-            f"{season.id}/dashboard"
+            f"{season.id}/setup-roster"
         ),
         status_code=303,
+    )
+
+
+@router.get(
+    "/app/seasons/{season_id}/setup-roster",
+    response_class=HTMLResponse,
+)
+def season_setup_roster_page(
+    request: Request,
+    season_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        season = get_season(
+            db,
+            season_id,
+        )
+
+        roster_entries = (
+            list_season_rosters_for_season(
+                db,
+                season_id,
+            )
+        )
+
+    except SeasonNotFoundError:
+        return HTMLResponse(
+            content="Season not found.",
+            status_code=404,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="seasons/setup_roster.html",
+        context={
+            "season": season,
+            "roster_entries": roster_entries,
+        },
     )
 
 
@@ -288,7 +314,6 @@ def edit_season_page(
 
     return _render_season_form(
         request,
-        db,
         season=season,
     )
 
@@ -302,7 +327,6 @@ def edit_season_page(
 def update_season_page(
     request: Request,
     season_id: int,
-    team_id: str = Form(""),
     name: str = Form(""),
     start_date: str = Form(""),
     end_date: str = Form(""),
@@ -321,7 +345,6 @@ def update_season_page(
         )
 
     values = {
-        "team_id": team_id,
         "name": name,
         "start_date": start_date,
         "end_date": end_date,
@@ -331,30 +354,20 @@ def update_season_page(
     errors: dict[str, str] = {}
 
     try:
-        parsed_team_id = int(team_id)
-    except ValueError:
-        parsed_team_id = season.team_id
-        errors["team_id"] = (
-            "Please select a valid team."
+        parsed_start_date = parse_optional_date(
+            start_date,
+            field_name="Start date",
         )
-
-    try:
-        parsed_start_date = (
-            _parse_optional_date(
-                start_date
-            )
-        )
-    except ValueError as exc:
+    except DateValidationError as exc:
         parsed_start_date = None
         errors["start_date"] = str(exc)
 
     try:
-        parsed_end_date = (
-            _parse_optional_date(
-                end_date
-            )
+        parsed_end_date = parse_optional_date(
+            end_date,
+            field_name="End date",
         )
-    except ValueError as exc:
+    except DateValidationError as exc:
         parsed_end_date = None
         errors["end_date"] = str(exc)
 
@@ -371,7 +384,6 @@ def update_season_page(
     if errors:
         return _render_season_form(
             request,
-            db,
             season=season,
             errors=errors,
             values=values,
@@ -380,7 +392,6 @@ def update_season_page(
 
     try:
         update_data = SeasonUpdate(
-            team_id=parsed_team_id,
             name=name,
             start_date=parsed_start_date,
             end_date=parsed_end_date,
@@ -407,7 +418,6 @@ def update_season_page(
     if errors:
         return _render_season_form(
             request,
-            db,
             season=season,
             errors=errors,
             values=values,
@@ -429,6 +439,9 @@ def _render_player_form(
     request: Request,
     *,
     player=None,
+    return_context: str | None = None,
+    season_id: int | None = None,
+    external_game_id: int | None = None,
     errors: dict[str, str] | None = None,
     values: dict[str, str] | None = None,
     status_code: int = 200,
@@ -438,6 +451,11 @@ def _render_player_form(
         name="players/form.html",
         context={
             "player": player,
+            "return_context": return_context,
+            "season_id": season_id,
+            "external_game_id": (
+                external_game_id
+            ),
             "errors": errors or {},
             "values": values or {},
         },
@@ -451,9 +469,66 @@ def _render_player_form(
 )
 def new_player_page(
     request: Request,
+    return_context: str | None = None,
+    season_id: int | None = None,
+    external_game_id: int | None = None,
+    db: Session = Depends(get_db),
 ):
+    normalized_context = (
+        _normalize_return_context(
+            return_context
+        )
+    )
+
+    if season_id is not None:
+        try:
+            get_season(
+                db,
+                season_id,
+            )
+        except SeasonNotFoundError:
+            return HTMLResponse(
+                content="Season not found.",
+                status_code=404,
+            )
+
+    if (
+        normalized_context
+        == "season_setup"
+        and season_id is None
+    ):
+        normalized_context = None
+
+    if (
+        normalized_context
+        == "external_game"
+    ):
+        if external_game_id is None:
+            normalized_context = None
+
+        else:
+            try:
+                get_external_game(
+                    db,
+                    external_game_id,
+                )
+            except ExternalGameNotFoundError:
+                return HTMLResponse(
+                    content=(
+                        "External game "
+                        "not found."
+                    ),
+                    status_code=404,
+                )
+
+    else:
+        external_game_id = None
+
     return _render_player_form(
         request,
+        return_context=normalized_context,
+        season_id=season_id,
+        external_game_id=external_game_id,
     )
 
 
@@ -467,45 +542,195 @@ def create_player_page(
     request: Request,
     full_name: str = Form(""),
     display_name: str = Form(""),
+    return_context: str = Form(""),
+    season_id: str = Form(""),
+    external_game_id: str = Form(""),
     db: Session = Depends(get_db),
 ):
+    normalized_context = (
+        _normalize_return_context(
+            return_context
+        )
+    )
+
+    parsed_season_id: int | None = None
+    parsed_external_game_id: int | None = None
+
+    errors: dict[str, str] = {}
+
+    if (
+        normalized_context
+        in {
+            "season_setup",
+            "roster",
+        }
+        and season_id.strip()
+    ):
+        try:
+            parsed_season_id = int(
+                season_id
+            )
+
+            get_season(
+                db,
+                parsed_season_id,
+            )
+
+        except (
+            ValueError,
+            SeasonNotFoundError,
+        ):
+            errors["form"] = (
+                "Season context is invalid."
+            )
+
+    if (
+        normalized_context
+        == "season_setup"
+        and parsed_season_id is None
+    ):
+        errors["form"] = (
+            "Season context is required."
+        )
+
+    if (
+        normalized_context
+        == "external_game"
+    ):
+        if not external_game_id.strip():
+            errors["form"] = (
+                "External Game context "
+                "is required."
+            )
+
+        else:
+            try:
+                parsed_external_game_id = int(
+                    external_game_id
+                )
+
+                get_external_game(
+                    db,
+                    parsed_external_game_id,
+                )
+
+            except (
+                ValueError,
+                ExternalGameNotFoundError,
+            ):
+                errors["form"] = (
+                    "External Game context "
+                    "is invalid."
+                )
+
     values = {
         "full_name": full_name,
         "display_name": display_name,
     }
 
-    errors: dict[str, str] = {}
+    if not errors:
+        try:
+            player_data = PlayerCreate(
+                full_name=full_name,
+                display_name=(
+                    display_name.strip()
+                    or None
+                ),
+            )
 
-    try:
-        player_data = PlayerCreate(
-            full_name=full_name,
-            display_name=(
-                display_name.strip()
-                or None
-            ),
-        )
+            player = create_player(
+                db,
+                player_data,
+            )
 
-        create_player(
-            db,
-            player_data,
-        )
-
-    except ValidationError as exc:
-        errors["form"] = (
-            _first_validation_message(exc)
-        )
+        except ValidationError as exc:
+            errors["form"] = (
+                _first_validation_message(
+                    exc
+                )
+            )
 
     if errors:
         return _render_player_form(
             request,
+            return_context=normalized_context,
+            season_id=parsed_season_id,
+            external_game_id=(
+                parsed_external_game_id
+            ),
             errors=errors,
             values=values,
             status_code=422,
         )
 
+    if (
+        normalized_context
+        == "external_game"
+    ):
+        return RedirectResponse(
+            url=(
+                "/app/external-games/"
+                f"{parsed_external_game_id}"
+                "/players?"
+                f"new_player_id={player.id}"
+            ),
+            status_code=303,
+        )
+
+    if normalized_context in {
+        "season_setup",
+        "roster",
+    }:
+        url = (
+            "/app/roster/new?"
+            f"new_player_id={player.id}"
+        )
+
+        if parsed_season_id is not None:
+            url += (
+                "&season_id="
+                f"{parsed_season_id}"
+            )
+
+        url += (
+            "&return_context="
+            f"{normalized_context}"
+        )
+
+        return RedirectResponse(
+            url=url,
+            status_code=303,
+        )
+
     return RedirectResponse(
         url="/app/players",
         status_code=303,
+    )
+
+
+@router.get(
+    "/app/players/search",
+)
+def search_players_page(
+    q: str = "",
+    db: Session = Depends(get_db),
+):
+    players = search_players(
+        db,
+        q,
+    )[:20]
+
+    return JSONResponse(
+        content=[
+            {
+                "id": player.id,
+                "full_name": player.full_name,
+                "display_name": (
+                    player.display_name
+                ),
+            }
+            for player in players
+        ]
     )
 
 
@@ -615,25 +840,72 @@ def _render_roster_form(
     *,
     roster=None,
     selected_season_id: int | None = None,
+    selected_season=None,
+    selected_player_id: int | None = None,
+    return_context: str | None = None,
     errors: dict[str, str] | None = None,
     values: dict[str, str] | None = None,
     status_code: int = 200,
 ):
+    values = values or {}
+
+    if (
+        selected_season is None
+        and selected_season_id is not None
+    ):
+        try:
+            selected_season = get_season(
+                db,
+                selected_season_id,
+            )
+        except SeasonNotFoundError:
+            selected_season = None
+
+    if (
+        selected_player_id is None
+        and values.get("player_id")
+    ):
+        try:
+            selected_player_id = int(
+                values["player_id"]
+            )
+        except ValueError:
+            selected_player_id = None
+
+    selected_player = None
+
+    if selected_player_id is not None:
+        try:
+            selected_player = get_player(
+                db,
+                selected_player_id,
+            )
+        except PlayerNotFoundError:
+            selected_player = None
+
     return templates.TemplateResponse(
         request=request,
         name="players/roster_form.html",
         context={
             "roster": roster,
             "seasons": list_seasons(db),
-            "players": list_players(db),
             "roster_statuses": list(
                 RosterStatus
             ),
             "selected_season_id": (
                 selected_season_id
             ),
+            "selected_season": (
+                selected_season
+            ),
+            "selected_player": (
+                selected_player
+            ),
+            "return_context": (
+                return_context
+            ),
             "errors": errors or {},
-            "values": values or {},
+            "values": values,
         },
         status_code=status_code,
     )
@@ -646,12 +918,49 @@ def _render_roster_form(
 def new_roster_entry_page(
     request: Request,
     season_id: int | None = None,
+    return_context: str | None = None,
+    new_player_id: int | None = None,
     db: Session = Depends(get_db),
 ):
+    normalized_context = (
+        _normalize_return_context(
+            return_context
+        )
+    )
+
+    selected_season = None
+
+    if season_id is not None:
+        try:
+            selected_season = get_season(
+                db,
+                season_id,
+            )
+        except SeasonNotFoundError:
+            return HTMLResponse(
+                content="Season not found.",
+                status_code=404,
+            )
+
+    if new_player_id is not None:
+        try:
+            get_player(
+                db,
+                new_player_id,
+            )
+        except PlayerNotFoundError:
+            return HTMLResponse(
+                content="Player not found.",
+                status_code=404,
+            )
+
     return _render_roster_form(
         request,
         db,
         selected_season_id=season_id,
+        selected_season=selected_season,
+        selected_player_id=new_player_id,
+        return_context=normalized_context,
     )
 
 
@@ -669,8 +978,15 @@ def create_roster_entry_page(
     position: str = Form(""),
     grade_level: str = Form(""),
     status: str = Form("ACTIVE"),
+    return_context: str = Form(""),
     db: Session = Depends(get_db),
 ):
+    normalized_context = (
+        _normalize_return_context(
+            return_context
+        )
+    )
+
     values = {
         "season_id": season_id,
         "player_id": player_id,
@@ -678,6 +994,10 @@ def create_roster_entry_page(
         "position": position,
         "grade_level": grade_level,
         "status": status,
+        "return_context": (
+            normalized_context
+            or ""
+        ),
     }
 
     errors: dict[str, str] = {}
@@ -699,7 +1019,7 @@ def create_roster_entry_page(
     except ValueError:
         parsed_player_id = 0
         errors["player_id"] = (
-            "Please select a valid player."
+            "Please select or create a player."
         )
 
     try:
@@ -733,33 +1053,31 @@ def create_roster_entry_page(
                 if parsed_season_id
                 else None
             ),
+            selected_player_id=(
+                parsed_player_id
+                if parsed_player_id
+                else None
+            ),
+            return_context=normalized_context,
             errors=errors,
             values=values,
             status_code=422,
         )
 
     try:
-        roster_data = (
-            SeasonRosterCreate(
-                season_id=(
-                    parsed_season_id
-                ),
-                player_id=(
-                    parsed_player_id
-                ),
-                jersey_number=(
-                    parsed_jersey
-                ),
-                position=(
-                    position.strip()
-                    or None
-                ),
-                grade_level=(
-                    grade_level.strip()
-                    or None
-                ),
-                status=parsed_status,
-            )
+        roster_data = SeasonRosterCreate(
+            season_id=parsed_season_id,
+            player_id=parsed_player_id,
+            jersey_number=parsed_jersey,
+            position=(
+                position.strip()
+                or None
+            ),
+            grade_level=(
+                grade_level.strip()
+                or None
+            ),
+            status=parsed_status,
         )
 
         create_season_roster(
@@ -787,9 +1105,23 @@ def create_roster_entry_page(
             selected_season_id=(
                 parsed_season_id
             ),
+            selected_player_id=(
+                parsed_player_id
+            ),
+            return_context=normalized_context,
             errors=errors,
             values=values,
             status_code=422,
+        )
+
+    if normalized_context == "season_setup":
+        return RedirectResponse(
+            url=(
+                f"/app/seasons/"
+                f"{parsed_season_id}/"
+                "setup-roster"
+            ),
+            status_code=303,
         )
 
     return RedirectResponse(
@@ -831,6 +1163,8 @@ def edit_roster_entry_page(
         selected_season_id=(
             roster.season_id
         ),
+        selected_season=roster.season,
+        selected_player_id=roster.player_id,
     )
 
 
@@ -843,8 +1177,6 @@ def edit_roster_entry_page(
 def update_roster_entry_page(
     request: Request,
     roster_id: int,
-    season_id: str = Form(""),
-    player_id: str = Form(""),
     jersey_number: str = Form(""),
     position: str = Form(""),
     grade_level: str = Form(""),
@@ -866,8 +1198,6 @@ def update_roster_entry_page(
         )
 
     values = {
-        "season_id": season_id,
-        "player_id": player_id,
         "jersey_number": jersey_number,
         "position": position,
         "grade_level": grade_level,
@@ -875,30 +1205,6 @@ def update_roster_entry_page(
     }
 
     errors: dict[str, str] = {}
-
-    try:
-        parsed_season_id = int(
-            season_id
-        )
-    except ValueError:
-        parsed_season_id = (
-            roster.season_id
-        )
-        errors["season_id"] = (
-            "Please select a valid season."
-        )
-
-    try:
-        parsed_player_id = int(
-            player_id
-        )
-    except ValueError:
-        parsed_player_id = (
-            roster.player_id
-        )
-        errors["player_id"] = (
-            "Please select a valid player."
-        )
 
     try:
         parsed_jersey = (
@@ -928,35 +1234,27 @@ def update_roster_entry_page(
             db,
             roster=roster,
             selected_season_id=(
-                parsed_season_id
+                roster.season_id
             ),
+            selected_season=roster.season,
+            selected_player_id=roster.player_id,
             errors=errors,
             values=values,
             status_code=422,
         )
 
     try:
-        update_data = (
-            SeasonRosterUpdate(
-                season_id=(
-                    parsed_season_id
-                ),
-                player_id=(
-                    parsed_player_id
-                ),
-                jersey_number=(
-                    parsed_jersey
-                ),
-                position=(
-                    position.strip()
-                    or None
-                ),
-                grade_level=(
-                    grade_level.strip()
-                    or None
-                ),
-                status=parsed_status,
-            )
+        update_data = SeasonRosterUpdate(
+            jersey_number=parsed_jersey,
+            position=(
+                position.strip()
+                or None
+            ),
+            grade_level=(
+                grade_level.strip()
+                or None
+            ),
+            status=parsed_status,
         )
 
         updated_roster = (
@@ -973,9 +1271,6 @@ def update_roster_entry_page(
         )
 
     except (
-        SeasonNotFoundError,
-        PlayerNotFoundError,
-        SeasonRosterMembershipConflictError,
         SeasonRosterJerseyConflictError,
         ValueError,
     ) as exc:
@@ -987,8 +1282,10 @@ def update_roster_entry_page(
             db,
             roster=roster,
             selected_season_id=(
-                parsed_season_id
+                roster.season_id
             ),
+            selected_season=roster.season,
+            selected_player_id=roster.player_id,
             errors=errors,
             values=values,
             status_code=422,
@@ -999,6 +1296,58 @@ def update_roster_entry_page(
             "/app/roster?"
             f"season_id="
             f"{updated_roster.season_id}"
+        ),
+        status_code=303,
+    )
+
+
+@router.post(
+    "/app/roster/{roster_id}/remove",
+    dependencies=[
+        Depends(require_html_csrf),
+    ],
+)
+def remove_roster_entry_page(
+    roster_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        roster = get_season_roster(
+            db,
+            roster_id,
+        )
+
+        season_id = roster.season_id
+
+        remove_season_roster(
+            db,
+            roster_id,
+        )
+
+    except SeasonRosterNotFoundError:
+        return HTMLResponse(
+            content=(
+                "Season roster entry "
+                "not found."
+            ),
+            status_code=404,
+        )
+
+    except SeasonRosterRemovalBlockedError:
+        return RedirectResponse(
+            url=(
+                "/app/roster?"
+                f"season_id={season_id}"
+                "&remove_error=history"
+            ),
+            status_code=303,
+        )
+
+    return RedirectResponse(
+        url=(
+            "/app/roster?"
+            f"season_id={season_id}"
+            "&removed=1"
         ),
         status_code=303,
     )

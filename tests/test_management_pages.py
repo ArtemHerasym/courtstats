@@ -42,17 +42,13 @@ def test_create_and_edit_season_through_html(
     authenticated_client,
     db_session,
 ):
-    team = _team(
-        db_session,
-    )
-
     response = authenticated_client.post(
         "/app/seasons/new",
         data={
-            "team_id": str(team.id),
+            "team_name": "Management Team",
             "name": "2030-31",
-            "start_date": "2030-08-01",
-            "end_date": "2031-05-31",
+            "start_date": "08/01/2030",
+            "end_date": "05/31/2031",
         },
         follow_redirects=False,
     )
@@ -70,10 +66,9 @@ def test_create_and_edit_season_through_html(
             f"/app/seasons/"
             f"{season.id}/edit",
             data={
-                "team_id": str(team.id),
                 "name": "2030-31 Updated",
-                "start_date": "2030-08-01",
-                "end_date": "2031-05-31",
+                "start_date": "08/01/2030",
+                "end_date": "05/31/2031",
                 "status": "ACTIVE",
             },
             follow_redirects=False,
@@ -101,6 +96,8 @@ def test_create_and_edit_player_through_html(
         data={
             "full_name": "New Player",
             "display_name": "New",
+            "return_context": "",
+            "season_id": "",
         },
         follow_redirects=False,
     )
@@ -179,6 +176,7 @@ def test_add_and_edit_roster_entry_through_html(
             "position": "G",
             "grade_level": "12",
             "status": "ACTIVE",
+            "return_context": "",
         },
         follow_redirects=False,
     )
@@ -203,12 +201,6 @@ def test_add_and_edit_roster_entry_through_html(
         f"/app/roster/"
         f"{roster.id}/edit",
         data={
-            "season_id": str(
-                season.id
-            ),
-            "player_id": str(
-                player.id
-            ),
             "jersey_number": "24",
             "position": "F",
             "grade_level": "12",
@@ -232,6 +224,7 @@ def test_management_pages_require_authentication(
         "/app/seasons/new",
         "/app/players/new",
         "/app/roster/new",
+        "/app/players/search?q=test",
     ]
 
     for path in paths:

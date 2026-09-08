@@ -2004,6 +2004,7 @@ textarea:focus-visible {
 
 .form-grid .form-group {
     min-width: 0;
+    align-content: start;
 }
 
 .form-field-full {

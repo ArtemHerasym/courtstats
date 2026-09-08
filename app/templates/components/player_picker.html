@@ -1,0 +1,127 @@
+<div
+    data-player-picker
+>
+
+    <input
+        type="hidden"
+        id="player_id"
+        name="player_id"
+        data-player-id
+        value="{% if selected_player %}{{ selected_player.id }}{% endif %}"
+    >
+
+
+    <div
+        class="form-group"
+    >
+
+        <label
+            class="form-label"
+            for="player_search"
+        >
+            Search Player
+        </label>
+
+
+        <input
+            class="input"
+            id="player_search"
+            type="search"
+            autocomplete="off"
+            placeholder="Start typing a player's name"
+            data-player-search
+        >
+
+
+        <p
+            class="form-help"
+            data-player-search-status
+            aria-live="polite"
+        >
+            Search the global CourtStats player directory.
+        </p>
+
+    </div>
+
+
+    <div
+        class="actions"
+        data-player-results
+    ></div>
+
+
+    <div
+        class="card"
+        data-player-selected
+        {% if not selected_player %}
+            hidden
+        {% endif %}
+        style="margin-top: 16px;"
+    >
+
+        <p
+            class="eyebrow"
+            style="margin-bottom: 6px;"
+        >
+            Selected Player
+        </p>
+
+
+        <strong data-player-selected-name>
+            {% if selected_player %}
+                {{ selected_player.display_name or selected_player.full_name }}
+            {% endif %}
+        </strong>
+
+
+        <div
+            class="actions"
+            style="margin-top: 14px;"
+        >
+
+            <button
+                class="button button-secondary"
+                type="button"
+                data-player-clear
+            >
+                Change Player
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="actions"
+        style="margin-top: 16px;"
+    >
+
+        {% if
+            return_context == "season_setup"
+            and selected_season
+        %}
+
+            <a
+                class="button button-secondary"
+                href="/app/players/new?return_context=season_setup&season_id={{ selected_season.id }}"
+            >
+                + Create New Player
+            </a>
+
+        {% else %}
+
+            <a
+                class="button button-secondary"
+                href="/app/players/new?return_context=roster{% if selected_season_id %}&season_id={{ selected_season_id }}{% endif %}"
+                data-create-player-link
+                data-base-href="/app/players/new?return_context=roster"
+            >
+                + Create New Player
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>

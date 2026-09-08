@@ -52,6 +52,7 @@ from app.services.season_roster import (
     SeasonRosterNotFoundError,
     get_season_roster,
     list_season_rosters_for_season,
+    season_has_usable_game_roster,
 )
 from app.schemas.player_game_stats import PlayerGameStatsCreate
 from app.auth.dependencies import (
@@ -148,10 +149,33 @@ def create_game_page(
     }
 
     try:
-        parsed_season_id = int(season_id)
-        get_season(db, parsed_season_id)
-    except (ValueError, SeasonNotFoundError):
-        errors["season_id"] = "Please select a valid seasons."
+        parsed_season_id = int(
+            season_id
+        )
+
+        get_season(
+            db,
+            parsed_season_id,
+        )
+
+        if not season_has_usable_game_roster(
+                db,
+                parsed_season_id,
+        ):
+            errors["season_id"] = (
+                "This Season has no ACTIVE roster "
+                "players. Add at least one ACTIVE "
+                "player before creating a Game."
+            )
+
+    except (
+            ValueError,
+            SeasonNotFoundError,
+    ):
+        errors["season_id"] = (
+            "Please select a valid season."
+        )
+
         parsed_season_id = None
 
     try:

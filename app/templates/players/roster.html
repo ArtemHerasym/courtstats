@@ -55,6 +55,30 @@ Roster | CourtStats
 </section>
 
 
+{% if request.query_params.get("removed") == "1" %}
+
+    <div class="message message-success form-alert">
+        Player removed from this Season.
+        The global Player remains available
+        in CourtStats.
+    </div>
+
+{% endif %}
+
+
+{% if request.query_params.get("remove_error") == "history" %}
+
+    <div class="message message-error form-alert">
+        This player cannot be removed because
+        they have completed-game or statistical
+        history in this Season. Change their
+        roster status to INACTIVE or LEFT_TEAM
+        instead.
+    </div>
+
+{% endif %}
+
+
 {% if seasons %}
 
 <section class="card filter-card">
@@ -227,6 +251,34 @@ Roster | CourtStats
                             >
                                 Edit
                             </a>
+
+
+                            <form
+                                method="post"
+                                action="{{ url_for(
+                                    'remove_roster_entry_page',
+                                    roster_id=roster.id
+                                ) }}"
+                                onsubmit="return confirm(
+                                    'Remove this player from this Season? The global Player will remain in CourtStats.'
+                                );"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ request.session.get('csrf_token', '') }}"
+                                >
+
+
+                                <button
+                                    class="button button-small button-destructive"
+                                    type="submit"
+                                >
+                                    Remove from Season
+                                </button>
+
+                            </form>
 
                         </div>
 
