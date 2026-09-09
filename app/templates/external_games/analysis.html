@@ -5,6 +5,8 @@ External Game Analysis | CourtStats
 {% endblock %}
 
 
+{% block body_class %}analytics-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header analytics-header">
@@ -216,7 +218,7 @@ External Game Analysis | CourtStats
 
     <div class="card shooting-card">
 
-        <div class="table-container">
+        <div class="table-container" tabindex="0" role="region" aria-label="Statistical table">
 
             <table class="table">
 
@@ -303,7 +305,7 @@ External Game Analysis | CourtStats
             Scroll horizontally to view all statistics.
         </p>
 
-        <div class="table-container">
+        <div class="table-container" tabindex="0" role="region" aria-label="Statistical table">
 
             <table class="table box-score-table">
 
@@ -478,7 +480,7 @@ External Game Analysis | CourtStats
 
     <div class="card analytics-table-card">
 
-        <div class="table-container">
+        <div class="table-container" tabindex="0" role="region" aria-label="Statistical table">
 
             <table class="table analysis-game-table">
 

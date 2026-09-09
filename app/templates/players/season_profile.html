@@ -5,6 +5,8 @@ Player Profile | CourtStats
 {% endblock %}
 
 
+{% block body_class %}analytics-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header analytics-header">
@@ -243,7 +245,7 @@ Player Profile | CourtStats
 
     <div class="card shooting-card">
 
-        <div class="table-container">
+        <div class="table-container" tabindex="0" role="region" aria-label="Statistical table">
 
             <table class="table">
 
@@ -395,7 +397,7 @@ Player Profile | CourtStats
                 Scroll horizontally to view all statistics.
             </p>
 
-            <div class="table-container">
+            <div class="table-container" tabindex="0" role="region" aria-label="Statistical table">
 
                 <table class="table game-log-table">
 

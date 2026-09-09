@@ -3847,7 +3847,7 @@ html[data-theme="dark"] .app-shell {
 
 /* Management libraries and setup workflows share the approved shell tokens.
    Reports, stats entry, analytics, Home, and navigation retain their styles. */
-:is(.management-page, .workflow-page) .page-content {
+:is(.management-page, .workflow-page, .analytics-page) .page-content {
     --color-surface: var(--shell-surface);
     --color-surface-subtle: var(--shell-neutral);
     --color-text: var(--shell-text);
@@ -3862,38 +3862,38 @@ html[data-theme="dark"] .app-shell {
     padding: 32px 24px 48px;
     color: var(--shell-text);
 }
-:is(.management-page, .workflow-page) .page-content [hidden] { display: none; }
-:is(.management-page, .workflow-page) .page-content > .page-header,
-:is(.management-page, .workflow-page) .page-content > .card,
-:is(.management-page, .workflow-page) .page-content > form { animation: none; }
-:is(.management-page, .workflow-page) .page-header { margin-bottom: 24px; }
-:is(.management-page, .workflow-page) .page-header-split { gap: 24px; }
-:is(.management-page, .workflow-page) .page-header-copy { overflow-wrap: anywhere; }
-:is(.management-page, .workflow-page) h1 {
+:is(.management-page, .workflow-page, .analytics-page) .page-content [hidden] { display: none; }
+:is(.management-page, .workflow-page, .analytics-page) .page-content > .page-header,
+:is(.management-page, .workflow-page, .analytics-page) .page-content > .card,
+:is(.management-page, .workflow-page, .analytics-page) .page-content > form { animation: none; }
+:is(.management-page, .workflow-page, .analytics-page) .page-header { margin-bottom: 24px; }
+:is(.management-page, .workflow-page, .analytics-page) .page-header-split { gap: 24px; }
+:is(.management-page, .workflow-page, .analytics-page) .page-header-copy { overflow-wrap: anywhere; }
+:is(.management-page, .workflow-page, .analytics-page) h1 {
     margin-bottom: 8px;
     font-size: 30px;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.025em;
 }
-:is(.management-page, .workflow-page) .page-content .eyebrow {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .eyebrow {
     margin-bottom: 8px;
     color: var(--shell-muted);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.05em;
 }
-:is(.management-page, .workflow-page) .page-description {
+:is(.management-page, .workflow-page, .analytics-page) .page-description {
     font-size: 14px;
     line-height: 1.43;
 }
-:is(.management-page, .workflow-page) .page-content .card {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .card {
     min-width: 0;
     border-radius: 12px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
-:is(.management-page, .workflow-page) .page-content .actions { gap: 8px; }
-:is(.management-page, .workflow-page) .page-content .button {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .actions { gap: 8px; }
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button {
     min-height: 40px;
     padding: 8px 16px;
     border-radius: 8px;
@@ -3906,46 +3906,46 @@ html[data-theme="dark"] .app-shell {
     box-shadow: none;
     transform: none;
 }
-:is(.management-page, .workflow-page) .page-content .button:hover {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button:hover {
     background: var(--shell-border);
     color: var(--shell-text);
 }
-:is(.management-page, .workflow-page) .page-content .button-primary {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button-primary {
     background: var(--shell-primary);
     color: var(--shell-primary-text);
     font-weight: 600;
 }
-:is(.management-page, .workflow-page) .page-content .button-primary:hover {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button-primary:hover {
     background: var(--shell-primary-hover);
     color: var(--shell-primary-text);
 }
-:is(.management-page, .workflow-page) .page-content .button-small {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button-small {
     min-height: 32px;
     padding: 4px 12px;
     font-size: 12px;
 }
-:is(.management-page, .workflow-page) .page-content .management-row-primary {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .management-row-primary {
     background: var(--shell-surface);
     border-color: var(--shell-border);
     color: var(--shell-primary);
     font-weight: 600;
 }
-:is(.management-page, .workflow-page) .page-content .management-row-primary:hover {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .management-row-primary:hover {
     background: var(--shell-neutral);
     border-color: var(--shell-primary);
 }
-:is(.management-page, .workflow-page) .page-content .button-destructive {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button-destructive {
     background: transparent;
     border-color: transparent;
     color: var(--color-danger);
 }
-:is(.management-page, .workflow-page) .page-content .button-destructive:hover {
+:is(.management-page, .workflow-page, .analytics-page) .page-content .button-destructive:hover {
     background: var(--color-danger-soft);
     border-color: var(--color-danger-border);
 }
-:is(.management-page, .workflow-page) .filter-card { padding: 16px 24px; margin-bottom: 24px; }
-:is(.management-page, .workflow-page) .filter-card .form-group { max-width: 380px; }
-:is(.management-page, .workflow-page) .filter-card .select {
+:is(.management-page, .workflow-page, .analytics-page) .filter-card { padding: 16px 24px; margin-bottom: 24px; }
+:is(.management-page, .workflow-page, .analytics-page) .filter-card .form-group { max-width: 380px; }
+:is(.management-page, .workflow-page, .analytics-page) .filter-card .select {
     min-width: 0;
     min-height: 40px;
     padding: 8px 12px;
@@ -3954,27 +3954,27 @@ html[data-theme="dark"] .app-shell {
     font-size: 14px;
     box-shadow: none;
 }
-:is(.management-page, .workflow-page) .filter-card .select:focus-visible {
+:is(.management-page, .workflow-page, .analytics-page) .filter-card .select:focus-visible {
     outline: 2px solid var(--shell-primary);
     outline-offset: 2px;
 }
-:is(.management-page, .workflow-page) .table-container { max-width: 100%; }
-:is(.management-page, .workflow-page) .table th,
-:is(.management-page, .workflow-page) .table td { padding: 12px 16px; }
-:is(.management-page, .workflow-page) .table th {
+:is(.management-page, .workflow-page, .analytics-page) .table-container { max-width: 100%; }
+:is(.management-page, .workflow-page, .analytics-page) .table th,
+:is(.management-page, .workflow-page, .analytics-page) .table td { padding: 12px 16px; }
+:is(.management-page, .workflow-page, .analytics-page) .table th {
     background: var(--shell-background);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0;
     text-transform: none;
 }
-:is(.management-page, .workflow-page) .table td { font-size: 14px; }
-:is(.management-page, .workflow-page) .data-primary { font-weight: 600; }
-:is(.management-page, .workflow-page) .cell-meta { margin-top: 4px; font-size: 12px; }
-:is(.management-page, .workflow-page) .data-actions { margin: 0; flex-wrap: nowrap; }
-:is(.management-page, .workflow-page) .data-actions form { margin: 0; }
-:is(.management-page, .workflow-page) .profile-links { gap: 8px; }
-:is(.management-page, .workflow-page) .status-badge {
+:is(.management-page, .workflow-page, .analytics-page) .table td { font-size: 14px; }
+:is(.management-page, .workflow-page, .analytics-page) .data-primary { font-weight: 600; }
+:is(.management-page, .workflow-page, .analytics-page) .cell-meta { margin-top: 4px; font-size: 12px; }
+:is(.management-page, .workflow-page, .analytics-page) .data-actions { margin: 0; flex-wrap: nowrap; }
+:is(.management-page, .workflow-page, .analytics-page) .data-actions form { margin: 0; }
+:is(.management-page, .workflow-page, .analytics-page) .profile-links { gap: 8px; }
+:is(.management-page, .workflow-page, .analytics-page) .status-badge {
     min-height: 24px;
     padding: 2px 8px;
     border-color: transparent;
@@ -3982,45 +3982,45 @@ html[data-theme="dark"] .app-shell {
     font-weight: 500;
     line-height: 18px;
 }
-html:not([data-theme="dark"]) :is(.management-page, .workflow-page) .status-badge-success {
+html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-page) .status-badge-success {
     background: #dcfce7;
     color: #166534;
 }
-:is(.management-page, .workflow-page) .empty-state { padding: 32px 24px; }
-:is(.management-page, .workflow-page) .empty-state h2 {
+:is(.management-page, .workflow-page, .analytics-page) .empty-state { padding: 32px 24px; }
+:is(.management-page, .workflow-page, .analytics-page) .empty-state h2 {
     font-size: 20px;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: 0;
 }
-:is(.management-page, .workflow-page) .empty-state .actions { margin-top: 24px; }
-:is(.management-page, .workflow-page) .analysis-selection-actions { margin-top: 24px; padding: 24px; }
-:is(.management-page, .workflow-page) .analysis-selection-actions .page-description { margin: 8px 0 0; }
-:is(.management-page, .workflow-page) .analysis-selection-note {
+:is(.management-page, .workflow-page, .analytics-page) .empty-state .actions { margin-top: 24px; }
+:is(.management-page, .workflow-page, .analytics-page) .analysis-selection-actions { margin-top: 24px; padding: 24px; }
+:is(.management-page, .workflow-page, .analytics-page) .analysis-selection-actions .page-description { margin: 8px 0 0; }
+:is(.management-page, .workflow-page, .analytics-page) .analysis-selection-note {
     margin-top: 4px;
     color: var(--shell-muted);
     font-size: 12px;
 }
-:is(.management-page, .workflow-page) .analysis-selection-column input { accent-color: var(--shell-primary); }
+:is(.management-page, .workflow-page, .analytics-page) .analysis-selection-column input { accent-color: var(--shell-primary); }
 @media (max-width: 820px) {
-    :is(.management-page, .workflow-page) .page-header-split {
+    :is(.management-page, .workflow-page, .analytics-page) .page-header-split {
         align-items: stretch;
         flex-direction: column;
         gap: 16px;
     }
-    :is(.management-page, .workflow-page) .page-header-split > .actions {
+    :is(.management-page, .workflow-page, .analytics-page) .page-header-split > .actions {
         width: 100%;
         flex-wrap: wrap;
     }
-    :is(.management-page, .workflow-page) .page-header-split > .actions .button { width: auto; }
+    :is(.management-page, .workflow-page, .analytics-page) .page-header-split > .actions .button { width: auto; }
 }
 @media (max-width: 480px) {
-    :is(.management-page, .workflow-page) .page-content { padding: 24px 16px 32px; }
-    :is(.management-page, .workflow-page) .page-header-split > .actions .button { width: 100%; white-space: normal; }
-    :is(.management-page, .workflow-page) .filter-card,
-    :is(.management-page, .workflow-page) .analysis-selection-actions { padding: 16px; }
-    :is(.management-page, .workflow-page) .empty-state { padding: 24px 16px; }
-    :is(.management-page, .workflow-page) .table .button-small { min-height: 40px; }
+    :is(.management-page, .workflow-page, .analytics-page) .page-content { padding: 24px 16px 32px; }
+    :is(.management-page, .workflow-page, .analytics-page) .page-header-split > .actions .button { width: 100%; white-space: normal; }
+    :is(.management-page, .workflow-page, .analytics-page) .filter-card,
+    :is(.management-page, .workflow-page, .analytics-page) .analysis-selection-actions { padding: 16px; }
+    :is(.management-page, .workflow-page, .analytics-page) .empty-state { padding: 24px 16px; }
+    :is(.management-page, .workflow-page, .analytics-page) .table .button-small { min-height: 40px; }
 }
 
 /* Form and setup refinements, scoped to the current workflow family. */
@@ -4188,4 +4188,161 @@ html:not([data-theme="dark"]) :is(.management-page, .workflow-page) .status-badg
     }
     .workflow-page .page-content .player-selection-actions .button,
     .workflow-page .page-content .player-picker-results .button { width: 100%; }
+}
+
+/* Analytics uses the approved shared surfaces; values and table structure stay intact. */
+.analytics-page .analytics-header { gap: 24px; }
+.analytics-page .analytics-header-copy { overflow-wrap: anywhere; }
+.analytics-page .analytics-context { margin-top: 8px; gap: 8px 12px; }
+.analytics-page .analytics-context-item { min-width: 0; font-size: 14px; }
+.analytics-page .analytics-section { margin-top: 24px; min-width: 0; }
+.analytics-page .analytics-section-header { margin-bottom: 16px; gap: 16px; }
+.analytics-page .analytics-section-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+}
+.analytics-page :is(.analytics-metric-grid, .dashboard-overview-grid, .dashboard-performance-grid) {
+    gap: 12px;
+}
+.analytics-page .analytics-metric-grid,
+.analytics-page .dashboard-performance-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.analytics-page .dashboard-overview-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.analytics-page .analytics-metric {
+    min-height: 88px;
+    padding: 16px;
+    gap: 8px;
+    background: var(--shell-surface);
+    border-color: var(--shell-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+.analytics-page .analytics-metric > span {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.04em;
+}
+.analytics-page .analytics-metric > strong {
+    color: var(--shell-text);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+}
+.analytics-page :is(.analytics-metric-primary, .dashboard-overview-primary) > strong {
+    color: var(--shell-primary);
+    font-weight: 700;
+}
+.analytics-page .dashboard-overview-grid .analytics-metric:last-child > strong { font-weight: 700; }
+.analytics-page .dashboard-leaderboard-grid,
+.analytics-page .dashboard-chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+.analytics-page .dashboard-leaderboard-grid .leaderboard-card { min-width: 0; padding: 0; }
+.analytics-page .leaderboard-card-header { padding: 16px; }
+.analytics-page .leaderboard-card-header h3,
+.analytics-page .dashboard-chart-header h3 {
+    margin: 0;
+    color: var(--shell-text);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: 0;
+}
+.analytics-page .leaderboard-card .table :is(th, td) { padding: 8px 16px; }
+.analytics-page .leaderboard-card .table :is(th, td):last-child { text-align: right; }
+.analytics-page .leaderboard-card .table .leaderboard-rank {
+    width: 40px;
+    color: var(--shell-muted);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+}
+.analytics-page .leaderboard-card .table .leaderboard-player {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.analytics-page .leaderboard-card .table a { color: var(--shell-text); font-weight: 600; }
+.analytics-page .leaderboard-card .table a:hover { color: var(--shell-primary); }
+.analytics-page .leaderboard-card .leaderboard-value { color: var(--shell-text); font-weight: 600; }
+.analytics-page .dashboard-chart-card { padding: 24px; }
+.analytics-page .dashboard-chart-header p { margin-top: 8px; font-size: 12px; }
+.analytics-page .game-scoreboard { padding: 24px; gap: 24px; border-color: var(--shell-border); }
+.analytics-page .game-score-team { font-size: 14px; font-weight: 600; white-space: normal; overflow-wrap: anywhere; }
+.analytics-page .game-score-number { font-size: 32px; font-weight: 700; letter-spacing: -0.025em; }
+.analytics-page .game-score-side:first-child .game-score-number { color: var(--shell-primary); }
+.analytics-page .game-score-result { min-width: 64px; padding: 8px 12px; border-radius: 8px; }
+.analytics-page .game-score-result strong { font-size: 12px; font-weight: 600; }
+.analytics-page .game-score-result span { font-size: 14px; }
+.analytics-page .player-profile-heading { gap: 12px; }
+.analytics-page .player-profile-number {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--shell-neutral);
+    border-color: var(--shell-border);
+    color: var(--shell-primary);
+    font-size: 16px;
+    font-weight: 600;
+}
+.analytics-page .player-profile-name h1 { margin: 0; }
+.analytics-page .table-scroll-hint {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 400;
+    background: var(--shell-background);
+}
+.analytics-page .box-score-table thead th:first-child { background: var(--shell-background); }
+.analytics-page .box-score-table .box-score-player {
+    min-width: 160px;
+    max-width: 220px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.analytics-page .box-score-table .box-score-player a { color: var(--shell-text); }
+.analytics-page .box-score-table .box-score-player a:hover { color: var(--shell-primary); }
+.analytics-page .participation-badge {
+    min-height: 24px;
+    padding: 2px 8px;
+    border-color: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: 0;
+}
+.analytics-page .stat-shooting-percentage { font-size: 12px; font-weight: 400; }
+.analytics-page .stat-shooting-line { font-weight: 600; }
+.analytics-page .page-content .message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.43;
+}
+@media (max-width: 1050px) {
+    .analytics-page :is(.analytics-metric-grid, .dashboard-performance-grid) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 850px) {
+    .analytics-page :is(.analytics-metric-grid, .dashboard-overview-grid, .dashboard-performance-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .analytics-page .analytics-header { align-items: stretch; flex-direction: column; gap: 16px; }
+    .analytics-page .analytics-header > .actions { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+    .analytics-page :is(.dashboard-leaderboard-grid, .dashboard-chart-grid) { grid-template-columns: 1fr; }
+    .analytics-page .game-scoreboard { padding: 16px; gap: 16px; }
+    .analytics-page .dashboard-chart-card { padding: 16px; }
+    .analytics-page .analytics-header > .actions .button { max-width: 100%; white-space: normal; }
+}
+@media (max-width: 480px) {
+    .analytics-page :is(.analytics-metric-grid, .dashboard-overview-grid, .dashboard-performance-grid) {
+        grid-template-columns: 1fr;
+    }
+    .analytics-page .analytics-metric { min-height: 80px; }
 }
