@@ -5,6 +5,8 @@ Set Up Roster | CourtStats
 {% endblock %}
 
 
+{% block body_class %}workflow-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header page-header-split">
@@ -98,7 +100,7 @@ Set Up Roster | CourtStats
     class="card table-card setup-roster-content"
 >
 
-    <div class="table-container">
+    <div class="table-container" tabindex="0" role="region" aria-label="Season setup roster table">
 
         <table class="table">
 
