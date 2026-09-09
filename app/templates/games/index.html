@@ -5,6 +5,8 @@ Games | CourtStats
 {% endblock %}
 
 
+{% block body_class %}management-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header page-header-split">
@@ -27,7 +29,7 @@ Games | CourtStats
 
             {% else %}
 
-                All CourtStats games
+                Review completed and draft season games.
 
             {% endif %}
 
@@ -114,7 +116,7 @@ Games | CourtStats
 
 <section class="card table-card">
 
-    <div class="table-container">
+    <div class="table-container" tabindex="0" role="region" aria-label="Games table">
 
         <table class="table">
 
@@ -198,7 +200,7 @@ Games | CourtStats
                         <div class="actions data-actions">
 
                             <a
-                                class="button button-small"
+                                class="button button-small{% if game.status.value != "COMPLETED" %} management-row-primary{% endif %}"
                                 href="{{ url_for(
                                     'game_stats_page',
                                     game_id=game.id
@@ -215,7 +217,7 @@ Games | CourtStats
                             {% if game.status.value == "COMPLETED" %}
 
                                 <a
-                                    class="button button-small"
+                                    class="button button-small management-row-primary"
                                     href="{{ url_for(
                                         'game_report_page',
                                         game_id=game.id

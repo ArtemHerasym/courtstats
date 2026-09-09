@@ -5,6 +5,8 @@ Seasons | CourtStats
 {% endblock %}
 
 
+{% block body_class %}management-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header page-header-split">
@@ -18,8 +20,7 @@ Seasons | CourtStats
         <h1>Seasons</h1>
 
         <p class="page-description">
-            Manage seasons and open their
-            basketball workflows.
+            Manage basketball seasons and open season analytics.
         </p>
 
     </div>
@@ -43,7 +44,7 @@ Seasons | CourtStats
 
 <section class="card table-card">
 
-    <div class="table-container">
+    <div class="table-container" tabindex="0" role="region" aria-label="Seasons table">
 
         <table class="table">
 
@@ -109,7 +110,7 @@ Seasons | CourtStats
                         <div class="actions data-actions">
 
                             <a
-                                class="button button-small"
+                                class="button button-small management-row-primary"
                                 href="{{ url_for(
                                     'season_dashboard_page',
                                     season_id=season.id

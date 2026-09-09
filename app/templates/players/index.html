@@ -5,6 +5,8 @@ Players | CourtStats
 {% endblock %}
 
 
+{% block body_class %}management-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header page-header-split">
@@ -18,8 +20,7 @@ Players | CourtStats
         <h1>Players</h1>
 
         <p class="page-description">
-            Manage CourtStats players and open
-            their season-specific profiles.
+            Manage the global CourtStats player directory.
         </p>
 
     </div>
@@ -43,7 +44,7 @@ Players | CourtStats
 
 <section class="card table-card">
 
-    <div class="table-container">
+    <div class="table-container" tabindex="0" role="region" aria-label="Players table">
 
         <table class="table">
 

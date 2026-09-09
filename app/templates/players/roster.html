@@ -5,6 +5,8 @@ Roster | CourtStats
 {% endblock %}
 
 
+{% block body_class %}management-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header page-header-split">
@@ -136,7 +138,7 @@ Roster | CourtStats
 
 <section class="card table-card">
 
-    <div class="table-container">
+    <div class="table-container" tabindex="0" role="region" aria-label="Roster table">
 
         <table class="table">
 
@@ -232,7 +234,7 @@ Roster | CourtStats
                         <div class="actions data-actions">
 
                             <a
-                                class="button button-small"
+                                class="button button-small management-row-primary"
                                 href="{{ url_for(
                                     'player_season_profile_page',
                                     season_roster_id=roster.id

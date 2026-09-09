@@ -5,6 +5,8 @@ External Games | CourtStats
 {% endblock %}
 
 
+{% block body_class %}management-page{% endblock %}
+
 {% block content %}
 
 <section class="page-header page-header-split">
@@ -18,7 +20,7 @@ External Games | CourtStats
         <h1>External Games</h1>
 
         <p class="page-description">
-            Games recorded outside of a regular season.
+            Manage non-season games and reports.
         </p>
 
     </div>
@@ -62,7 +64,7 @@ External Games | CourtStats
 
 <section class="card table-card">
 
-    <div class="table-container">
+    <div class="table-container" tabindex="0" role="region" aria-label="External Games table">
 
         <table class="table">
 
@@ -200,7 +202,7 @@ External Games | CourtStats
                             {% if game.status.value == "DRAFT" %}
 
                                 <a
-                                    class="button button-small"
+                                    class="button button-small management-row-primary"
                                     href="{{ url_for(
                                         'external_game_players_page',
                                         external_game_id=game.id
@@ -212,7 +214,7 @@ External Games | CourtStats
                             {% else %}
 
                                 <a
-                                    class="button button-small button-primary"
+                                    class="button button-small management-row-primary"
                                     href="{{ url_for(
                                         'external_game_report_page',
                                         external_game_id=game.id
