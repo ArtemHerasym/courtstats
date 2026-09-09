@@ -20,6 +20,23 @@ def format_percentage(
     return f"{value:.1%}"
 
 
+def format_enum_label(value) -> str:
+    raw_value = getattr(
+        value,
+        "value",
+        value,
+    )
+
+    return " ".join(
+        word.capitalize()
+        for word in str(raw_value).split("_")
+    )
+
+
 templates.env.filters[
     "percentage"
 ] = format_percentage
+
+templates.env.filters[
+    "enum_label"
+] = format_enum_label

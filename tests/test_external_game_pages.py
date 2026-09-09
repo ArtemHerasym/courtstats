@@ -120,18 +120,23 @@ def test_saved_external_game_appears_in_library(
     )
 
     assert (
-        "NEUTRAL"
+        "Neutral"
         in response.text
     )
 
     assert (
-        "DRAFT"
+        "Draft"
         in response.text
     )
 
     assert (
         "Continue"
         in response.text
+    )
+
+    assert (
+        "Analyze Games"
+        not in response.text
     )
 
     assert (
@@ -190,12 +195,17 @@ def test_completed_external_game_links_to_stats(
     )
 
     assert (
-        "COMPLETED"
+        "Completed"
         in response.text
     )
 
     assert (
         "Edit Stats"
+        in response.text
+    )
+
+    assert (
+        "Analyze Games"
         in response.text
     )
 

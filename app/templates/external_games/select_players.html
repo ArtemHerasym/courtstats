@@ -35,7 +35,7 @@ Select Players | CourtStats
             </span>
 
             <span class="selection-context-item">
-                {{ external_game.venue_type.value }}
+                {{ external_game.venue_type|enum_label }}
             </span>
 
             <span class="selection-context-item">
@@ -43,13 +43,13 @@ Select Players | CourtStats
                 {% if external_game.status.value == "COMPLETED" %}
 
                     <span class="status-badge status-badge-success">
-                        {{ external_game.status.value }}
+                        {{ external_game.status|enum_label }}
                     </span>
 
                 {% else %}
 
                     <span class="status-badge status-badge-warning">
-                        {{ external_game.status.value }}
+                        {{ external_game.status|enum_label }}
                     </span>
 
                 {% endif %}
@@ -86,9 +86,9 @@ Select Players | CourtStats
 
     {% if not players %}
 
-        <section class="card player-selection-empty">
+        <section class="card empty-state player-selection-empty">
 
-            <div class="player-selection-empty-content">
+            <div class="empty-state-content player-selection-empty-content">
 
                 <p class="eyebrow">
                     Player Directory
@@ -204,8 +204,7 @@ Select Players | CourtStats
             {% if external_game.status.value == "COMPLETED" %}
 
                 <div
-                    class="message message-info"
-                    style="margin-bottom: 20px;"
+                    class="message message-info player-selection-notice"
                 >
                     Player selection cannot be changed
                     for a completed External Game.
@@ -217,8 +216,7 @@ Select Players | CourtStats
             {% if external_game.status.value == "DRAFT" %}
 
                 <div
-                    class="form-group"
-                    style="margin-bottom: 20px;"
+                    class="form-group player-selection-search"
                 >
 
                     <label

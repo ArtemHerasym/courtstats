@@ -1,4 +1,5 @@
 <div
+    class="player-picker"
     data-player-picker
 >
 
@@ -11,9 +12,7 @@
     >
 
 
-    <div
-        class="form-group"
-    >
+    <div class="player-picker-search">
 
         <label
             class="form-label"
@@ -45,42 +44,39 @@
 
 
     <div
-        class="actions"
+        class="actions player-picker-results"
         data-player-results
     ></div>
 
 
     <div
-        class="card"
+        class="player-picker-selected"
         data-player-selected
         {% if not selected_player %}
             hidden
         {% endif %}
-        style="margin-top: 16px;"
     >
 
-        <p
-            class="eyebrow"
-            style="margin-bottom: 6px;"
-        >
-            Selected Player
-        </p>
+        <div class="player-picker-selected-copy">
+
+            <p class="eyebrow">
+                Selected Player
+            </p>
 
 
-        <strong data-player-selected-name>
-            {% if selected_player %}
-                {{ selected_player.display_name or selected_player.full_name }}
-            {% endif %}
-        </strong>
+            <strong data-player-selected-name>
+                {% if selected_player %}
+                    {{ selected_player.display_name or selected_player.full_name }}
+                {% endif %}
+            </strong>
+
+        </div>
 
 
-        <div
-            class="actions"
-            style="margin-top: 14px;"
-        >
+        <div class="actions player-picker-selected-actions">
 
             <button
-                class="button button-secondary"
+                class="button button-secondary button-small"
                 type="button"
                 data-player-clear
             >
@@ -92,10 +88,7 @@
     </div>
 
 
-    <div
-        class="actions"
-        style="margin-top: 16px;"
-    >
+    <div class="actions player-picker-create-actions">
 
         {% if
             return_context == "season_setup"

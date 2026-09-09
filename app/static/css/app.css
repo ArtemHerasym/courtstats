@@ -98,6 +98,8 @@
 
     /* Motion */
     --transition-fast: 160ms ease;
+    --transition-base:
+        220ms cubic-bezier(0.2, 0, 0.2, 1);
 
     /* Chart.js-ready tokens */
     --chart-primary: #007fff;
@@ -247,6 +249,44 @@ svg {
 .page-content {
     padding-top: 56px;
     padding-bottom: 88px;
+}
+
+
+@keyframes page-content-entrance {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes message-entrance {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.page-content > .page-header,
+.page-content > .card,
+.page-content > .form-page,
+.page-content > form,
+.page-content > .analytics-section {
+    animation:
+        page-content-entrance
+        var(--transition-base)
+        both;
 }
 
 
@@ -597,9 +637,9 @@ h3 {
 
 .form-group {
     display: grid;
-    gap: 7px;
+    gap: var(--space-2);
 
-    margin-bottom: 21px;
+    margin-bottom: var(--space-5);
 }
 
 .form-label {
@@ -625,6 +665,10 @@ h3 {
 
     font-size: 0.8rem;
     font-weight: 580;
+}
+
+.form-error-actions {
+    margin-top: var(--space-3);
 }
 
 .input,
@@ -798,8 +842,7 @@ h3 {
     font-size: 0.7rem;
     font-weight: 740;
 
-    letter-spacing: 0.035em;
-    text-transform: uppercase;
+    letter-spacing: 0;
 }
 
 .status-badge-success {
@@ -843,6 +886,11 @@ h3 {
 
     font-size: 0.875rem;
     line-height: 1.5;
+
+    animation:
+        message-entrance
+        200ms ease-out
+        both;
 }
 
 .message-success {
@@ -876,13 +924,13 @@ h3 {
 
 .stack {
     display: grid;
-    gap: 24px;
+    gap: var(--space-6);
 }
 
 .actions {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: var(--space-2);
 
     flex-wrap: wrap;
 }
@@ -891,9 +939,9 @@ h3 {
     display: flex;
     align-items: end;
     justify-content: space-between;
-    gap: 20px;
+    gap: var(--space-5);
 
-    margin-bottom: 14px;
+    margin-bottom: var(--space-4);
 }
 
 
@@ -986,151 +1034,6 @@ thead .player-column {
 
 .game-score-field .input {
     width: 100%;
-}
-
-
-/* ==========================================================
-   Game report
-   ========================================================== */
-
-.report-header {
-    margin-bottom: 25px;
-}
-
-.report-score-card {
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 1fr)
-        auto
-        minmax(0, 1fr);
-
-    align-items: center;
-
-    gap: 28px;
-
-    margin-bottom: 28px;
-
-    border-color: var(--color-border-strong);
-}
-
-.report-score-team {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
-    min-width: 0;
-}
-
-.report-score-team:last-child {
-    justify-content: flex-end;
-}
-
-.report-team-name {
-    overflow: hidden;
-
-    color: var(--color-text-secondary);
-
-    font-weight: 650;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.report-score {
-    color: var(--color-text);
-
-    font-size: clamp(
-        2rem,
-        4vw,
-        2.75rem
-    );
-
-    font-weight: 780;
-    line-height: 1;
-
-    letter-spacing: -0.05em;
-
-    font-variant-numeric: tabular-nums;
-}
-
-.report-result {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-
-    min-width: 70px;
-
-    color: var(--color-text-muted);
-
-    font-variant-numeric: tabular-nums;
-}
-
-.report-result strong {
-    color: var(--color-text);
-}
-
-.report-section {
-    margin-top: 31px;
-}
-
-.report-section h2 {
-    margin-bottom: 14px;
-}
-
-.report-stat-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(112px, 1fr)
-        );
-
-    gap: 11px;
-}
-
-.report-stat {
-    min-width: 0;
-
-    padding: 15px;
-
-    background: var(--color-surface);
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-
-    box-shadow: var(--shadow-xs);
-}
-
-.report-stat span {
-    display: block;
-
-    margin-bottom: 6px;
-
-    color: var(--color-text-muted);
-
-    font-size: 0.7rem;
-    font-weight: 740;
-
-    text-transform: uppercase;
-    letter-spacing: 0.055em;
-}
-
-.report-stat strong {
-    color: var(--color-text);
-
-    font-size: 1.25rem;
-    font-weight: 730;
-
-    letter-spacing: -0.03em;
-
-    font-variant-numeric: tabular-nums;
-}
-
-.report-player-table {
-    min-width: 1100px;
 }
 
 
@@ -1242,7 +1145,6 @@ thead .player-column {
    Theme / navigation controls
    ========================================================== */
 
-.theme-toggle,
 .nav-menu-toggle {
     display: inline-flex;
     align-items: center;
@@ -1272,11 +1174,81 @@ thead .player-column {
         color var(--transition-fast);
 }
 
-.theme-toggle:hover,
 .nav-menu-toggle:hover {
     background: var(--color-surface-subtle);
     border-color: var(--color-border-strong);
     color: var(--color-text);
+}
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    background: transparent;
+
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+
+    color: var(--color-text-secondary);
+
+    font: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.theme-toggle:hover {
+    background: var(--color-surface-subtle);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+.theme-toggle-icon {
+    display: none;
+
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+[data-theme="light"] .theme-toggle-icon-moon,
+[data-theme="dark"] .theme-toggle-icon-sun {
+    display: block;
+}
+
+.theme-toggle-icon[hidden] {
+    display: none;
+}
+
+.theme-toggle-label {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    overflow: hidden;
+
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+
+    white-space: nowrap;
 }
 
 .nav-menu-toggle {
@@ -1301,28 +1273,6 @@ textarea:focus-visible {
 ::selection {
     background: var(--brand-primary);
     color: #ffffff;
-}
-
-
-/* ==========================================================
-   Tablet / narrow desktop
-   ========================================================== */
-
-@media (max-width: 1000px) {
-    .navbar {
-        flex-wrap: wrap;
-    }
-
-    .nav-links {
-        width: 100%;
-        order: 3;
-
-        margin-left: 0;
-
-        overflow-x: auto;
-
-        padding-top: 2px;
-    }
 }
 
 
@@ -1417,33 +1367,10 @@ textarea:focus-visible {
             13px;
     }
 
-    .report-score-card {
-        grid-template-columns: 1fr;
-        gap: 18px;
 
-        text-align: center;
-    }
 
-    .report-score-team,
-    .report-score-team:last-child {
-        justify-content: center;
-    }
 
-    .report-result {
-        order: 3;
-    }
 
-    .report-team-name {
-        white-space: normal;
-    }
-
-    .report-stat-grid {
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
-    }
 
     .dashboard-chart-wrapper {
         height: 280px;
@@ -1475,17 +1402,7 @@ textarea:focus-visible {
         width: 100%;
     }
 
-    .report-stat-grid {
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
-    }
 
-    .report-stat {
-        padding: 13px;
-    }
 }
 
 
@@ -1511,7 +1428,7 @@ textarea:focus-visible {
 }
 
 /* ==========================================================
-   Phase 40 — Application shell
+   Phase 40 вЂ” Application shell
    ========================================================== */
 
 .nav-panel {
@@ -1519,7 +1436,7 @@ textarea:focus-visible {
 
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-3);
 
     flex: 1;
 }
@@ -1535,7 +1452,7 @@ textarea:focus-visible {
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
 
     flex-shrink: 0;
 }
@@ -1560,30 +1477,6 @@ textarea:focus-visible {
 
 @media (max-width: 1000px) {
     .navbar {
-        flex-wrap: nowrap;
-    }
-
-    .nav-panel {
-        min-width: 0;
-    }
-
-    .nav-panel .nav-links {
-        width: auto;
-        order: initial;
-
-        margin-left: 0;
-
-        overflow-x: auto;
-
-        padding-bottom: 2px;
-    }
-}
-
-
-/* ---------- Mobile navigation ---------- */
-
-@media (max-width: 760px) {
-    .navbar {
         flex-wrap: wrap;
     }
 
@@ -1600,17 +1493,22 @@ textarea:focus-visible {
         flex-direction: column;
         align-items: stretch;
 
-        gap: 10px;
+        gap: var(--space-3);
 
-        padding-top: 5px;
+        padding-top: var(--space-2);
     }
 
-    .js .nav-panel {
+    .js-ready .nav-panel {
         display: none;
     }
 
-    .js .nav-panel.is-open {
+    .js-ready .nav-panel.is-open {
         display: flex;
+
+        animation:
+            page-content-entrance
+            180ms ease-out
+            both;
     }
 
     .nav-panel .nav-links {
@@ -1618,10 +1516,10 @@ textarea:focus-visible {
 
         display: grid;
 
-        gap: 2px;
+        gap: var(--space-1);
 
         margin: 0;
-        padding: 9px 0 0;
+        padding: var(--space-2) 0 0;
 
         overflow: visible;
 
@@ -1635,54 +1533,68 @@ textarea:focus-visible {
 
         justify-content: flex-start;
 
-        padding: 0 12px;
+        padding: 0 var(--space-3);
 
-        border-radius: 10px;
+        border-radius: var(--radius-sm);
     }
 
     .nav-actions {
         width: 100%;
 
-        display: grid;
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
 
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
-
-        gap: 8px;
+        flex-wrap: wrap;
     }
 
-    .nav-actions .nav-add-game {
-        grid-column: 1 / -1;
+    .nav-actions .nav-add-game,
+    .nav-actions form {
+        flex: 1 1 150px;
     }
 
-    .nav-actions .button,
-    .nav-actions .theme-toggle,
-    .nav-actions form,
+    .nav-actions .theme-toggle {
+        flex: 0 0 40px;
+    }
+
     .nav-actions form button {
         width: 100%;
     }
+}
 
-    .nav-actions form {
-        display: contents;
+
+/* ---------- Mobile navigation ---------- */
+
+@media (max-width: 760px) {
+    .navbar {
+        gap: 10px;
+    }
+
+    .nav-panel {
+        gap: var(--space-3);
     }
 }
 
 
 @media (max-width: 460px) {
     .nav-actions {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns:
+            40px
+            minmax(0, 1fr);
     }
 
     .nav-actions .nav-add-game {
-        grid-column: auto;
+        grid-column: 1 / -1;
+    }
+
+    .nav-actions form {
+        min-width: 0;
     }
 }
 
 /* ==========================================================
-   Phase 40 — Management surfaces
+   Phase 40 вЂ” Management surfaces
    ========================================================== */
 
 .page-header-split {
@@ -1747,7 +1659,9 @@ textarea:focus-visible {
 /* ---------- Empty states ---------- */
 
 .empty-state {
-    padding: 44px 30px;
+    padding:
+        var(--space-8)
+        var(--space-7);
 
     text-align: center;
 }
@@ -1758,7 +1672,7 @@ textarea:focus-visible {
 }
 
 .empty-state h2 {
-    margin-bottom: 9px;
+    margin-bottom: var(--space-2);
 }
 
 .empty-state .page-description {
@@ -1767,7 +1681,7 @@ textarea:focus-visible {
 
 .empty-state .actions {
     justify-content: center;
-    margin-top: 22px;
+    margin-top: var(--space-6);
 }
 
 
@@ -1808,12 +1722,14 @@ textarea:focus-visible {
     }
 
     .empty-state {
-        padding: 34px 20px;
+        padding:
+            var(--space-7)
+            var(--space-5);
     }
 }
 
 /* ==========================================================
-   Phase 40 — Home, Players, Roster
+   Phase 40 вЂ” Home, Players, Roster
    ========================================================== */
 
 
@@ -1833,7 +1749,7 @@ textarea:focus-visible {
 
     overflow: hidden;
 
-    padding: 30px;
+    padding: var(--space-7);
 }
 
 .home-operations-card::before {
@@ -1852,11 +1768,11 @@ textarea:focus-visible {
 .home-operations-header {
     max-width: 650px;
 
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
 }
 
 .home-operations-header h2 {
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
 }
 
 .home-action-grid {
@@ -1868,19 +1784,77 @@ textarea:focus-visible {
             minmax(0, 1fr)
         );
 
-    gap: 10px;
+    gap: var(--space-4);
 }
 
 .home-action {
-    min-height: 52px;
+    min-height: 108px;
 
-    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
 
-    padding-inline: 18px;
+    gap: var(--space-3);
 
+    padding: var(--space-5);
+
+    background: var(--color-surface-subtle);
+
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
 
-    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+
+    text-decoration: none;
+
+    box-shadow: var(--shadow-xs);
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.home-action:hover {
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+
+    color: var(--color-text);
+
+    box-shadow: var(--shadow-card);
+
+    transform: translateY(-1px);
+}
+
+.home-action:focus-visible {
+    border-color: var(--brand-primary);
+
+    box-shadow:
+        var(--focus-ring),
+        var(--shadow-card);
+
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.home-action-title {
+    color: var(--color-text);
+
+    font-size: 1rem;
+    font-weight: 740;
+    line-height: 1.2;
+}
+
+.home-action-description {
+    max-width: 18rem;
+
+    color: var(--color-text-muted);
+
+    font-size: 0.84rem;
+    line-height: 1.45;
 }
 
 .home-action-primary {
@@ -1899,6 +1873,15 @@ textarea:focus-visible {
     border-color: var(--color-primary-hover);
 
     color: var(--color-primary-text);
+}
+
+.home-action-primary .home-action-title,
+.home-action-primary .home-action-description {
+    color: var(--color-primary-text);
+}
+
+.home-action-primary .home-action-description {
+    opacity: 0.86;
 }
 
 
@@ -1939,7 +1922,9 @@ textarea:focus-visible {
 
 @media (max-width: 600px) {
     .home-operations-card {
-        padding: 24px 20px;
+        padding:
+            var(--space-6)
+            var(--space-5);
     }
 
     .home-action-grid {
@@ -1947,12 +1932,13 @@ textarea:focus-visible {
     }
 
     .home-action {
+        min-height: 100px;
         width: 100%;
     }
 }
 
 /* ==========================================================
-   Phase 40 — Form system
+   Phase 40 вЂ” Form system
    ========================================================== */
 
 .form-page {
@@ -1960,18 +1946,18 @@ textarea:focus-visible {
 }
 
 .form-card {
-    padding: 30px;
+    padding: var(--space-7);
 }
 
 .form-section + .form-section {
-    margin-top: 30px;
-    padding-top: 28px;
+    margin-top: var(--space-7);
+    padding-top: var(--space-7);
 
     border-top: 1px solid var(--color-border);
 }
 
 .form-section-header {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-5);
 }
 
 .form-section-header h2 {
@@ -1991,7 +1977,7 @@ textarea:focus-visible {
 
 .form-grid {
     display: grid;
-    gap: 0 18px;
+    gap: 0 var(--space-5);
 }
 
 .form-grid-2 {
@@ -2000,6 +1986,20 @@ textarea:focus-visible {
             2,
             minmax(0, 1fr)
         );
+}
+
+.form-grid-3 {
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+}
+
+.form-grid-record {
+    grid-template-columns:
+        minmax(160px, 0.7fr)
+        minmax(0, 1.6fr);
 }
 
 .form-grid .form-group {
@@ -2012,8 +2012,8 @@ textarea:focus-visible {
 }
 
 .form-actions {
-    margin-top: 30px;
-    padding-top: 24px;
+    margin-top: var(--space-7);
+    padding-top: var(--space-6);
 
     border-top: 1px solid var(--color-border);
 }
@@ -2023,7 +2023,7 @@ textarea:focus-visible {
 }
 
 .form-alert {
-    margin-bottom: 22px;
+    margin-bottom: var(--space-6);
 }
 
 .field-optional {
@@ -2036,8 +2036,8 @@ textarea:focus-visible {
 }
 
 .dynamic-fields {
-    margin: 2px 0 22px;
-    padding: 20px;
+    margin: 0 0 var(--space-6);
+    padding: var(--space-5);
 
     background: var(--color-surface-subtle);
 
@@ -2054,10 +2054,12 @@ textarea:focus-visible {
 
 @media (max-width: 700px) {
     .form-card {
-        padding: 22px;
+        padding: var(--space-6);
     }
 
-    .form-grid-2 {
+    .form-grid-2,
+    .form-grid-3,
+    .form-grid-record {
         grid-template-columns: 1fr;
     }
 
@@ -2066,8 +2068,8 @@ textarea:focus-visible {
     }
 
     .form-section + .form-section {
-        margin-top: 24px;
-        padding-top: 24px;
+        margin-top: var(--space-6);
+        padding-top: var(--space-6);
     }
 
     .form-actions {
@@ -2079,12 +2081,12 @@ textarea:focus-visible {
     }
 
     .dynamic-fields {
-        padding: 16px;
+        padding: var(--space-4);
     }
 }
 
 /* ==========================================================
-   Phase 40 — Statistics entry UX
+   Phase 40 вЂ” Statistics entry UX
    ========================================================== */
 
 
@@ -2134,7 +2136,7 @@ textarea:focus-visible {
 }
 
 .stats-context-item + .stats-context-item::before {
-    content: "·";
+    content: "В·";
 
     margin-right: 6px;
 
@@ -2367,7 +2369,7 @@ textarea:focus-visible {
 }
 
 .stats-row.is-dnp .stats-player-meta::after {
-    content: " · DNP";
+    content: " В· DNP";
 
     color: var(--color-warning);
 }
@@ -2492,7 +2494,7 @@ textarea:focus-visible {
 }
 
 /* ==========================================================
-   Phase 40 — External Game player selection
+   Phase 40 вЂ” External Game player selection
    ========================================================== */
 
 .player-selection-shell {
@@ -2523,7 +2525,7 @@ textarea:focus-visible {
 }
 
 .selection-context-item + .selection-context-item::before {
-    content: "·";
+    content: "В·";
 
     margin-right: 6px;
 
@@ -2746,34 +2748,6 @@ textarea:focus-visible {
 }
 
 
-/* ---------- No players ---------- */
-
-.player-selection-empty {
-    padding: 42px 28px;
-
-    text-align: center;
-}
-
-.player-selection-empty-content {
-    max-width: 500px;
-    margin-inline: auto;
-}
-
-.player-selection-empty h2 {
-    margin-bottom: 8px;
-}
-
-.player-selection-empty .page-description {
-    margin-inline: auto;
-}
-
-.player-selection-empty .actions {
-    justify-content: center;
-
-    margin-top: 22px;
-}
-
-
 /* ---------- Responsive ---------- */
 
 @media (max-width: 760px) {
@@ -2813,7 +2787,7 @@ textarea:focus-visible {
 }
 
 /* ==========================================================
-   Phase 40 — Season Dashboard
+   Phase 40 вЂ” Season Dashboard
    ========================================================== */
 
 
@@ -3004,28 +2978,8 @@ textarea:focus-visible {
 
 /* ---------- Dashboard empty state ---------- */
 
-.dashboard-empty {
-    padding: 46px 30px;
-
-    text-align: center;
-}
-
 .dashboard-empty-content {
     max-width: 520px;
-
-    margin-inline: auto;
-}
-
-.dashboard-empty h2 {
-    margin-bottom: 8px;
-}
-
-.dashboard-empty p {
-    margin: 0;
-
-    color: var(--color-text-muted);
-
-    line-height: 1.55;
 }
 
 
@@ -3095,4 +3049,771 @@ textarea:focus-visible {
     .dashboard-chart-wrapper-tall {
         height: 330px;
     }
+}
+
+/* ==========================================================
+   Phase 41D вЂ” Shared analytics surfaces
+   ========================================================== */
+
+
+/* ---------- Analytics page header ---------- */
+
+.analytics-header {
+    max-width: none;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: var(--space-7);
+}
+
+.analytics-header-copy {
+    min-width: 0;
+    max-width: 850px;
+}
+
+.analytics-header > .actions {
+    flex-shrink: 0;
+    margin-top: 0;
+}
+
+
+/* ---------- Analytics context ---------- */
+
+.analytics-context {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: var(--space-2) var(--space-3);
+
+    margin-top: var(--space-3);
+}
+
+.analytics-context-item {
+    display: inline-flex;
+    align-items: center;
+
+    gap: var(--space-2);
+
+    color: var(--color-text-muted);
+
+    font-size: 0.86rem;
+    line-height: 1.4;
+}
+
+.analytics-context-item
++ .analytics-context-item::before {
+    content: "В·";
+
+    margin-right: var(--space-1);
+
+    color: var(--color-border-strong);
+}
+
+
+/* ---------- Analytics sections ---------- */
+
+.analytics-section {
+    margin-top: var(--space-8);
+}
+
+.analytics-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: var(--space-5);
+
+    margin-bottom: var(--space-4);
+}
+
+.analytics-section-header .eyebrow {
+    margin-bottom: var(--space-2);
+}
+
+.analytics-section-header h2 {
+    margin-bottom: 0;
+}
+
+
+/* ---------- Metric cards ---------- */
+
+.analytics-metric-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0, 1fr)
+        );
+
+    gap: var(--space-3);
+}
+
+.analytics-metric {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    gap: var(--space-2);
+
+    min-height: 104px;
+
+    padding: var(--space-5);
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.analytics-metric > span {
+    color: var(--color-text-muted);
+
+    font-size: 0.71rem;
+    font-weight: 750;
+
+    line-height: 1.25;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.analytics-metric > strong {
+    overflow-wrap: anywhere;
+
+    color: var(--color-text);
+
+    font-size: 1.5rem;
+    font-weight: 750;
+
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.analytics-metric-primary {
+    background: var(--color-primary-soft);
+
+    border-color: var(--color-border-strong);
+}
+
+.analytics-metric-primary > strong {
+    color: var(--color-link);
+}
+
+
+/* ---------- Game scoreboard ---------- */
+
+.game-scoreboard {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr);
+
+    align-items: center;
+
+    gap: var(--space-7);
+
+    padding: var(--space-7);
+
+    border-color: var(--color-border-strong);
+}
+
+.game-score-side {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: var(--space-4);
+}
+
+.game-score-side-away {
+    justify-content: flex-end;
+}
+
+.game-score-team {
+    min-width: 0;
+
+    overflow: hidden;
+
+    color: var(--color-text-secondary);
+
+    font-size: 1rem;
+    font-weight: 650;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game-score-number {
+    flex-shrink: 0;
+
+    color: var(--color-text);
+
+    font-size: clamp(
+        2rem,
+        4vw,
+        2.9rem
+    );
+
+    font-weight: 780;
+
+    line-height: 1;
+    letter-spacing: -0.05em;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.game-score-result {
+    min-width: 76px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: var(--space-1);
+
+    padding:
+        var(--space-2)
+        var(--space-3);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    font-variant-numeric: tabular-nums;
+}
+
+.game-score-result strong {
+    font-size: 0.78rem;
+    font-weight: 780;
+
+    letter-spacing: 0.055em;
+}
+
+.game-score-result span {
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+
+.game-score-result-win {
+    background: var(--color-success-soft);
+    border-color: var(--color-success-border);
+    color: var(--color-success);
+}
+
+.game-score-result-loss {
+    background: var(--color-danger-soft);
+    border-color: var(--color-danger-border);
+    color: var(--color-danger);
+}
+
+.game-score-result-tie {
+    background: var(--color-warning-soft);
+    border-color: var(--color-warning-border);
+    color: var(--color-warning);
+}
+
+
+/* ---------- Analytics tables ---------- */
+
+.analytics-table-card,
+.shooting-card {
+    padding: 0;
+
+    overflow: hidden;
+}
+
+.analytics-table-card .table-container,
+.shooting-card .table-container {
+    border: 0;
+    border-radius: 0;
+}
+
+.table-scroll-hint {
+    display: none;
+
+    margin: 0;
+    padding:
+        var(--space-3)
+        var(--space-5);
+
+    background: var(--color-surface-subtle);
+
+    border-bottom: 1px solid var(--color-border);
+
+    color: var(--color-text-muted);
+
+    font-size: 0.78rem;
+    font-weight: 620;
+    line-height: 1.4;
+}
+
+.shooting-card .table th:not(:first-child),
+.shooting-card .table td:not(:first-child) {
+    text-align: center;
+}
+
+.box-score-table {
+    min-width: 1080px;
+}
+
+.box-score-table th,
+.box-score-table td,
+.game-log-table th,
+.game-log-table td,
+.analysis-game-table th,
+.analysis-game-table td,
+.shooting-card .table th,
+.shooting-card .table td {
+    font-variant-numeric: tabular-nums;
+}
+
+.box-score-table th:not(:first-child),
+.box-score-table td:not(:first-child) {
+    text-align: center;
+}
+
+.box-score-table .box-score-player,
+.box-score-table thead th:first-child {
+    position: sticky;
+    left: 0;
+
+    min-width: 180px;
+
+    background: var(--color-surface);
+
+    color: var(--color-text);
+
+    font-weight: 650;
+
+    text-align: left !important;
+
+    box-shadow:
+        1px 0 0
+        var(--color-border);
+}
+
+.box-score-table .box-score-player {
+    z-index: 1;
+}
+
+.box-score-table thead th:first-child {
+    z-index: 3;
+
+    background: var(--color-surface-subtle);
+
+    text-align: left;
+}
+
+.box-score-table tbody tr:hover
+.box-score-player {
+    background: var(--color-surface-subtle);
+}
+
+.game-log-table {
+    min-width: 900px;
+}
+
+.game-log-table th:nth-child(n + 3),
+.game-log-table td:nth-child(n + 3) {
+    text-align: center;
+}
+
+.game-log-opponent {
+    min-width: 160px;
+
+    color: var(--color-text);
+    font-weight: 620;
+}
+
+.analysis-game-table {
+    min-width: 760px;
+}
+
+.analysis-game-table th:nth-child(n + 4),
+.analysis-game-table td:nth-child(n + 4) {
+    text-align: center;
+}
+
+.stat-shooting-cell {
+    display: inline-grid;
+    gap: var(--space-1);
+
+    min-width: 58px;
+
+    line-height: 1.25;
+}
+
+.stat-shooting-line {
+    color: var(--color-text);
+
+    font-weight: 680;
+}
+
+.stat-shooting-percentage {
+    color: var(--color-text-muted);
+
+    font-size: 0.76rem;
+    font-weight: 620;
+}
+
+
+/* ---------- Participation badges ---------- */
+
+.participation-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 26px;
+
+    padding:
+        0
+        var(--space-2);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+
+    font-size: 0.68rem;
+    font-weight: 750;
+
+    line-height: 1;
+
+    letter-spacing: 0.045em;
+}
+
+.participation-played {
+    background: var(--color-success-soft);
+    border-color: var(--color-success-border);
+    color: var(--color-success);
+}
+
+.participation-dnp {
+    background: var(--color-warning-soft);
+    border-color: var(--color-warning-border);
+    color: var(--color-warning);
+}
+
+
+/* ---------- Inline game results ---------- */
+
+.game-result-inline {
+    display: inline-flex;
+    align-items: center;
+
+    gap: var(--space-1);
+
+    font-weight: 680;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.game-result-win {
+    color: var(--color-success);
+}
+
+.game-result-loss {
+    color: var(--color-danger);
+}
+
+.game-result-tie {
+    color: var(--color-warning);
+}
+
+
+/* ---------- Player profile identity ---------- */
+
+.player-profile-heading {
+    display: flex;
+    align-items: center;
+
+    gap: var(--space-4);
+}
+
+.player-profile-number {
+    min-width: 54px;
+    min-height: 54px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding:
+        0
+        var(--space-3);
+
+    background: var(--color-primary-soft);
+
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+
+    color: var(--color-link);
+
+    font-size: 1rem;
+    font-weight: 760;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.player-profile-name {
+    min-width: 0;
+}
+
+.player-profile-name h1 {
+    margin-bottom: 0;
+
+    overflow-wrap: anywhere;
+}
+
+
+.analysis-selection-actions {
+    margin-top: var(--space-6);
+}
+
+
+/* ---------- Responsive analytics ---------- */
+
+@media (max-width: 1050px) {
+    .analytics-metric-grid {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+
+@media (max-width: 760px) {
+    .analytics-header {
+        align-items: stretch;
+        flex-direction: column;
+
+        gap: var(--space-4);
+    }
+
+    .analytics-header > .actions {
+        width: 100%;
+    }
+
+    .analytics-header > .actions .button {
+        flex: 1;
+    }
+
+    .analytics-context {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: var(--space-2);
+    }
+
+    .analytics-context-item
+    + .analytics-context-item::before {
+        display: none;
+    }
+
+    .analytics-section {
+        margin-top: var(--space-7);
+    }
+
+    .analytics-metric-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+    .analytics-metric {
+        min-height: 96px;
+
+        padding: var(--space-4);
+    }
+
+    .game-scoreboard {
+        grid-template-columns: 1fr;
+
+        gap: var(--space-4);
+
+        padding: var(--space-5);
+
+        text-align: center;
+    }
+
+    .game-score-side,
+    .game-score-side-away {
+        justify-content: center;
+    }
+
+    .game-score-side-away {
+        order: 2;
+    }
+
+    .game-score-result {
+        order: 3;
+
+        margin-inline: auto;
+    }
+
+    .game-score-team {
+        white-space: normal;
+    }
+
+    .player-profile-heading {
+        align-items: flex-start;
+    }
+}
+
+
+@media (max-width: 1100px) {
+    .table-scroll-hint {
+        display: block;
+    }
+}
+
+
+@media (max-width: 460px) {
+    .analytics-header > .actions {
+        flex-direction: column;
+    }
+
+    .analytics-header > .actions .button {
+        width: 100%;
+    }
+
+    .analytics-metric {
+        min-height: 92px;
+
+        padding: var(--space-3);
+    }
+
+    .analytics-metric > strong {
+        font-size: 1.35rem;
+    }
+
+    .player-profile-number {
+        min-width: 48px;
+        min-height: 48px;
+    }
+
+    .table-scroll-hint {
+        padding:
+            var(--space-3)
+            var(--space-4);
+    }
+}
+
+/* ==========================================================
+   Phase 41D — Player picker
+   ========================================================== */
+
+.player-picker {
+    min-width: 0;
+}
+
+.player-picker-search {
+    display: grid;
+    gap: 7px;
+
+    margin-bottom: var(--space-4);
+}
+
+.player-picker-results {
+    margin-bottom: var(--space-4);
+}
+
+.player-picker-results:empty {
+    display: none;
+}
+
+.player-picker-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: var(--space-4);
+
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+
+    background: var(--color-surface-subtle);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.player-picker-selected[hidden] {
+    display: none;
+}
+
+.player-picker-selected-copy {
+    min-width: 0;
+}
+
+.player-picker-selected-copy .eyebrow {
+    margin-bottom: var(--space-1);
+}
+
+.player-picker-selected-copy strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--color-text);
+
+    font-size: 0.95rem;
+    font-weight: 680;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-picker-selected-actions {
+    flex-shrink: 0;
+}
+
+.player-picker-create-actions {
+    margin-top: var(--space-4);
+}
+
+
+@media (max-width: 600px) {
+    .player-picker-selected {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .player-picker-selected-actions,
+    .player-picker-selected-actions .button,
+    .player-picker-create-actions,
+    .player-picker-create-actions .button {
+        width: 100%;
+    }
+}
+
+/* ==========================================================
+   Phase 41D — Inline spacing cleanup
+   ========================================================== */
+
+.player-selection-notice,
+.player-selection-search {
+    margin-bottom: var(--space-5);
+}
+
+.setup-roster-content {
+    margin-top: var(--space-6);
 }

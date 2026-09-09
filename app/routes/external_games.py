@@ -169,6 +169,7 @@ def render_external_game_stats_form(
     row_errors: dict[int, str] | None = None,
     form_values: dict[str, str] | None = None,
     saved: bool = False,
+    finalized: bool = False,
     status_code: int = 200,
 ):
     stats_rows = (
@@ -193,6 +194,29 @@ def render_external_game_stats_form(
             "row_errors": row_errors or {},
             "form_values": form_values or {},
             "saved": saved,
+            "finalized": finalized,
+        },
+        status_code=status_code,
+    )
+
+
+def render_external_game_error(
+    request: Request,
+    *,
+    title: str,
+    message: str,
+    status_code: int,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={
+            "title": title,
+            "message": message,
+            "back_url": "/app/external-games",
+            "back_label": (
+                "Back to External Games"
+            ),
         },
         status_code=status_code,
     )
@@ -206,12 +230,19 @@ def external_games_page(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    external_games = list_external_games(db)
+    has_completed_games = any(
+        game.status == GameStatus.COMPLETED
+        for game in external_games
+    )
+
     return templates.TemplateResponse(
         request=request,
         name="external_games/index.html",
         context={
-            "external_games": (
-                list_external_games(db)
+            "external_games": external_games,
+            "has_completed_games": (
+                has_completed_games
             ),
         },
     )
@@ -236,8 +267,12 @@ def external_games_analysis_page(
         ]
 
     except ValueError:
-        return HTMLResponse(
-            content=(
+        return render_external_game_error(
+            request,
+            title=(
+                "Invalid External Game Selection"
+            ),
+            message=(
                 "Invalid external game selection."
             ),
             status_code=422,
@@ -250,20 +285,30 @@ def external_games_analysis_page(
         )
 
     except ExternalGameAnalysisSelectionError as exc:
-        return HTMLResponse(
-            content=str(exc),
+        return render_external_game_error(
+            request,
+            title=(
+                "Invalid External Game Selection"
+            ),
+            message=str(exc),
             status_code=422,
         )
 
     except ExternalGameNotFoundError:
-        return HTMLResponse(
-            content="External game not found.",
+        return render_external_game_error(
+            request,
+            title="External Game Not Found",
+            message="External game not found.",
             status_code=404,
         )
 
     except ExternalGameNotCompletedError as exc:
-        return HTMLResponse(
-            content=str(exc),
+        return render_external_game_error(
+            request,
+            title=(
+                "External Game Analysis Unavailable"
+            ),
+            message=str(exc),
             status_code=409,
         )
 
@@ -682,7 +727,11 @@ def external_game_stats_page(
                 "saved"
             )
             == "1"
-            or
+            and request.query_params.get(
+                "finalized"
+            ) != "1"
+        ),
+        finalized=(
             request.query_params.get(
                 "finalized"
             )
@@ -964,14 +1013,20 @@ def external_game_report_page(
         )
 
     except ExternalGameNotFoundError:
-        return HTMLResponse(
-            content="External game not found.",
+        return render_external_game_error(
+            request,
+            title="External Game Not Found",
+            message="External game not found.",
             status_code=404,
         )
 
     except ExternalGameNotCompletedError as exc:
-        return HTMLResponse(
-            content=str(exc),
+        return render_external_game_error(
+            request,
+            title=(
+                "External Game Report Unavailable"
+            ),
+            message=str(exc),
             status_code=409,
         )
 

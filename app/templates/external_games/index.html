@@ -33,7 +33,7 @@ External Games | CourtStats
             Add External Game
         </a>
 
-        {% if external_games %}
+        {% if has_completed_games %}
 
             <button
                 class="button button-secondary"
@@ -155,7 +155,7 @@ External Games | CourtStats
 
 
                     <td>
-                        {{ game.venue_type.value }}
+                        {{ game.venue_type|enum_label }}
                     </td>
 
 
@@ -166,7 +166,7 @@ External Games | CourtStats
                             <span
                                 class="status-badge status-badge-success"
                             >
-                                {{ game.status.value }}
+                                {{ game.status|enum_label }}
                             </span>
 
                         {% else %}
@@ -174,7 +174,7 @@ External Games | CourtStats
                             <span
                                 class="status-badge status-badge-warning"
                             >
-                                {{ game.status.value }}
+                                {{ game.status|enum_label }}
                             </span>
 
                         {% endif %}
@@ -252,7 +252,7 @@ External Games | CourtStats
 
 <section
     id="analysis-selection-actions"
-    class="card"
+    class="card analysis-selection-actions"
     hidden
 >
 
@@ -341,7 +341,7 @@ External Games | CourtStats
 
 {% block scripts %}
 
-{% if external_games %}
+{% if has_completed_games %}
 
 <script>
 (() => {

@@ -38,22 +38,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 "[data-theme-label]"
             );
 
+            const actionText = `Switch to ${nextTheme} mode`;
+
             if (label) {
-                label.textContent = (
-                    nextTheme === "dark"
-                        ? "Dark mode"
-                        : "Light mode"
-                );
+                label.textContent = actionText;
             }
+
+            button
+                .querySelectorAll("[data-theme-icon]")
+                .forEach((icon) => {
+                    icon.hidden = (
+                        icon.dataset.themeIcon !== (
+                            nextTheme === "dark"
+                                ? "moon"
+                                : "sun"
+                        )
+                    );
+                });
 
             button.setAttribute(
                 "aria-label",
-                `Switch to ${nextTheme} mode`
+                actionText
             );
 
             button.setAttribute(
                 "title",
-                `Switch to ${nextTheme} mode`
+                actionText
             );
         });
     };
@@ -163,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (navToggle && navPanel) {
         const mobileQuery = window.matchMedia(
-            "(max-width: 760px)"
+            "(max-width: 1000px)"
         );
 
 

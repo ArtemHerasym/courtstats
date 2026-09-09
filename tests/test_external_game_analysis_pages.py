@@ -125,6 +125,10 @@ def test_zero_analysis_selection_rejected(
         "Select at least one"
         in response.text
     )
+    assert (
+        "Back to External Games"
+        in response.text
+    )
 
 
 def test_one_game_redirects_to_report(
@@ -304,6 +308,10 @@ def test_draft_game_cannot_be_analyzed(
         "must be completed"
         in response.text
     )
+    assert (
+        "Back to External Games"
+        in response.text
+    )
 
 
 def test_missing_analysis_game_returns_404(
@@ -317,3 +325,11 @@ def test_missing_analysis_game_returns_404(
     )
 
     assert response.status_code == 404
+    assert (
+        "External game not found."
+        in response.text
+    )
+    assert (
+        "Back to External Games"
+        in response.text
+    )

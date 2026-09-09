@@ -30,7 +30,7 @@ External Game Report | CourtStats
             </span>
 
             <span class="analytics-context-item">
-                {{ game.venue_type.value }}
+                {{ game.venue_type|enum_label }}
             </span>
 
             <span class="analytics-context-item">
@@ -38,7 +38,7 @@ External Game Report | CourtStats
                 <span
                     class="status-badge status-badge-success"
                 >
-                    {{ game.status.value }}
+                    {{ game.status|enum_label }}
                 </span>
 
             </span>
@@ -79,7 +79,7 @@ External Game Report | CourtStats
     <div class="game-score-side">
 
         <div class="game-score-team">
-            Team
+            JCP
         </div>
 
         <strong class="game-score-number">
@@ -363,6 +363,10 @@ External Game Report | CourtStats
 
 
     <div class="card analytics-table-card">
+
+        <p class="table-scroll-hint">
+            Scroll horizontally to view all statistics.
+        </p>
 
         <div class="table-container">
 

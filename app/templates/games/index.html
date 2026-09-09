@@ -155,7 +155,7 @@ Games | CourtStats
 
 
                     <td>
-                        {{ game.venue_type.value }}
+                        {{ game.venue_type|enum_label }}
                     </td>
 
 
@@ -166,7 +166,7 @@ Games | CourtStats
                             <span
                                 class="status-badge status-badge-success"
                             >
-                                {{ game.status.value }}
+                                {{ game.status|enum_label }}
                             </span>
 
                         {% else %}
@@ -174,7 +174,7 @@ Games | CourtStats
                             <span
                                 class="status-badge status-badge-warning"
                             >
-                                {{ game.status.value }}
+                                {{ game.status|enum_label }}
                             </span>
 
                         {% endif %}
@@ -232,7 +232,7 @@ Games | CourtStats
                                         game_id=game.id
                                     ) }}"
                                 >
-                                    CSV
+                                    Export CSV
                                 </a>
 
                             {% endif %}

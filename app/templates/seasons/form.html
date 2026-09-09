@@ -326,7 +326,7 @@ Add Season
                                         selected
                                     {% endif %}
                                 >
-                                    {{ status.value }}
+                                    {{ status|enum_label }}
                                 </option>
 
                             {% endfor %}

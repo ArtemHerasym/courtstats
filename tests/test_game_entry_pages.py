@@ -438,7 +438,7 @@ def test_finalize_game_successfully(
 
     assert page_response.status_code == 200
     assert "Game finalized successfully." in page_response.text
-    assert "COMPLETED" in page_response.text
+    assert "Completed" in page_response.text
     assert "Save Changes" in page_response.text
 
 

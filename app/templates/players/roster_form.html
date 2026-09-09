@@ -260,11 +260,6 @@ Add Player to Roster
 
                     <div class="form-group">
 
-                        <label class="form-label">
-                            Player
-                        </label>
-
-
                         {% include "components/player_picker.html" %}
 
 
@@ -417,7 +412,7 @@ Add Player to Roster
                                         selected
                                     {% endif %}
                                 >
-                                    {{ status.value }}
+                                    {{ status|enum_label }}
                                 </option>
 
                             {% endfor %}

@@ -33,7 +33,7 @@ Enter Statistics | CourtStats
 
 
             <span class="stats-context-item">
-                {{ game.venue_type.value }}
+                {{ game.venue_type|enum_label }}
             </span>
 
 
@@ -44,7 +44,7 @@ Enter Statistics | CourtStats
                     <span
                         class="status-badge status-badge-success"
                     >
-                        {{ game.status.value }}
+                        {{ game.status|enum_label }}
                     </span>
 
                 {% else %}
@@ -52,7 +52,7 @@ Enter Statistics | CourtStats
                     <span
                         class="status-badge status-badge-warning"
                     >
-                        {{ game.status.value }}
+                        {{ game.status|enum_label }}
                     </span>
 
                 {% endif %}

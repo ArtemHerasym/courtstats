@@ -62,7 +62,7 @@ Add Game | CourtStats
                 </div>
 
 
-                <div class="form-grid form-grid-2">
+                <div class="form-grid form-grid-3">
 
                     <div class="form-group">
 
@@ -108,6 +108,21 @@ Add Game | CourtStats
                                 {{ errors["season_id"] }}
                             </p>
 
+                            {% if no_active_roster_cta %}
+
+                                <div class="actions form-error-actions">
+
+                                    <a
+                                        class="button button-small button-secondary"
+                                        href="{{ no_active_roster_cta.href }}"
+                                    >
+                                        {{ no_active_roster_cta.label }}
+                                    </a>
+
+                                </div>
+
+                            {% endif %}
+
                         {% endif %}
 
                     </div>
@@ -136,11 +151,6 @@ Add Game | CourtStats
                             value="{{ form_values.get('game_date', '') }}"
                             required
                         >
-
-
-                        <p class="form-help">
-                            Enter manually using MM/DD/YYYY.
-                        </p>
 
 
                         {% if errors.get("game_date") %}
@@ -179,7 +189,7 @@ Add Game | CourtStats
                                         selected
                                     {% endif %}
                                 >
-                                    {{ venue.value }}
+                                    {{ venue|enum_label }}
                                 </option>
 
                             {% endfor %}
@@ -361,7 +371,7 @@ Add Game | CourtStats
                 </div>
 
 
-                <div class="form-grid form-grid-2">
+                <div class="form-grid form-grid-record">
 
                     <div class="form-group">
 
@@ -398,7 +408,7 @@ Add Game | CourtStats
                     </div>
 
 
-                    <div class="form-group form-field-full">
+                    <div class="form-group">
 
                         <label
                             class="form-label"

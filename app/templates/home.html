@@ -46,50 +46,68 @@ CourtStats
     <div class="home-action-grid">
 
         <a
-            class="button home-action home-action-primary"
+            class="home-action home-action-primary"
             href="{{ url_for('new_game_page') }}"
         >
-            Add Game
+            <span class="home-action-title">Add Game</span>
+            <span class="home-action-description">
+                Create a game and enter statistics.
+            </span>
         </a>
 
 
         <a
-            class="button home-action"
+            class="home-action"
             href="{{ url_for('games_page') }}"
         >
-            Games
+            <span class="home-action-title">Games</span>
+            <span class="home-action-description">
+                Review games, statistics, and reports.
+            </span>
         </a>
 
 
         <a
-            class="button home-action"
+            class="home-action"
             href="{{ url_for('seasons_page') }}"
         >
-            Seasons
+            <span class="home-action-title">Seasons</span>
+            <span class="home-action-description">
+                Manage seasons and open analytics.
+            </span>
         </a>
 
 
         <a
-            class="button home-action"
+            class="home-action"
             href="{{ url_for('roster_page') }}"
         >
-            Roster
+            <span class="home-action-title">Roster</span>
+            <span class="home-action-description">
+                Manage season roster memberships.
+            </span>
         </a>
 
 
         <a
-            class="button home-action"
+            class="home-action"
             href="{{ url_for('players_page') }}"
         >
-            Players
+            <span class="home-action-title">Players</span>
+            <span class="home-action-description">
+                Manage CourtStats player profiles.
+            </span>
         </a>
 
 
         <a
-            class="button home-action"
+            class="home-action"
             href="{{ url_for('external_games_page') }}"
         >
-            External Games
+            <span class="home-action-title">External Games</span>
+            <span class="home-action-description">
+                Record and analyze non-season games.
+            </span>
         </a>
 
     </div>

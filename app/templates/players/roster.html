@@ -72,7 +72,7 @@ Roster | CourtStats
         This player cannot be removed because
         they have completed-game or statistical
         history in this Season. Change their
-        roster status to INACTIVE or LEFT_TEAM
+        roster status to Inactive or Left Team
         instead.
     </div>
 
@@ -203,7 +203,7 @@ Roster | CourtStats
                             <span
                                 class="status-badge status-badge-success"
                             >
-                                {{ roster.status.value }}
+                                {{ roster.status|enum_label }}
                             </span>
 
 
@@ -212,14 +212,14 @@ Roster | CourtStats
                             <span
                                 class="status-badge status-badge-warning"
                             >
-                                {{ roster.status.value }}
+                                {{ roster.status|enum_label }}
                             </span>
 
 
                         {% else %}
 
                             <span class="status-badge">
-                                {{ roster.status.value }}
+                                {{ roster.status|enum_label }}
                             </span>
 
                         {% endif %}

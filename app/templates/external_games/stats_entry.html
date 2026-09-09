@@ -35,7 +35,7 @@ External Game Statistics | CourtStats
 
 
             <span class="stats-context-item">
-                {{ external_game.venue_type.value }}
+                {{ external_game.venue_type|enum_label }}
             </span>
 
 
@@ -46,7 +46,7 @@ External Game Statistics | CourtStats
                     <span
                         class="status-badge status-badge-success"
                     >
-                        {{ external_game.status.value }}
+                        {{ external_game.status|enum_label }}
                     </span>
 
                 {% else %}
@@ -54,7 +54,7 @@ External Game Statistics | CourtStats
                     <span
                         class="status-badge status-badge-warning"
                     >
-                        {{ external_game.status.value }}
+                        {{ external_game.status|enum_label }}
                     </span>
 
                 {% endif %}
@@ -82,21 +82,37 @@ External Game Statistics | CourtStats
 
         </div>
 
+    {% else %}
+
+        <div class="actions">
+
+            <a
+                class="button button-secondary"
+                href="{{ url_for(
+                    'external_game_report_page',
+                    external_game_id=external_game.id
+                ) }}"
+            >
+                View Report
+            </a>
+
+        </div>
+
     {% endif %}
 
 </section>
 
 
-{% if saved %}
+{% if finalized %}
 
     <div class="message message-success form-alert">
+        External Game finalized successfully.
+    </div>
 
-        {% if external_game.status.value == "COMPLETED" %}
-            Changes saved successfully.
-        {% else %}
-            Draft saved successfully.
-        {% endif %}
+{% elif saved %}
 
+    <div class="message message-success form-alert">
+        External Game statistics saved.
     </div>
 
 {% endif %}

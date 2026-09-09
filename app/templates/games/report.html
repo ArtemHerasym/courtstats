@@ -30,7 +30,7 @@ Game Report | CourtStats
 
 
             <span class="analytics-context-item">
-                {{ game.venue_type.value }}
+                {{ game.venue_type|enum_label }}
             </span>
 
 
@@ -46,7 +46,7 @@ Game Report | CourtStats
                     <span
                         class="status-badge status-badge-success"
                     >
-                        {{ game.status.value }}
+                        {{ game.status|enum_label }}
                     </span>
 
                 {% else %}
@@ -54,7 +54,7 @@ Game Report | CourtStats
                     <span
                         class="status-badge status-badge-warning"
                     >
-                        {{ game.status.value }}
+                        {{ game.status|enum_label }}
                     </span>
 
                 {% endif %}
@@ -351,6 +351,10 @@ Game Report | CourtStats
 
         <div class="card analytics-table-card">
 
+            <p class="table-scroll-hint">
+                Scroll horizontally to view all statistics.
+            </p>
+
             <div class="table-container">
 
                 <table class="table box-score-table">
@@ -491,11 +495,15 @@ Game Report | CourtStats
 
     {% else %}
 
-        <div class="card analytics-empty">
+        <div class="card empty-state analytics-empty">
 
-            <p>
-                No player statistics are available for this game.
-            </p>
+            <div class="empty-state-content">
+
+                <p class="page-description">
+                    No player statistics are available for this game.
+                </p>
+
+            </div>
 
         </div>
 

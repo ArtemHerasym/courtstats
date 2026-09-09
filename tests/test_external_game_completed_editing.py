@@ -168,7 +168,7 @@ def test_completed_external_game_stats_prefill(
     )
 
     assert response.status_code == 200
-    assert "COMPLETED" in response.text
+    assert "Completed" in response.text
     assert "Save Changes" in response.text
     assert (
         "Change Players"

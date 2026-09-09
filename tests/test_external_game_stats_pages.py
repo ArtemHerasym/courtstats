@@ -470,3 +470,114 @@ def test_saved_draft_reopens_with_existing_stats(
     )
 
     assert 'value="4"' in response.text
+
+
+def test_external_stats_save_message_is_specific(
+    authenticated_client,
+    db_session,
+):
+    game, players = (
+        create_external_game_with_players(
+            db_session
+        )
+    )
+
+    player = players[0]
+    data = build_stats_form(
+        [player.id]
+    )
+
+    save_response = (
+        authenticated_client.post(
+            (
+                "/app/external-games/"
+                f"{game.id}/stats"
+            ),
+            data=data,
+            follow_redirects=False,
+        )
+    )
+
+    assert save_response.status_code == 303
+    assert save_response.headers[
+        "location"
+    ].endswith("?saved=1")
+
+    response = authenticated_client.get(
+        save_response.headers["location"]
+    )
+
+    assert response.status_code == 200
+    assert (
+        "External Game statistics saved."
+        in response.text
+    )
+    assert (
+        "External Game finalized successfully."
+        not in response.text
+    )
+
+
+def test_external_stats_finalize_message_and_report_action(
+    authenticated_client,
+    db_session,
+):
+    game, players = (
+        create_external_game_with_players(
+            db_session
+        )
+    )
+
+    player = players[0]
+    data = build_stats_form(
+        [player.id]
+    )
+    data["action"] = "finalize"
+    data["opponent_score"] = "2"
+    data[
+        f"two_point_attempts_{player.id}"
+    ] = "1"
+    data[
+        f"two_point_makes_{player.id}"
+    ] = "1"
+
+    finalize_response = (
+        authenticated_client.post(
+            (
+                "/app/external-games/"
+                f"{game.id}/stats"
+            ),
+            data=data,
+            follow_redirects=False,
+        )
+    )
+
+    assert finalize_response.status_code == 303
+    assert finalize_response.headers[
+        "location"
+    ].endswith("?finalized=1")
+
+    db_session.refresh(game)
+    assert game.status == GameStatus.COMPLETED
+
+    response = authenticated_client.get(
+        finalize_response.headers["location"]
+    )
+
+    assert response.status_code == 200
+    assert (
+        "External Game finalized successfully."
+        in response.text
+    )
+    assert (
+        "External Game statistics saved."
+        not in response.text
+    )
+    assert "View Report" in response.text
+    assert (
+        (
+            "/app/external-games/"
+            f"{game.id}/report"
+        )
+        in response.text
+    )

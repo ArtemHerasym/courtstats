@@ -299,6 +299,10 @@ External Game Analysis | CourtStats
 
     <div class="card analytics-table-card">
 
+        <p class="table-scroll-hint">
+            Scroll horizontally to view all statistics.
+        </p>
+
         <div class="table-container">
 
             <table class="table box-score-table">
@@ -381,27 +385,47 @@ External Game Analysis | CourtStats
                         <td>{{ row.personal_fouls }}</td>
 
                         <td>
-                            {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
-                            <br>
-                            {{ row.field_goal_percentage|percentage }}
+                            <span class="stat-shooting-cell">
+                                <span class="stat-shooting-line">
+                                    {{ row.field_goal_makes }}/{{ row.field_goal_attempts }}
+                                </span>
+                                <span class="stat-shooting-percentage">
+                                    {{ row.field_goal_percentage|percentage }}
+                                </span>
+                            </span>
                         </td>
 
                         <td>
-                            {{ row.two_point_makes }}/{{ row.two_point_attempts }}
-                            <br>
-                            {{ row.two_point_percentage|percentage }}
+                            <span class="stat-shooting-cell">
+                                <span class="stat-shooting-line">
+                                    {{ row.two_point_makes }}/{{ row.two_point_attempts }}
+                                </span>
+                                <span class="stat-shooting-percentage">
+                                    {{ row.two_point_percentage|percentage }}
+                                </span>
+                            </span>
                         </td>
 
                         <td>
-                            {{ row.three_point_makes }}/{{ row.three_point_attempts }}
-                            <br>
-                            {{ row.three_point_percentage|percentage }}
+                            <span class="stat-shooting-cell">
+                                <span class="stat-shooting-line">
+                                    {{ row.three_point_makes }}/{{ row.three_point_attempts }}
+                                </span>
+                                <span class="stat-shooting-percentage">
+                                    {{ row.three_point_percentage|percentage }}
+                                </span>
+                            </span>
                         </td>
 
                         <td>
-                            {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
-                            <br>
-                            {{ row.free_throw_percentage|percentage }}
+                            <span class="stat-shooting-cell">
+                                <span class="stat-shooting-line">
+                                    {{ row.free_throw_makes }}/{{ row.free_throw_attempts }}
+                                </span>
+                                <span class="stat-shooting-percentage">
+                                    {{ row.free_throw_percentage|percentage }}
+                                </span>
+                            </span>
                         </td>
 
                         <td>
@@ -456,7 +480,7 @@ External Game Analysis | CourtStats
 
         <div class="table-container">
 
-            <table class="table">
+            <table class="table analysis-game-table">
 
                 <thead>
 
@@ -499,7 +523,7 @@ External Game Analysis | CourtStats
                         </td>
 
                         <td>
-                            {{ game.venue_type.value }}
+                            {{ game.venue_type|enum_label }}
                         </td>
 
                         <td>

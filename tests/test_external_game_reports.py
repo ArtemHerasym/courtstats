@@ -171,6 +171,10 @@ def test_external_game_report_missing_game_returns_404(
         "External game not found."
         in response.text
     )
+    assert (
+        "Back to External Games"
+        in response.text
+    )
 
 
 def test_external_game_report_rejects_draft(
@@ -212,6 +216,10 @@ def test_external_game_report_rejects_draft(
 
     assert (
         "must be completed"
+        in response.text
+    )
+    assert (
+        "Back to External Games"
         in response.text
     )
 

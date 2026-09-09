@@ -79,6 +79,7 @@ def render_new_game_form(
     *,
     errors: dict[str, str] | None = None,
     form_values: dict[str, str] | None = None,
+    no_active_roster_cta: dict[str, str] | None = None,
     status_code: int = 200,
 ):
     return templates.TemplateResponse(
@@ -90,6 +91,9 @@ def render_new_game_form(
             "venue_types": list(VenueType),
             "errors": errors or {},
             "form_values": form_values or {},
+            "no_active_roster_cta": (
+                no_active_roster_cta
+            ),
         },
         status_code=status_code,
     )
@@ -136,6 +140,7 @@ def create_game_page(
     db: Session = Depends(get_db),
 ):
     errors: dict[str, str] = {}
+    no_active_roster_cta = None
 
     form_values = {
         "season_id": season_id,
@@ -153,7 +158,7 @@ def create_game_page(
             season_id
         )
 
-        get_season(
+        selected_season = get_season(
             db,
             parsed_season_id,
         )
@@ -167,6 +172,23 @@ def create_game_page(
                 "players. Add at least one ACTIVE "
                 "player before creating a Game."
             )
+            if selected_season.status.value == "SETUP":
+                no_active_roster_cta = {
+                    "label": "Set Up Roster",
+                    "href": (
+                        "/app/seasons/"
+                        f"{selected_season.id}"
+                        "/setup-roster"
+                    ),
+                }
+            else:
+                no_active_roster_cta = {
+                    "label": "Manage Roster",
+                    "href": (
+                        "/app/roster?"
+                        f"season_id={selected_season.id}"
+                    ),
+                }
 
     except (
             ValueError,
@@ -230,6 +252,9 @@ def create_game_page(
             db,
             errors=errors,
             form_values=form_values,
+            no_active_roster_cta=(
+                no_active_roster_cta
+            ),
             status_code=422,
         )
 

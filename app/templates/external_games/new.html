@@ -62,7 +62,7 @@ Add External Game | CourtStats
                 </div>
 
 
-                <div class="form-grid form-grid-2">
+                <div class="form-grid form-grid-3">
 
                     <div class="form-group">
 
@@ -121,11 +121,6 @@ Add External Game | CourtStats
                         >
 
 
-                        <p class="form-help">
-                            Enter manually using MM/DD/YYYY.
-                        </p>
-
-
                         {% if errors.get("game_date") %}
 
                             <p class="form-error">
@@ -162,7 +157,7 @@ Add External Game | CourtStats
                                         selected
                                     {% endif %}
                                 >
-                                    {{ venue.value }}
+                                    {{ venue|enum_label }}
                                 </option>
 
                             {% endfor %}
@@ -344,7 +339,7 @@ Add External Game | CourtStats
                 </div>
 
 
-                <div class="form-grid form-grid-2">
+                <div class="form-grid form-grid-record">
 
                     <div class="form-group">
 
@@ -381,7 +376,7 @@ Add External Game | CourtStats
                     </div>
 
 
-                    <div class="form-group form-field-full">
+                    <div class="form-group">
 
                         <label
                             class="form-label"

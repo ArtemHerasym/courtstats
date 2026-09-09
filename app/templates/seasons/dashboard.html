@@ -34,7 +34,7 @@
                     <span
                         class="status-badge status-badge-success"
                     >
-                        {{ season.status.value }}
+                        {{ season.status|enum_label }}
                     </span>
 
                 {% elif season.status.value == "SETUP" %}
@@ -42,13 +42,13 @@
                     <span
                         class="status-badge status-badge-warning"
                     >
-                        {{ season.status.value }}
+                        {{ season.status|enum_label }}
                     </span>
 
                 {% else %}
 
                     <span class="status-badge">
-                        {{ season.status.value }}
+                        {{ season.status|enum_label }}
                     </span>
 
                 {% endif %}
@@ -76,9 +76,9 @@
 
 {% if summary.games_played == 0 %}
 
-<section class="card dashboard-empty">
+<section class="card empty-state dashboard-empty">
 
-    <div class="dashboard-empty-content">
+    <div class="empty-state-content dashboard-empty-content">
 
         <p class="eyebrow">
             Season Analytics
@@ -86,7 +86,7 @@
 
         <h2>No completed games yet</h2>
 
-        <p>Season statistics will appear after the first game is completed.</p>
+        <p class="page-description">Season statistics will appear after the first game is completed.</p>
 
     </div>
 
