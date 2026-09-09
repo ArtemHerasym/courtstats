@@ -1,117 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}
-CourtStats
-{% endblock %}
-
+{% block title %}CourtStats{% endblock %}
+{% block body_class %}home-page{% endblock %}
 
 {% block content %}
-
-<section class="page-header home-header">
-
-    <p class="eyebrow">
-        JCP Basketball Analytics
-    </p>
-
+<section class="home-header">
     <h1>CourtStats</h1>
-
-    <p class="page-description">
-        Basketball statistics, game management,
-        reports, and season analytics in one place.
-    </p>
-
+    <p class="page-description">Basketball statistics, game management, reports, and season analytics for Jordan Christian Preparatory.</p>
 </section>
 
-
-<section class="card home-operations-card">
-
-    <div class="home-operations-header">
-
-        <p class="eyebrow">
-            Basketball Operations
-        </p>
-
-        <h2>
-            Manage the program
-        </h2>
-
-        <p class="page-description">
-            Open a CourtStats workspace or begin
-            entering a new game.
-        </p>
-
-    </div>
-
-
+<section class="home-operations" aria-labelledby="operations-heading">
+    <h2 id="operations-heading">Basketball Operations</h2>
     <div class="home-action-grid">
-
-        <a
-            class="home-action home-action-primary"
-            href="{{ url_for('new_game_page') }}"
-        >
-            <span class="home-action-title">Add Game</span>
-            <span class="home-action-description">
-                Create a game and enter statistics.
-            </span>
-        </a>
-
-
-        <a
-            class="home-action"
-            href="{{ url_for('games_page') }}"
-        >
-            <span class="home-action-title">Games</span>
-            <span class="home-action-description">
-                Review games, statistics, and reports.
-            </span>
-        </a>
-
-
-        <a
-            class="home-action"
-            href="{{ url_for('seasons_page') }}"
-        >
-            <span class="home-action-title">Seasons</span>
-            <span class="home-action-description">
-                Manage seasons and open analytics.
-            </span>
-        </a>
-
-
-        <a
-            class="home-action"
-            href="{{ url_for('roster_page') }}"
-        >
-            <span class="home-action-title">Roster</span>
-            <span class="home-action-description">
-                Manage season roster memberships.
-            </span>
-        </a>
-
-
-        <a
-            class="home-action"
-            href="{{ url_for('players_page') }}"
-        >
-            <span class="home-action-title">Players</span>
-            <span class="home-action-description">
-                Manage CourtStats player profiles.
-            </span>
-        </a>
-
-
-        <a
-            class="home-action"
-            href="{{ url_for('external_games_page') }}"
-        >
-            <span class="home-action-title">External Games</span>
-            <span class="home-action-description">
-                Record and analyze non-season games.
-            </span>
-        </a>
-
+        {% for title, description, route, action in [
+            ('Add Game', 'Create a game and enter statistics.', 'new_game_page', 'Get Started'),
+            ('Games', 'Review games, statistics, and reports.', 'games_page', 'Open Library'),
+            ('Seasons', 'Manage seasons and open analytics.', 'seasons_page', 'View History'),
+            ('Roster', 'Manage season roster memberships.', 'roster_page', 'Manage Roster'),
+            ('Players', 'Manage CourtStats player profiles.', 'players_page', 'View Profiles'),
+            ('External Games', 'Record and analyze non-season games.', 'external_games_page', 'Open Records')
+        ] %}
+        <article class="home-operation">
+            <h3>{{ title }}</h3>
+            <p>{{ description }}</p>
+            <a class="home-operation-action{% if loop.first %} home-operation-action-primary{% endif %}"
+               href="{{ url_for(route) }}">{{ action }}</a>
+        </article>
+        {% endfor %}
     </div>
-
 </section>
-
 {% endblock %}

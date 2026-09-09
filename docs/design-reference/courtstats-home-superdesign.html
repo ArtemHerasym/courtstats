@@ -1,0 +1,208 @@
+Page: CourtStats Home
+
+```html
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourtStats | Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --jcp-blue: #003D7A;
+            --jcp-blue-hover: #002B56;
+            --jcp-gold: #FFD700;
+            --bg-page: #F9FAFB;
+            --border-default: #E5E7EB;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .nav-active {
+            background-color: var(--jcp-blue);
+            color: white !important;
+        }
+
+        .card-shadow {
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+        }
+
+        .btn-shadow {
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
+        }
+
+        .jcp-blue-btn {
+            background-color: var(--jcp-blue);
+            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .jcp-blue-btn:hover {
+            background-color: var(--jcp-blue-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col" data-sd-id="1">
+        <!-- Navbar: Edge-to-edge white bar -->
+        <nav class="w-full h-[65px] bg-white border-b border-[#E5E7EB] px-6 flex items-center justify-between sticky top-0 z-50" data-sd-id="2">
+            <div class="flex items-center gap-8" data-sd-id="3">
+                <a href="#" id="nav-logo" class="flex items-center gap-2 group" data-sd-id="4">
+                    <div class="w-8 h-8 bg-[#003D7A] rounded flex items-center justify-center" data-sd-id="5">
+                        <iconify-icon icon="lucide:trophy" class="text-white text-lg"></iconify-icon>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-[#111827]" data-sd-id="6">CourtStats</span>
+                </a>
+
+                <div class="hidden lg:flex items-center gap-1" data-sd-id="7">
+                    <a href="#" id="nav-home" class="nav-active px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-sd-id="8">Home</a>
+                    <a href="#" id="nav-seasons" class="px-4 py-2 rounded-lg text-sm font-medium text-[#4B5563] hover:bg-gray-100 transition-colors" data-sd-id="9">Seasons</a>
+                    <a href="#" id="nav-players" class="px-4 py-2 rounded-lg text-sm font-medium text-[#4B5563] hover:bg-gray-100 transition-colors" data-sd-id="10">Players</a>
+                    <a href="#" id="nav-roster" class="px-4 py-2 rounded-lg text-sm font-medium text-[#4B5563] hover:bg-gray-100 transition-colors" data-sd-id="11">Roster</a>
+                    <a href="#" id="nav-games" class="px-4 py-2 rounded-lg text-sm font-medium text-[#4B5563] hover:bg-gray-100 transition-colors" data-sd-id="12">Games</a>
+                    <a href="#" id="nav-external" class="px-4 py-2 rounded-lg text-sm font-medium text-[#4B5563] hover:bg-gray-100 transition-colors" data-sd-id="13">External Games</a>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4" data-sd-id="14">
+                <button id="nav-add-game" class="jcp-blue-btn text-white px-4 py-2 rounded-lg text-sm font-semibold btn-shadow flex items-center gap-2" data-sd-id="15">
+                    <iconify-icon icon="lucide:plus" class="text-base"></iconify-icon>
+                    Add Game
+                </button>
+                <button id="theme-toggle" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors" data-sd-id="16">
+                    <iconify-icon icon="lucide:sun" class="text-gray-600 text-lg"></iconify-icon>
+                </button>
+                <a href="#" id="nav-logout" class="text-sm font-medium text-[#4B5563] hover:text-[#003D7A] transition-colors" data-sd-id="17">Log out</a>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 max-w-[1280px] mx-auto w-full px-6 py-12" data-sd-id="18">
+            <!-- Header Section -->
+            <div class="mb-12 text-center" data-sd-id="19">
+                <h1 class="text-[30px] font-bold text-[#111827] leading-tight mb-2 tracking-tight" data-sd-id="20">CourtStats</h1>
+                <p class="text-[14px] text-[#6B7280] max-w-xl mx-auto leading-[1.43]" data-sd-id="21">
+                    Basketball statistics, game management, reports, and season analytics for Jordan Christian Preparatory.
+                </p>
+            </div>
+
+            <!-- Section Eyebrow -->
+            <div class="flex items-center gap-2 mb-6" data-sd-id="22">
+                <iconify-icon icon="lucide:layout-grid" class="text-[#003D7A] text-lg"></iconify-icon>
+                <h2 class="text-[16px] font-semibold text-[#111827] uppercase tracking-wider" data-sd-id="23">Basketball Operations</h2>
+            </div>
+
+            <!-- Operations Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-sd-id="24">
+                <!-- Card 1: Add Game -->
+                <div class="bg-white rounded-[12px] border border-[#E5E7EB] p-6 card-shadow flex flex-col h-full" data-sd-id="25">
+                    <div class="flex justify-between items-start mb-4" data-sd-id="26">
+                        <h3 class="text-[20px] font-semibold text-[#111827]" data-sd-id="27">Add Game</h3>
+                        <span class="bg-[#DCFCE7] text-[#166534] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" data-sd-id="28">Operational</span>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] leading-[1.43] flex-1 mb-6" data-sd-id="29">
+                        Create a game and enter statistics.
+                    </p>
+                    <button class="w-full h-12 jcp-blue-btn text-white rounded-[8px] font-semibold flex items-center justify-center gap-2 transition-colors" data-sd-id="30">
+                        <iconify-icon icon="lucide:play" class="text-sm"></iconify-icon>
+                        Get Started
+                    </button>
+                </div>
+
+                <!-- Card 2: Games -->
+                <div class="bg-white rounded-[12px] border border-[#E5E7EB] p-6 card-shadow flex flex-col h-full" data-sd-id="31">
+                    <div class="flex justify-between items-start mb-4" data-sd-id="32">
+                        <h3 class="text-[20px] font-semibold text-[#111827]" data-sd-id="33">Games</h3>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] leading-[1.43] flex-1 mb-6" data-sd-id="34">
+                        Review games, statistics, and reports.
+                    </p>
+                    <button class="w-full h-12 bg-[#F3F4F6] text-[#4B5563] rounded-[8px] font-semibold flex items-center justify-center gap-2 hover:bg-[#E5E7EB] transition-colors" data-sd-id="35">
+                        Open Library
+                    </button>
+                </div>
+
+                <!-- Card 3: Seasons -->
+                <div class="bg-white rounded-[12px] border border-[#E5E7EB] p-6 card-shadow flex flex-col h-full" data-sd-id="36">
+                    <div class="flex justify-between items-start mb-4" data-sd-id="37">
+                        <h3 class="text-[20px] font-semibold text-[#111827]" data-sd-id="38">Seasons</h3>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] leading-[1.43] flex-1 mb-6" data-sd-id="39">
+                        Manage seasons and open analytics.
+                    </p>
+                    <button class="w-full h-12 bg-[#F3F4F6] text-[#4B5563] rounded-[8px] font-semibold flex items-center justify-center gap-2 hover:bg-[#E5E7EB] transition-colors" data-sd-id="40">
+                        View History
+                    </button>
+                </div>
+
+                <!-- Card 4: Roster -->
+                <div class="bg-white rounded-[12px] border border-[#E5E7EB] p-6 card-shadow flex flex-col h-full" data-sd-id="41">
+                    <div class="flex justify-between items-start mb-4" data-sd-id="42">
+                        <h3 class="text-[20px] font-semibold text-[#111827]" data-sd-id="43">Roster</h3>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] leading-[1.43] flex-1 mb-6" data-sd-id="44">
+                        Manage season roster memberships.
+                    </p>
+                    <button class="w-full h-12 bg-[#F3F4F6] text-[#4B5563] rounded-[8px] font-semibold flex items-center justify-center gap-2 hover:bg-[#E5E7EB] transition-colors" data-sd-id="45">
+                        Manage Teams
+                    </button>
+                </div>
+
+                <!-- Card 5: Players -->
+                <div class="bg-white rounded-[12px] border border-[#E5E7EB] p-6 card-shadow flex flex-col h-full" data-sd-id="46">
+                    <div class="flex justify-between items-start mb-4" data-sd-id="47">
+                        <h3 class="text-[20px] font-semibold text-[#111827]" data-sd-id="48">Players</h3>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] leading-[1.43] flex-1 mb-6" data-sd-id="49">
+                        Manage CourtStats player profiles.
+                    </p>
+                    <button class="w-full h-12 bg-[#F3F4F6] text-[#4B5563] rounded-[8px] font-semibold flex items-center justify-center gap-2 hover:bg-[#E5E7EB] transition-colors" data-sd-id="50">
+                        View Profiles
+                    </button>
+                </div>
+
+                <!-- Card 6: External Games -->
+                <div class="bg-white rounded-[12px] border border-[#E5E7EB] p-6 card-shadow flex flex-col h-full" data-sd-id="51">
+                    <div class="flex justify-between items-start mb-4" data-sd-id="52">
+                        <h3 class="text-[20px] font-semibold text-[#111827]" data-sd-id="53">External Games</h3>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] leading-[1.43] flex-1 mb-6" data-sd-id="54">
+                        Record and analyze non-season games.
+                    </p>
+                    <button class="w-full h-12 bg-[#F3F4F6] text-[#4B5563] rounded-[8px] font-semibold flex items-center justify-center gap-2 hover:bg-[#E5E7EB] transition-colors" data-sd-id="55">
+                        Open Records
+                    </button>
+                </div>
+            </div>
+
+            <!-- Optional Empty State Padder (Following Reference System's Card Depth) -->
+            <div class="mt-12 h-24 border-t border-dashed border-[#E5E7EB] flex items-center justify-center" data-sd-id="56">
+                <span class="text-[#9CA3AF] text-sm uppercase tracking-widest font-medium" data-sd-id="57">Jordan Christian Preparatory Operations</span>
+            </div>
+        </main>
+
+        <!-- Footer: Simple Minimal -->
+        <footer class="bg-white border-t border-[#E5E7EB] py-8" data-sd-id="58">
+            <div class="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4" data-sd-id="59">
+                <p class="text-xs text-[#9CA3AF]" data-sd-id="60">© 2024 Jordan Christian Preparatory. Internal Use Only.</p>
+                <div class="flex gap-6" data-sd-id="61">
+                    <a href="#" id="footer-support" class="text-xs text-[#6B7280] hover:text-[#003D7A]" data-sd-id="62">Technical Support</a>
+                    <a href="#" id="footer-docs" class="text-xs text-[#6B7280] hover:text-[#003D7A]" data-sd-id="63">Documentation</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</body></html>
+```
+
+Please reference this design and implement it into our codebase; Try to understand the structure, which part of our codebase is relevant and implement

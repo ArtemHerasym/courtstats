@@ -64,7 +64,7 @@
 
 {% set current_path = request.url.path %}
 
-<body>
+<body class="app-shell {% block body_class %}{% endblock %}">
 
 <header class="site-header">
     <div class="container">
