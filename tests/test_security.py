@@ -1,6 +1,7 @@
 from app.core.security import (
     generate_csrf_token,
     hash_password,
+    verify_signup_access_code,
     verify_password,
 )
 
@@ -41,3 +42,24 @@ def test_csrf_tokens_are_random():
     assert first
     assert second
     assert first != second
+
+
+def test_signup_access_code_must_match_exactly():
+    configured_code = "school-access-code-value"
+
+    assert verify_signup_access_code(
+        configured_code,
+        configured_code,
+    ) is True
+    assert verify_signup_access_code(
+        f" {configured_code}",
+        configured_code,
+    ) is False
+    assert verify_signup_access_code(
+        "incorrect-code",
+        configured_code,
+    ) is False
+    assert verify_signup_access_code(
+        configured_code,
+        None,
+    ) is False

@@ -23,6 +23,20 @@ def verify_password(
 def generate_csrf_token() -> str:
     return secrets.token_urlsafe(32)
 
+
+def verify_signup_access_code(
+    submitted_code: str,
+    configured_code: str | None,
+) -> bool:
+    if not configured_code:
+        return False
+
+    return secrets.compare_digest(
+        submitted_code,
+        configured_code,
+    )
+
+
 def csrf_tokens_match(
     expected_token: str | None,
     submitted_token: str | None,

@@ -1,13 +1,53 @@
 from fastapi import Depends
 from fastapi.responses import HTMLResponse
+from starlette.requests import Request
 
 from app.auth.dependencies import (
+    ensure_csrf_token,
     require_api_user,
     require_html_user,
 )
 from app.core.security import hash_password
 from app.main import app
 from app.models.user import User
+
+
+def _request_with_session(
+    session: dict[str, object],
+) -> Request:
+    return Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/",
+            "headers": [],
+            "query_string": b"",
+            "session": session,
+        }
+    )
+
+
+def test_ensure_csrf_token_creates_missing_token():
+    session: dict[str, object] = {}
+
+    token = ensure_csrf_token(
+        _request_with_session(session)
+    )
+
+    assert token
+    assert session["csrf_token"] == token
+
+
+def test_ensure_csrf_token_reuses_existing_token():
+    session = {
+        "csrf_token": "existing-token",
+    }
+
+    token = ensure_csrf_token(
+        _request_with_session(session)
+    )
+
+    assert token == "existing-token"
 
 
 @app.get(

@@ -14,7 +14,7 @@
     >
 
     <title>
-        Login | CourtStats
+        Sign Up | CourtStats
     </title>
 
     <script>
@@ -57,7 +57,7 @@
 </head>
 
 
-<body class="app-shell login-page">
+<body class="app-shell login-page signup-page">
 
 <main class="auth-shell page-content">
 
@@ -137,11 +137,11 @@
                 </p>
 
                 <h1>
-                    Log In
+                    Sign Up
                 </h1>
 
                 <p class="page-description">
-                    Sign in to CourtStats for Jordan Christian Preparatory.
+                    Create your CourtStats login credentials.
                 </p>
 
             </div>
@@ -159,22 +159,17 @@
             {% endif %}
 
 
-            {% if created %}
-
-                <div
-                    class="message message-success form-alert"
-                    role="status"
-                >
-                    Account created. You can now sign in.
-                </div>
-
-            {% endif %}
-
-
             <form
                 method="post"
-                action="/login"
+                action="/signup"
             >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                >
+
 
                 <div class="form-group">
 
@@ -192,6 +187,7 @@
                         type="text"
                         autocomplete="username"
                         value="{{ username }}"
+                        maxlength="50"
                         required
                         autofocus
                     >
@@ -213,7 +209,53 @@
                         id="password"
                         name="password"
                         type="password"
-                        autocomplete="current-password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        maxlength="128"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="password_confirmation"
+                    >
+                        Confirm Password
+                    </label>
+
+                    <input
+                        class="input"
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        type="password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        maxlength="128"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="school_access_code"
+                    >
+                        School Access Code
+                    </label>
+
+                    <input
+                        class="input"
+                        id="school_access_code"
+                        name="school_access_code"
+                        type="password"
+                        autocomplete="off"
                         required
                     >
 
@@ -226,7 +268,7 @@
                         class="button button-primary"
                         type="submit"
                     >
-                        Log In
+                        Create Account
                     </button>
 
                 </div>
@@ -234,24 +276,20 @@
             </form>
 
 
-            {% if signup_enabled %}
+            <div class="auth-secondary-action">
 
-                <div class="auth-secondary-action">
+                <p>
+                    Already have an account?
+                </p>
 
-                    <p>
-                        Don't have an account?
-                    </p>
+                <a
+                    class="button auth-secondary-button"
+                    href="/login"
+                >
+                    Log In
+                </a>
 
-                    <a
-                        class="button auth-secondary-button"
-                        href="/signup"
-                    >
-                        Sign Up
-                    </a>
-
-                </div>
-
-            {% endif %}
+            </div>
 
         </section>
 

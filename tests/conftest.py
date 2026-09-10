@@ -13,7 +13,15 @@ from app.database.dependencies import get_db
 from app.main import app
 
 from app.core.security import hash_password
+from app.core.rate_limit import limiter
 from app.models.user import User
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    limiter.reset()
+    yield
+    limiter.reset()
 
 @pytest.fixture(scope="session")
 def test_engine():

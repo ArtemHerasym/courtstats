@@ -97,9 +97,9 @@
     --space-10: 64px;
 
     /* Motion */
-    --transition-fast: 160ms ease;
+    --transition-fast: 160ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-base:
-        220ms cubic-bezier(0.2, 0, 0.2, 1);
+        200ms cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Chart.js-ready tokens */
     --chart-primary: #007fff;
@@ -1956,7 +1956,7 @@ textarea:focus-visible {
 }
 
 .stats-context-item + .stats-context-item::before {
-    content: "В·";
+    content: "\00b7";
 
     margin-right: 6px;
 
@@ -2189,7 +2189,7 @@ textarea:focus-visible {
 }
 
 .stats-row.is-dnp .stats-player-meta::after {
-    content: " В· DNP";
+    content: " \00b7  DNP";
 
     color: var(--color-warning);
 }
@@ -2345,7 +2345,7 @@ textarea:focus-visible {
 }
 
 .selection-context-item + .selection-context-item::before {
-    content: "В·";
+    content: "\00b7";
 
     margin-right: 6px;
 
@@ -2925,7 +2925,7 @@ textarea:focus-visible {
 
 .analytics-context-item
 + .analytics-context-item::before {
-    content: "В·";
+    content: "\00b7";
 
     margin-right: var(--space-1);
 
@@ -3847,7 +3847,7 @@ html[data-theme="dark"] .app-shell {
 
 /* Management libraries and setup workflows share the approved shell tokens.
    Reports, stats entry, analytics, Home, and navigation retain their styles. */
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content {
     --color-surface: var(--shell-surface);
     --color-surface-subtle: var(--shell-neutral);
     --color-text: var(--shell-text);
@@ -3862,38 +3862,38 @@ html[data-theme="dark"] .app-shell {
     padding: 32px 24px 48px;
     color: var(--shell-text);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content [hidden] { display: none; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content > .page-header,
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content > .card,
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content > form { animation: none; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header { margin-bottom: 24px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header-split { gap: 24px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header-copy { overflow-wrap: anywhere; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) h1 {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content [hidden] { display: none; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content > .page-header,
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content > .card,
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content > form { animation: none; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header { margin-bottom: 24px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header-split { gap: 24px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header-copy { overflow-wrap: anywhere; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) h1 {
     margin-bottom: 8px;
     font-size: 30px;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.025em;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .eyebrow {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .eyebrow {
     margin-bottom: 8px;
     color: var(--shell-muted);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.05em;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-description {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-description {
     font-size: 14px;
     line-height: 1.43;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .card {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .card {
     min-width: 0;
     border-radius: 12px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .actions { gap: 8px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .actions { gap: 8px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button {
     min-height: 40px;
     padding: 8px 16px;
     border-radius: 8px;
@@ -3906,46 +3906,46 @@ html[data-theme="dark"] .app-shell {
     box-shadow: none;
     transform: none;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button:hover {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button:hover {
     background: var(--shell-border);
     color: var(--shell-text);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button-primary {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button-primary {
     background: var(--shell-primary);
     color: var(--shell-primary-text);
     font-weight: 600;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button-primary:hover {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button-primary:hover {
     background: var(--shell-primary-hover);
     color: var(--shell-primary-text);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button-small {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button-small {
     min-height: 32px;
     padding: 4px 12px;
     font-size: 12px;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .management-row-primary {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .management-row-primary {
     background: var(--shell-surface);
     border-color: var(--shell-border);
     color: var(--shell-primary);
     font-weight: 600;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .management-row-primary:hover {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .management-row-primary:hover {
     background: var(--shell-neutral);
     border-color: var(--shell-primary);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button-destructive {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button-destructive {
     background: transparent;
     border-color: transparent;
     color: var(--color-danger);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content .button-destructive:hover {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content .button-destructive:hover {
     background: var(--color-danger-soft);
     border-color: var(--color-danger-border);
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .filter-card { padding: 16px 24px; margin-bottom: 24px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .filter-card .form-group { max-width: 380px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .filter-card .select {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .filter-card { padding: 16px 24px; margin-bottom: 24px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .filter-card .form-group { max-width: 380px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .filter-card .select {
     min-width: 0;
     min-height: 40px;
     padding: 8px 12px;
@@ -3954,27 +3954,27 @@ html[data-theme="dark"] .app-shell {
     font-size: 14px;
     box-shadow: none;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .filter-card .select:focus-visible {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .filter-card .select:focus-visible {
     outline: 2px solid var(--shell-primary);
     outline-offset: 2px;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .table-container { max-width: 100%; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .table th,
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .table td { padding: 12px 16px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .table th {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .table-container { max-width: 100%; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .table th,
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .table td { padding: 12px 16px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .table th {
     background: var(--shell-background);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0;
     text-transform: none;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .table td { font-size: 14px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .data-primary { font-weight: 600; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .cell-meta { margin-top: 4px; font-size: 12px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .data-actions { margin: 0; flex-wrap: nowrap; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .data-actions form { margin: 0; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .profile-links { gap: 8px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .status-badge {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .table td { font-size: 14px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .data-primary { font-weight: 600; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .cell-meta { margin-top: 4px; font-size: 12px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .data-actions { margin: 0; flex-wrap: nowrap; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .data-actions form { margin: 0; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .profile-links { gap: 8px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .status-badge {
     min-height: 24px;
     padding: 2px 8px;
     border-color: transparent;
@@ -3982,45 +3982,45 @@ html[data-theme="dark"] .app-shell {
     font-weight: 500;
     line-height: 18px;
 }
-html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .status-badge-success {
+html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .status-badge-success {
     background: #dcfce7;
     color: #166534;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .empty-state { padding: 32px 24px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .empty-state h2 {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .empty-state { padding: 32px 24px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .empty-state h2 {
     font-size: 20px;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: 0;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .empty-state .actions { margin-top: 24px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .analysis-selection-actions { margin-top: 24px; padding: 24px; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .analysis-selection-actions .page-description { margin: 8px 0 0; }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .analysis-selection-note {
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .empty-state .actions { margin-top: 24px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .analysis-selection-actions { margin-top: 24px; padding: 24px; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .analysis-selection-actions .page-description { margin: 8px 0 0; }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .analysis-selection-note {
     margin-top: 4px;
     color: var(--shell-muted);
     font-size: 12px;
 }
-:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .analysis-selection-column input { accent-color: var(--shell-primary); }
+:is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .analysis-selection-column input { accent-color: var(--shell-primary); }
 @media (max-width: 820px) {
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header-split {
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header-split {
         align-items: stretch;
         flex-direction: column;
         gap: 16px;
     }
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header-split > .actions {
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header-split > .actions {
         width: 100%;
         flex-wrap: wrap;
     }
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header-split > .actions .button { width: auto; }
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header-split > .actions .button { width: auto; }
 }
 @media (max-width: 480px) {
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-content { padding: 24px 16px 32px; }
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .page-header-split > .actions .button { width: 100%; white-space: normal; }
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .filter-card,
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .analysis-selection-actions { padding: 16px; }
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .empty-state { padding: 24px 16px; }
-    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page) .table .button-small { min-height: 40px; }
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-content { padding: 24px 16px 32px; }
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .page-header-split > .actions .button { width: 100%; white-space: normal; }
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .filter-card,
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .analysis-selection-actions { padding: 16px; }
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .empty-state { padding: 24px 16px; }
+    :is(.management-page, .workflow-page, .analytics-page, .stats-entry-page, .login-page, .error-page) .table .button-small { min-height: 40px; }
 }
 
 /* Form and setup refinements, scoped to the current workflow family. */
@@ -4084,14 +4084,6 @@ html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-p
 }
 .workflow-page .form-help,
 .workflow-page .form-error { margin: 0; overflow-wrap: anywhere; }
-.workflow-page .page-content .message {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.43;
-    box-shadow: none;
-    animation: none;
-}
 .workflow-page .dynamic-fields {
     margin-bottom: 16px;
     padding: 16px;
@@ -4316,12 +4308,6 @@ html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-p
 }
 .analytics-page .stat-shooting-percentage { font-size: 12px; font-weight: 400; }
 .analytics-page .stat-shooting-line { font-weight: 600; }
-.analytics-page .page-content .message {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.43;
-}
 @media (max-width: 1050px) {
     .analytics-page :is(.analytics-metric-grid, .dashboard-performance-grid) {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4449,13 +4435,6 @@ html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-p
     line-height: 1.43;
     overflow-wrap: anywhere;
 }
-.stats-entry-page .page-content .message {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.43;
-    animation: none;
-}
 .stats-entry-page .stats-actions {
     max-width: 100%;
     margin-top: 16px;
@@ -4484,4 +4463,62 @@ html:not([data-theme="dark"]) :is(.management-page, .workflow-page, .analytics-p
         white-space: normal;
     }
     .stats-entry-page .stats-table .player-column { min-width: 160px; max-width: 180px; }
+}
+
+/* Final consistency: authentication, shared feedback, and keyboard focus. */
+.login-page .auth-shell { width: 100%; max-width: none; min-height: 100dvh; padding: 32px 16px; }
+.login-page .auth-layout { width: min(100%, 420px); }
+.login-page .auth-brand { margin-bottom: 24px; }
+.login-page .auth-brand-identity { gap: 8px; font-size: 20px; font-weight: 700; }
+.login-page .auth-card { padding: 24px; }
+.login-page .auth-card h1 { font-size: 24px; }
+.login-page .auth-card .page-header { margin-bottom: 24px; }
+.login-page .form-group { gap: 8px; margin-bottom: 16px; }
+.login-page .form-label { font-size: 14px; font-weight: 500; }
+.login-page .input {
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-color: var(--shell-border);
+    border-radius: 8px;
+    background: var(--shell-surface);
+    color: var(--shell-text);
+    font-size: 14px;
+    box-shadow: none;
+}
+.login-page .input:focus { border-color: var(--shell-primary); outline: 2px solid var(--shell-primary); outline-offset: 2px; }
+.login-page .auth-card .button { width: 100%; min-height: 44px; }
+.login-page .auth-secondary-action {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--shell-border);
+    text-align: center;
+}
+.login-page .auth-secondary-action p {
+    margin: 0 0 12px;
+    color: var(--shell-muted);
+    font-size: 14px;
+    line-height: 1.43;
+}
+.login-page .auth-footnote { margin-top: 16px; }
+.app-shell .message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.43;
+    overflow-wrap: anywhere;
+    box-shadow: none;
+    animation: message-entrance var(--transition-fast) both;
+}
+.stats-entry-page .message { animation: none; }
+.app-shell :is(a, button, .button):focus-visible { outline: 2px solid var(--shell-primary); outline-offset: 3px; }
+.app-shell :is(.table-container, .stats-table-container):focus-visible { outline: 2px solid var(--shell-primary); outline-offset: -2px; }
+.app-shell .nav-menu-toggle { border-radius: 8px; border-color: var(--shell-border); color: var(--shell-secondary); }
+.app-shell .nav-panel .nav-links { border-top-color: var(--shell-border); }
+@media (prefers-reduced-motion: reduce) {
+    .app-shell *, .app-shell *::before, .app-shell *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
 }

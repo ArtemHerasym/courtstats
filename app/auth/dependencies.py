@@ -6,11 +6,27 @@ from fastapi import (
     Request,
     status,
 )
-from app.core.security import csrf_tokens_match
+from app.core.security import (
+    csrf_tokens_match,
+    generate_csrf_token,
+)
 from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.models.user import User
+
+
+def ensure_csrf_token(request: Request) -> str:
+    existing_token = request.session.get(
+        "csrf_token"
+    )
+
+    if isinstance(existing_token, str) and existing_token:
+        return existing_token
+
+    csrf_token = generate_csrf_token()
+    request.session["csrf_token"] = csrf_token
+    return csrf_token
 
 
 def get_current_user(

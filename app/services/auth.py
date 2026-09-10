@@ -16,6 +16,35 @@ class UserAlreadyExistsError(Exception):
     pass
 
 
+def validate_new_user_credentials(
+    username: str,
+    password: str,
+) -> str:
+    normalized_username = username.strip()
+
+    if not normalized_username:
+        raise ValueError(
+            "Username cannot be blank."
+        )
+
+    if len(normalized_username) > 50:
+        raise ValueError(
+            "Username must be 50 characters or fewer."
+        )
+
+    if len(password) < 8:
+        raise ValueError(
+            "Password must be at least 8 characters."
+        )
+
+    if len(password) > 128:
+        raise ValueError(
+            "Password must be 128 characters or fewer."
+        )
+
+    return normalized_username
+
+
 def get_user_by_username(
     db: Session,
     username: str,
@@ -33,19 +62,10 @@ def create_user(
     username: str,
     password: str,
 ) -> User:
-    normalized_username = (
-        username.strip()
+    normalized_username = validate_new_user_credentials(
+        username,
+        password,
     )
-
-    if not normalized_username:
-        raise ValueError(
-            "Username cannot be empty."
-        )
-
-    if not password:
-        raise ValueError(
-            "Password cannot be empty."
-        )
 
     existing_user = (
         get_user_by_username(

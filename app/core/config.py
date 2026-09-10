@@ -2,6 +2,7 @@ from typing import Literal
 
 from pydantic import (
     Field,
+    SecretStr,
     model_validator,
 )
 from pydantic_settings import (
@@ -38,11 +39,27 @@ class Settings(BaseSettings):
         ),
     )
 
+    signup_access_code: SecretStr | None = Field(
+        default=None,
+        validation_alias="SIGNUP_ACCESS_CODE",
+    )
+
     @property
     def is_production(self) -> bool:
         return (
             self.app_env
             == "production"
+        )
+
+    @property
+    def signup_enabled(self) -> bool:
+        if self.signup_access_code is None:
+            return False
+
+        return bool(
+            self.signup_access_code
+            .get_secret_value()
+            .strip()
         )
 
     @model_validator(mode="after")
@@ -75,12 +92,41 @@ class Settings(BaseSettings):
                 "be true in production."
             )
 
+        if self.signup_enabled:
+            signup_access_code = (
+                self.signup_access_code
+                .get_secret_value()
+            )
+            signup_placeholders = {
+                "changeme",
+                "change-me",
+                "replace-me",
+                "signup-code",
+                "school-access-code",
+                (
+                    "replace_with_a_long_"
+                    "random_secret"
+                ),
+            }
+
+            if (
+                len(signup_access_code) < 24
+                or signup_access_code.strip().lower()
+                in signup_placeholders
+            ):
+                raise ValueError(
+                    "Production SIGNUP_ACCESS_CODE "
+                    "must be at least 24 characters "
+                    "and must not use a placeholder."
+                )
+
         return self
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        hide_input_in_errors=True,
     )
 
 

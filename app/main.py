@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
+from slowapi.errors import RateLimitExceeded
 from starlette.middleware.sessions import SessionMiddleware
 from app.routes.exports import router as exports_router
 
@@ -10,6 +12,7 @@ from app.auth.dependencies import (
     require_api_user,
 )
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.routes.auth import router as auth_router
 from app.routes.pages import router as pages_router
 from app.routers.game import router as game_router
@@ -46,6 +49,19 @@ app = FastAPI(
         else "/openapi.json"
     ),
 )
+
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_exceeded_handler(
+    request: Request,
+    exc: RateLimitExceeded,
+):
+    return PlainTextResponse(
+        "Too Many Requests",
+        status_code=429,
+    )
 
 app.add_middleware(
     SessionMiddleware,
