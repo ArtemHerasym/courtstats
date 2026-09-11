@@ -3,6 +3,7 @@ from typing import Literal
 from pydantic import (
     Field,
     SecretStr,
+    field_validator,
     model_validator,
 )
 from pydantic_settings import (
@@ -43,6 +44,41 @@ class Settings(BaseSettings):
         default=None,
         validation_alias="SIGNUP_ACCESS_CODE",
     )
+
+    @field_validator(
+        "database_url",
+        "test_database_url",
+        mode="before",
+    )
+    @classmethod
+    def normalize_postgresql_driver(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is None:
+            return None
+
+        if value.startswith(
+            "postgres://"
+        ):
+            return (
+                "postgresql+psycopg://"
+                + value.removeprefix(
+                    "postgres://"
+                )
+            )
+
+        if value.startswith(
+            "postgresql://"
+        ):
+            return (
+                "postgresql+psycopg://"
+                + value.removeprefix(
+                    "postgresql://"
+                )
+            )
+
+        return value
 
     @property
     def is_production(self) -> bool:

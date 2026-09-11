@@ -328,3 +328,101 @@ def test_signup_code_is_hidden_from_settings_repr(
     config = Settings(_env_file=None)
 
     assert secret not in repr(config)
+
+
+def test_plain_postgres_url_uses_psycopg_driver(
+    monkeypatch,
+):
+    _base_environment(monkeypatch)
+
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        (
+            "postgres://user:password@"
+            "localhost/courtstats"
+        ),
+    )
+
+    monkeypatch.setenv(
+        "APP_ENV",
+        "development",
+    )
+
+    monkeypatch.setenv(
+        "SESSION_COOKIE_SECURE",
+        "false",
+    )
+
+    config = Settings(
+        _env_file=None,
+    )
+
+    assert config.database_url == (
+        "postgresql+psycopg://"
+        "user:password@localhost/courtstats"
+    )
+
+
+def test_plain_postgresql_url_uses_psycopg_driver(
+    monkeypatch,
+):
+    _base_environment(monkeypatch)
+
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        (
+            "postgresql://user:password@"
+            "localhost/courtstats"
+        ),
+    )
+
+    monkeypatch.setenv(
+        "APP_ENV",
+        "development",
+    )
+
+    monkeypatch.setenv(
+        "SESSION_COOKIE_SECURE",
+        "false",
+    )
+
+    config = Settings(
+        _env_file=None,
+    )
+
+    assert config.database_url == (
+        "postgresql+psycopg://"
+        "user:password@localhost/courtstats"
+    )
+
+
+def test_explicit_psycopg_url_is_unchanged(
+    monkeypatch,
+):
+    _base_environment(monkeypatch)
+
+    explicit_url = (
+        "postgresql+psycopg://"
+        "user:password@localhost/courtstats"
+    )
+
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        explicit_url,
+    )
+
+    monkeypatch.setenv(
+        "APP_ENV",
+        "development",
+    )
+
+    monkeypatch.setenv(
+        "SESSION_COOKIE_SECURE",
+        "false",
+    )
+
+    config = Settings(
+        _env_file=None,
+    )
+
+    assert config.database_url == explicit_url
