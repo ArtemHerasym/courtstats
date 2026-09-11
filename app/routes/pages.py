@@ -27,6 +27,7 @@ from app.services.game import (
     GameOpponentConflictError,
     OpponentTeamNotFoundError,
     create_game,
+    delete_game,
     get_game,
     list_games,
 )
@@ -908,5 +909,28 @@ def games_page(
             "games": games,
             "seasons": seasons,
             "selected_season": selected_season,
+            "deleted": request.query_params.get("deleted") == "1",
         },
+    )
+
+
+@router.post(
+    "/app/games/{game_id}/delete",
+    response_class=HTMLResponse,
+    dependencies=[Depends(require_html_csrf)],
+)
+def delete_game_page(
+    game_id: int,
+    db: Session = Depends(get_db),
+):
+    try:
+        game = get_game(db, game_id)
+        season_id = game.season_id
+        delete_game(db, game_id)
+    except GameNotFoundError:
+        return HTMLResponse(content="Game not found.", status_code=404)
+
+    return RedirectResponse(
+        url=f"/app/games?season_id={season_id}&deleted=1",
+        status_code=303,
     )

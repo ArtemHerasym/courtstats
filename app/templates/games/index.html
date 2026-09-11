@@ -9,6 +9,10 @@ Games | CourtStats
 
 {% block content %}
 
+{% if deleted %}
+<div class="message message-success form-alert" role="status">Game deleted.</div>
+{% endif %}
+
 <section class="page-header page-header-split">
 
     <div class="page-header-copy">
@@ -238,6 +242,19 @@ Games | CourtStats
                                 </a>
 
                             {% endif %}
+
+                            <form
+                                method="post"
+                                action="{{ url_for('delete_game_page', game_id=game.id) }}"
+                                onsubmit="return confirm('{% if game.status.value == 'COMPLETED' %}Delete this completed game and all of its player statistics? This will change season analytics and cannot be undone.{% else %}Delete this draft game? This cannot be undone.{% endif %}');"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ request.session.get('csrf_token', '') }}"
+                                >
+                                <button type="submit" class="button button-small button-destructive">Delete</button>
+                            </form>
 
                         </div>
 

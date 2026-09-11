@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -202,6 +202,21 @@ def get_game(
         )
 
     return game
+
+
+def delete_game(db: Session, game_id: int) -> None:
+    try:
+        game = get_game(db, game_id)
+        db.execute(
+            delete(PlayerGameStats).where(PlayerGameStats.game_id == game_id)
+        )
+        # Reload even a previously loaded collection after the explicit deletion.
+        db.expire(game, ["player_game_stats"])
+        db.delete(game)
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 
 def list_games(
