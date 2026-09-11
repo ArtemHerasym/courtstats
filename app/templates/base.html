@@ -56,7 +56,7 @@
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', path='css/app.css') }}"
+        href="/static/css/app.css"
     >
 
     {% block head %}{% endblock %}
@@ -276,10 +276,11 @@
 
 
 <script
-    src="{{ url_for('static', path='js/app.js') }}"
+    src="/static/js/app.js"
 ></script>
 
 {% block scripts %}{% endblock %}
 
 </body>
 </html>
+
