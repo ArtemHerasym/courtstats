@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% from "components/season_report.html" import chart, finding %}
+
+{% block title %}2025–26 Season Analytics | CourtStats{% endblock %}
+{% block body_class %}analytics-page season-report-page{% endblock %}
+{% block head %}
+<meta name="description" content="Jordan Christian Preparatory National Team: a 15-game basketball statistics case study, its methodology, limitations, and the origins of CourtStats.">
+<link rel="stylesheet" href="/static/css/season-report.css?v=2">
+{% endblock %}
+{# Public report contains no forms, logout action, or session-derived content. #}
+{% block account_action %}<a class="button button-secondary" href="{{ url_for('home_page') }}">Open CourtStats</a>{% endblock %}
+
+{# PUBLICATION GATE: report is the checked-in, public-safe workbook snapshot.
+   Raw totals and all season-summary formulas were reconciled before population.
+   Never query live rosters or connect this page to Google Sheets.
+   Team findings and comparisons use the user's supplied verified analysis.
+   TODO: Insert verified consistency results; prefer an exact distribution table
+         or dot plot, never connect unordered player observations with a line.
+   TODO: Add further player/consistency findings only with verified evidence.
+   Zero denominators remain undefined. No placeholder numerical results. #}
+{% set executive_takeaway = 'Ball security was the clearest separator between wins and losses in this 15-game sample. Lower-turnover games were strongly associated with better outcomes.' %}
+{% set executive_insights = report.executive_insights %}
+{% set team_metrics = report.team_metrics %}
+{% set team_charts = report.team_charts %}
+{% set comparison_charts = report.comparison_charts %}
+{% set progression_charts = report.progression_charts %}
+{% set player_charts = report.player_charts %}
+{% set consistency_findings = [] %}
+{% set major_findings = report.major_findings %}
+{% set recommendations = report.recommendations %}
+
+{% block content %}
+<article class="season-report" aria-labelledby="report-title">
+    <header class="page-header report-hero" id="overview">
+        <p class="eyebrow">CourtStats Case Study</p>
+        <h1 id="report-title">2025–26 Season Analytics</h1>
+        <p class="report-team">Jordan Christian Preparatory National Team</p>
+        <p class="report-lead">Statistics collected across 15 games connect a manual basketball analysis workflow to the development of CourtStats.</p>
+        <div class="actions">
+            <a class="button button-primary" href="#executive-summary">Explore the Analysis</a>
+            <a class="button button-secondary" href="{{ url_for('home_page') }}">Explore CourtStats</a>
+        </div>
+        <div class="analytics-metric-grid report-metrics" aria-label="Verified dataset summary">
+            {% for value, label in [('15', 'Games'), ('8', 'Players'), ('120', 'Player-Game Records'), ('7–8', 'Record')] %}
+            <div class="analytics-metric{% if loop.first %} analytics-metric-primary{% endif %}">
+                <span>{{ label }}</span><strong>{{ value }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    </header>
+
+    <div class="report-layout">
+        <aside class="report-index">
+            <details open>
+                <summary>In this report</summary>
+                <nav aria-label="Report sections">
+                    {% for anchor, label in [('executive-summary', 'Overview'), ('methodology', 'Methodology'), ('team', 'Team performance'), ('players', 'Player analysis'), ('findings', 'Major findings'), ('recommendations', 'Implications'), ('limitations', 'Limitations'), ('courtstats', 'From analysis to app'), ('dictionary', 'Data dictionary')] %}
+                    <a href="#{{ anchor }}">{{ label }}</a>
+                    {% endfor %}
+                </nav>
+            </details>
+        </aside>
+
+        <div class="report-body">
+            <section class="report-section" id="executive-summary" aria-labelledby="summary-heading">
+                <h2 id="summary-heading">Executive summary</h2>
+                <div class="report-callout">
+                    <p><strong>Season figures and team findings verified.</strong> This report combines the recorded season summaries with win/loss comparisons and season progression. The patterns describe associations, not causal proof.</p>
+                </div>
+                {% if executive_takeaway %}<p class="report-lead">{{ executive_takeaway }}</p>{% endif %}
+                {% if executive_insights %}
+                <div class="report-insights">{% for insight in executive_insights %}
+                    <article><h3><a href="{{ insight.href }}">{{ insight.title }}</a></h3><p>{{ insight.text }}</p></article>
+                {% endfor %}</div>
+                {% endif %}
+                <p class="report-note">Scope: 15 games, 8 players, and 120 player-game observations. These are repeated observations within one team, not independent samples of 120 players.</p>
+                <p class="report-note">Source: {{ report.source_title }}. Static snapshot verified <time datetime="{{ report.verified_on }}">September 13, 2026</time>.</p>
+                <a href="#methodology">Read the methodology</a>
+            </section>
+
+            <section class="report-section" id="background" aria-labelledby="background-heading">
+                <h2 id="background-heading">Project background and my role</h2>
+                <p>The project began with recording statistics for Jordan Christian Preparatory basketball games. Organizing those records in a spreadsheet made it possible to examine team and player performance across the season.</p>
+                <p>My work involved recording game statistics, structuring player-game observations, checking calculations, analyzing performance, and creating comparisons and visualizations. The analytical work came before the software project.</p>
+                <p>Repeated calculations and the limitations of the spreadsheet workflow motivated CourtStats: a reusable application shaped by the practical experience of collecting and analyzing basketball data.</p>
+            </section>
+
+            <section class="report-section" id="dataset" aria-labelledby="dataset-heading">
+                <h2 id="dataset-heading">Dataset overview</h2>
+                <p>The dataset covers 15 games and represents 8 players in 120 player-game observations. The team record in this sample is 7 wins and 8 losses.</p>
+                <p class="report-observation"><strong>One player × one game</strong><span>The fundamental unit of observation</span></p>
+                <h3>Raw statistics</h3>
+                <div class="report-stat-groups">
+                    {% for title, terms in [('Scoring', '2PM / 2PA · 3PM / 3PA · FTM / FTA · PTS'), ('Playmaking', 'AST · TOV'), ('Rebounding', 'OREB · DREB'), ('Defense and activity', 'STL · Deflections · PF')] %}
+                    <div><h4>{{ title }}</h4><p>{{ terms }}</p></div>
+                    {% endfor %}
+                </div>
+                <h3>Derived metrics</h3>
+                <p>Field goals, shooting percentages, total rebounds, and assist-to-turnover ratios are calculated from raw statistics. Season totals, averages, and comparisons require validated records and clearly defined denominators.</p>
+                <p class="report-note">A player-game record does not establish that a player participated. The original spreadsheet does not formally distinguish PLAYED from DNP (did not play).</p>
+            </section>
+
+            <section class="report-section" id="methodology" aria-labelledby="methodology-heading">
+                <h2 id="methodology-heading">Methodology</h2>
+                <p>Raw data remains the source of truth. The analytical pipeline keeps collection, calculation, and interpretation separate so that each conclusion can be traced back to recorded statistics.</p>
+                <p>The source workbook's season summary was reconciled with the raw observations. Point calculations, shooting makes and attempts, duplicate player-game checks, and the reconciliation of player points to game scores all passed.</p>
+                <ol class="report-pipeline">
+                    {% for title, description in [
+                        ('Collect', 'Record game statistics.'),
+                        ('Structure', 'Organize player-game observations.'),
+                        ('Validate', 'Check duplicates, missing values, makes versus attempts, and point totals.'),
+                        ('Derive', 'Calculate metrics from the raw counts.'),
+                        ('Aggregate', 'Combine season totals with defined denominators.'),
+                        ('Compare', 'Examine team, player, and result-based differences.'),
+                        ('Visualize', 'Choose a visual for a specific analytical question.'),
+                        ('Interpret', 'Describe evidence with sample size and limitations.')
+                    ] %}
+                    <li><strong>{{ title }}</strong><span>{{ description }}</span></li>
+                    {% endfor %}
+                </ol>
+                <h3>Calculation reference</h3>
+                <dl class="report-formulas">
+                    {% for term, formula in [('FGM', '2PM + 3PM'), ('FGA', '2PA + 3PA'), ('FG%', 'FGM / FGA'), ('2P%', '2PM / 2PA'), ('3P%', '3PM / 3PA'), ('FT%', 'FTM / FTA'), ('REB', 'OREB + DREB'), ('TS%', 'PTS / [2 × (FGA + 0.44 × FTA)]'), ('AST:TOV', 'AST / TOV')] %}
+                    <div><dt>{{ term }}</dt><dd>{{ formula }}</dd></div>
+                    {% endfor %}
+                </dl>
+                <div class="report-callout">
+                    <p><strong>Aggregate makes and attempts first.</strong> Season shooting percentages use total makes divided by total attempts, never the average of game percentages. Ratios shown as percentages are multiplied by 100 for display.</p>
+                    <p>If a denominator is zero, the result is undefined. Missing data must also remain distinct from a recorded zero. The 0.44 factor in TS% is an estimate of free-throw contribution, not an exact possession count.</p>
+                </div>
+            </section>
+
+            <section class="report-section" id="team" aria-labelledby="team-heading">
+                <h2 id="team-heading">Team performance analysis</h2>
+                <p>The verified season summary combines scoring, shooting efficiency, rebounds, assists, and turnovers across the 15 recorded games. Per-game figures divide season totals by those 15 games; shooting percentages combine makes and attempts first.</p>
+                <p class="report-note">PPG means points per game. REB/G, AST/G, and TOV/G mean rebounds, assists, and turnovers per game. Average margin is JCP's score minus the opponent's score.</p>
+                {% if team_metrics %}<div class="analytics-metric-grid report-metrics">
+                    {% for metric in team_metrics %}<div class="analytics-metric"><span>{{ metric.label }}</span><strong>{{ metric.value }}</strong><small>{{ metric.sample_note }}</small></div>{% endfor %}
+                </div>{% endif %}
+                {% for visual in team_charts %}{{ chart(visual) }}{% endfor %}
+                <div class="report-subsection" id="win-loss">
+                    <h3>Wins and losses</h3>
+                    <p><span class="status-badge">7 wins</span> <span class="status-badge">8 losses</span></p>
+                    <p>In this 15-game sample, wins featured fewer turnovers, more rebounds, and higher shooting efficiency. Field-goal attempt volume barely differed between the groups.</p>
+                    <p class="report-note">All comparisons below use 7 wins and 8 losses. Shooting percentages and AST:TOV are calculated from combined group totals. The dataset describes associations and does not establish causal explanations for the results.</p>
+                    {% for visual in comparison_charts %}
+                        {{ chart(visual) }}
+                        {% if visual.id == 'report-rebounding' %}
+                        <p>7 of the 8 games in which JCP recorded at least 35 rebounds were wins. All 7 games below 35 rebounds were losses.</p>
+                        <p class="report-note">These are JCP rebound counts. Without opponent rebound totals, they do not measure rebounding margin.</p>
+                        {% endif %}
+                    {% endfor %}
+                    <details class="report-reference">
+                        <summary>All verified win/loss comparisons</summary>
+                        <div class="table-container" tabindex="0" role="region" aria-label="Verified win and loss comparison table">
+                            <table class="table"><caption>Combined group statistics · 7 wins and 8 losses</caption>
+                                <thead><tr><th scope="col">Metric</th><th scope="col">Wins (7 games)</th><th scope="col">Losses (8 games)</th></tr></thead>
+                                <tbody>{% for row in report.win_loss_rows %}<tr><th scope="row">{{ row.metric }}</th><td>{{ row.wins }}</td><td>{{ row.losses }}</td></tr>{% endfor %}</tbody>
+                            </table>
+                        </div>
+                    </details>
+                </div>
+                <div class="report-subsection" id="progression">
+                    <h3>Season progression</h3>
+                    <p><strong>Later-season games combined higher scoring with fewer turnovers.</strong> Comparing the first five games with the final five, scoring rose from 59.6 to 71.6 PPG while turnovers fell from 20.0 to 14.4 per game.</p>
+                    <p class="report-note">Opponent quality and schedule differences can influence trends. Several measures moved in a favorable direction, but the comparison does not isolate team development from changes in game context.</p>
+                    <div class="analytics-metric-grid report-period-records">
+                        {% for period in report.period_records %}<div class="analytics-metric"><span>{{ period.label }}</span><strong>{{ period.value }}</strong><small>Win–loss record</small></div>{% endfor %}
+                    </div>
+                    {% for visual in report.period_charts %}{{ chart(visual) }}{% endfor %}
+                    <div class="table-container" tabindex="0" role="region" aria-label="First and final five games comparison">
+                        <table class="table"><caption>Verified season progression · 5 games in each group</caption>
+                            <thead><tr><th scope="col">Metric</th><th scope="col">First 5</th><th scope="col">Final 5</th></tr></thead>
+                            <tbody>{% for row in report.period_rows %}<tr><th scope="row">{{ row.metric }}</th><td>{{ row.first }}</td><td>{{ row.final }}</td></tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                    {% for visual in progression_charts %}{{ chart(visual) }}{% endfor %}
+                </div>
+            </section>
+
+            <section class="report-section" id="players" aria-labelledby="players-heading">
+                <h2 id="players-heading">Player performance analysis</h2>
+                <p>Scoring, efficiency, rebounding, playmaking, and shooting provide different perspectives on a player's contribution. No single metric is enough to identify a “best” player.</p>
+                <p>The summaries below reproduce the verified season values with jersey labels and attempt counts. Small shooting samples can produce unstable percentages; the absence of minutes and explicit DNP status also limits comparisons of opportunity.</p>
+                <p class="report-note">“Observations” is the count labeled GP in the source workbook. It counts rows, not verified appearances. PPG and RPG divide the recorded totals by these observations; they are not per-minute measures.</p>
+                {% for visual in player_charts %}{{ chart(visual) }}{% endfor %}
+                <h3>Recorded player production</h3>
+                <p class="report-note">RPG means rebounds per observation. Tables can be scrolled horizontally when needed.</p>
+                <div class="card table-card">
+                    <div class="table-container" tabindex="0" role="region" aria-label="Verified player season totals">
+                        <table class="table">
+                            <caption>Player season totals and averages · 15 observations per player</caption>
+                            <thead><tr><th scope="col">Jersey</th><th scope="col">Observations</th><th scope="col">PTS</th><th scope="col">PPG</th><th scope="col">REB</th><th scope="col">RPG</th><th scope="col">AST</th><th scope="col">TOV</th><th scope="col">AST:TOV</th></tr></thead>
+                            <tbody>{% for player in report.players %}<tr>
+                                <th scope="row">{{ player.label }}</th><td>{{ player.observations }}</td><td>{{ player.points }}</td><td>{{ player.ppg }}</td><td>{{ player.rebounds }}</td><td>{{ player.rpg }}</td><td>{{ player.assists }}</td><td>{{ player.turnovers }}</td><td>{{ player.ratio }}</td>
+                            </tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                </div>
+                <h3>Shooting percentages with attempt context</h3>
+                <p class="report-note">Each shooting line shows makes / attempts. Percentages use the combined season counts. Small samples should not be treated as reliable efficiency rankings.</p>
+                <div class="card table-card">
+                    <div class="table-container" tabindex="0" role="region" aria-label="Verified player shooting with attempts">
+                        <table class="table">
+                            <caption>Player shooting · combined makes and attempts</caption>
+                            <thead><tr><th scope="col">Jersey</th><th scope="col">FGM / FGA</th><th scope="col">FG%</th><th scope="col">2PM / 2PA</th><th scope="col">2P%</th><th scope="col">3PM / 3PA</th><th scope="col">3P%</th><th scope="col">FTM / FTA</th><th scope="col">FT%</th><th scope="col">TS%</th></tr></thead>
+                            <tbody>{% for player in report.players %}<tr>
+                                <th scope="row">{{ player.label }}</th><td>{{ player.field_makes }} / {{ player.field_attempts }}</td><td>{{ player.fg }}</td><td>{{ player.two_makes }} / {{ player.two_attempts }}</td><td>{{ player.two }}</td><td>{{ player.three_makes }} / {{ player.three_attempts }}</td><td>{{ player.three }}</td><td>{{ player.free_makes }} / {{ player.free_attempts }}</td><td>{{ player.ft }}</td><td>{{ player.ts }}</td>
+                            </tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="report-subsection" id="consistency">
+                    <h3>Player consistency</h3>
+                    <p>A high average and consistent performance are different questions. Scoring distributions, ranges, and standard deviations can describe variation across recorded games once the underlying observations are validated.</p>
+                    <p class="report-note">Apparent variation may reflect playing opportunity or game context. A zero in a record cannot automatically be interpreted as a played game with no production.</p>
+                    {% for item in consistency_findings %}{{ finding(item) }}{% endfor %}
+                </div>
+            </section>
+
+            <section class="report-section" id="findings" aria-labelledby="findings-heading">
+                <h2 id="findings-heading">Major findings</h2>
+                {% if major_findings %}
+                    {% for item in major_findings %}{{ finding(item) }}{% endfor %}
+                {% else %}
+                <p>Further analytical conclusions remain pending. The published summaries describe the verified records; each additional finding will require supporting evidence, an explanation of why it matters, its sample size, and an interpretation bounded by the data.</p>
+                {% endif %}
+            </section>
+
+            <section class="report-section" id="recommendations" aria-labelledby="recommendations-heading">
+                <h2 id="recommendations-heading">Practical implications</h2>
+                {% if recommendations %}<div class="report-insights">
+                    {% for item in recommendations %}<article><h3>{{ item.title }}</h3><p>{{ item.evidence }}</p><p>{{ item.implication }}</p><p class="report-note">{{ item.caution }}</p></article>{% endfor %}
+                </div>{% else %}
+                <p>Basketball recommendations remain pending until they can be tied to verified findings. A 15-game sample can inform questions for further review; it cannot establish universal rules for shot selection, ball security, or team organization.</p>
+                {% endif %}
+            </section>
+
+            <section class="report-section" id="limitations" aria-labelledby="limitations-heading">
+                <h2 id="limitations-heading">Limitations</h2>
+                <p>Responsible interpretation begins with what the dataset cannot tell us.</p>
+                <dl class="report-limitations">
+                    <div><dt>Sample and context</dt><dd>Only 15 games from one team. The data is observational, so associations do not establish causation. Opponent quality and schedule differences can affect comparisons.</dd></div>
+                    <div><dt>Arithmetic and event verification</dt><dd>Internal validation confirms arithmetic consistency. Individual recorded events cannot be independently verified without the original paper or video source.</dd></div>
+                    <div><dt>Participation and opportunity</dt><dd>No minutes played and no explicit PLAYED/DNP status in the original spreadsheet. Per-minute, per-36, and usage-rate analysis are not supported.</dd></div>
+                    <div><dt>Game detail</dt><dd>No quarter-by-quarter scoring or shot locations. Quarter splits, clutch performance, and shot-location analysis cannot be reconstructed reliably.</dd></div>
+                    <div><dt>Opponent statistics and possessions</dt><dd>No opponent box-score dataset for shooting, rebounds, or turnovers. Opponent percentages, rebounding margin, exact pace, and possession-based offensive or defensive ratings are not supported.</dd></div>
+                    <div><dt>Lineups and impact</dt><dd>No lineup combinations, plus/minus, or on/off data. Individual impact and lineup chemistry cannot be inferred from these records.</dd></div>
+                </dl>
+                {# TODO: If venue analysis is added, disclose the limited home sample
+                   and verified venue counts alongside the comparison. No venue claim yet. #}
+            </section>
+
+            <section class="report-section" id="courtstats" aria-labelledby="courtstats-heading">
+                <h2 id="courtstats-heading">From season analysis to CourtStats</h2>
+                <p>CourtStats grew out of the work of recording and analyzing basketball statistics. The spreadsheet made season analysis possible, while repeated calculations exposed the need for a more structured and reusable workflow.</p>
+                <ol class="report-evolution" aria-label="Project progression">
+                    {% for step in ['Manual game statistics', 'Spreadsheet structure', 'Repeated calculations', 'Season analysis', 'Workflow limitations', 'CourtStats'] %}<li>{{ step }}</li>{% endfor %}
+                </ol>
+                <p>The application was created to keep records persistent, validate inputs, make calculations reusable, and make performance easier to analyze with less dependence on manual spreadsheet calculations.</p>
+                <div class="card report-project">
+                    <h3>One workflow, carried forward</h3>
+                    <p>The analysis supplied the practical problem. CourtStats turned that experience into a software project.</p>
+                    <a class="button button-primary" href="{{ url_for('home_page') }}">Explore CourtStats</a>
+                    <p class="report-note">The application requires sign-in. This report is publicly readable.</p>
+                </div>
+            </section>
+
+            <section class="report-section" id="future" aria-labelledby="future-heading">
+                <h2 id="future-heading">What I would collect and build next</h2>
+                <p>Future work starts with better evidence. New analyses would require additional collection and validation before they could support conclusions.</p>
+                <dl class="report-limitations">
+                    <div><dt>Minutes and DNP status</dt><dd>Distinguish participation from absence and describe production relative to playing opportunity.</dd></div>
+                    <div><dt>Quarter splits and shot locations</dt><dd>Add temporal and spatial context to scoring and shooting analysis.</dd></div>
+                    <div><dt>Opponent box scores and game context</dt><dd>Support stronger possession estimates and, with sufficient schedule context, opponent-adjusted comparisons.</dd></div>
+                    <div><dt>Lineup and substitution data</dt><dd>Create a foundation for lineup analysis with clear definitions of who was on the court and when.</dd></div>
+                </dl>
+            </section>
+
+            <section class="report-section" id="dictionary" aria-labelledby="dictionary-heading">
+                <h2 id="dictionary-heading">Data dictionary</h2>
+                <p>A reference for readers new to basketball statistics.</p>
+                <details class="report-reference">
+                    <summary>Recorded statistics</summary>
+                    <dl class="report-dictionary">
+                        {% for term, definition in [('PTS', 'Points scored.'), ('2PM', 'Two-point field goals made.'), ('2PA', 'Two-point field goals attempted.'), ('3PM', 'Three-point field goals made.'), ('3PA', 'Three-point field goals attempted.'), ('FTM', 'Free throws made.'), ('FTA', 'Free throws attempted.'), ('OREB', 'Offensive rebounds: recovering the ball after a missed shot by your team.'), ('DREB', 'Defensive rebounds: recovering the ball after a missed shot by the opponent.'), ('AST', 'Assists: passes credited with directly leading to a made basket.'), ('TOV', 'Turnovers: losing possession to the opponent.'), ('STL', 'Steals: defensive actions credited with taking possession from the opponent.'), ('PF', 'Personal fouls: recorded individual rules violations involving illegal contact.'), ('Deflections', 'Recorded defensive touches that disrupt a pass or ball movement; they do not necessarily produce a steal.')] %}
+                        <div><dt>{{ term }}</dt><dd>{{ definition }}</dd></div>
+                        {% endfor %}
+                    </dl>
+                </details>
+                <details class="report-reference">
+                    <summary>Calculated metrics</summary>
+                    <dl class="report-dictionary">
+                        {% for term, definition in [('FGM', 'Field goals made: two-point makes plus three-point makes; excludes free throws.'), ('FGA', 'Field goals attempted: two-point attempts plus three-point attempts.'), ('FG%', 'Field-goal percentage: the share of field-goal attempts made.'), ('2P%', 'Two-point percentage: the share of two-point attempts made.'), ('3P%', 'Three-point percentage: the share of three-point attempts made.'), ('FT%', 'Free-throw percentage: the share of free-throw attempts made.'), ('TS%', 'True shooting percentage: a scoring-efficiency estimate incorporating field goals and free throws, using the formula in Methodology.'), ('REB', 'Total rebounds: offensive plus defensive rebounds.'), ('AST:TOV', 'Assist-to-turnover ratio: assists divided by turnovers. Undefined when turnovers are zero.')] %}
+                        <div><dt>{{ term }}</dt><dd>{{ definition }}</dd></div>
+                        {% endfor %}
+                    </dl>
+                </details>
+            </section>
+
+            <footer class="report-footer">
+                <p><strong>2025–26 JCP Season Analytics</strong><br>Built as part of the CourtStats project.</p>
+                <div class="actions"><a href="{{ url_for('home_page') }}">Back to CourtStats</a><a href="#overview">Back to top</a></div>
+            </footer>
+        </div>
+    </div>
+</article>
+{% endblock %}
+
+{% block scripts %}
+{# No chart library download or empty canvas until verified visuals are supplied. #}
+{% if team_charts or comparison_charts or progression_charts or player_charts or major_findings or consistency_findings %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/season-report.js"></script>
+{% endif %}
+{% endblock %}

@@ -1,8 +1,13 @@
-from sqlalchemy import func, or_, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.models.player import Player
+from app.models.game import Game, GameStatus
+from app.models.external_game import ExternalGame
+from app.models.external_game_player_stats import ExternalGamePlayerStats
+from app.models.player_game_stats import ParticipationStatus, PlayerGameStats
+from app.models.season_roster import SeasonRoster
 from app.schemas.player import (
     PlayerCreate,
     PlayerUpdate,
@@ -11,6 +16,72 @@ from app.schemas.player import (
 
 class PlayerNotFoundError(Exception):
     pass
+
+
+class PlayerDeletionConflictError(Exception):
+    pass
+
+
+PLAYER_DELETION_CONFLICT_MESSAGE = (
+    "Player cannot be deleted because they are the only PLAYED participant "
+    "in a completed game. Correct or delete that game first."
+)
+
+
+def delete_player(db: Session, player_id: int) -> None:
+    """Validate completed games before removing any of a player's history."""
+    try:
+        with db.no_autoflush:
+            player = get_player(db, player_id)
+            roster_ids = select(SeasonRoster.id).where(SeasonRoster.player_id == player_id)
+            played_game_ids = select(PlayerGameStats.game_id).where(
+                PlayerGameStats.season_roster_id.in_(roster_ids),
+                PlayerGameStats.participation_status == ParticipationStatus.PLAYED,
+            )
+            # Lock shared game rows in a stable order so simultaneous player
+            # deletions cannot both count a participant the other removes.
+            games = db.scalars(select(Game).where(Game.id.in_(played_game_ids))
+                               .order_by(Game.id).with_for_update()
+                               .execution_options(populate_existing=True)).all()
+            for game in games:
+                if game.status != GameStatus.COMPLETED:
+                    continue
+                other_played = db.scalar(select(PlayerGameStats.id).where(
+                    PlayerGameStats.game_id == game.id,
+                    PlayerGameStats.season_roster_id.not_in(roster_ids),
+                    PlayerGameStats.participation_status == ParticipationStatus.PLAYED,
+                ).limit(1))
+                if other_played is None:
+                    raise PlayerDeletionConflictError(PLAYER_DELETION_CONFLICT_MESSAGE)
+
+            played_external_ids = select(ExternalGamePlayerStats.external_game_id).where(
+                ExternalGamePlayerStats.player_id == player_id,
+                ExternalGamePlayerStats.participation_status == ParticipationStatus.PLAYED,
+            )
+            external_games = db.scalars(select(ExternalGame).where(
+                ExternalGame.id.in_(played_external_ids),
+            ).order_by(ExternalGame.id).with_for_update()
+              .execution_options(populate_existing=True)).all()
+            for game in external_games:
+                if game.status != GameStatus.COMPLETED:
+                    continue
+                other_played = db.scalar(select(ExternalGamePlayerStats.id).where(
+                    ExternalGamePlayerStats.external_game_id == game.id,
+                    ExternalGamePlayerStats.player_id != player_id,
+                    ExternalGamePlayerStats.participation_status == ParticipationStatus.PLAYED,
+                ).limit(1))
+                if other_played is None:
+                    raise PlayerDeletionConflictError(PLAYER_DELETION_CONFLICT_MESSAGE)
+
+        db.execute(delete(PlayerGameStats).where(PlayerGameStats.season_roster_id.in_(roster_ids)))
+        db.execute(delete(ExternalGamePlayerStats).where(ExternalGamePlayerStats.player_id == player_id))
+        db.execute(delete(SeasonRoster).where(SeasonRoster.player_id == player_id))
+        db.expire(player, ["season_rosters"])
+        db.delete(player)
+        db.commit()
+    except (SQLAlchemyError, PlayerDeletionConflictError):
+        db.rollback()
+        raise
 
 
 def create_player(

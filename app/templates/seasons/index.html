@@ -9,6 +9,10 @@ Seasons | CourtStats
 
 {% block content %}
 
+{% if deleted %}
+<div class="message message-success form-alert" role="status">Season deleted.</div>
+{% endif %}
+
 <section class="page-header page-header-split">
 
     <div class="page-header-copy">
@@ -119,6 +123,10 @@ Seasons | CourtStats
                                 Dashboard
                             </a>
 
+                            {% if season.name == "2025-26" and season.team.name == "Jordan Christian Preparatory" %}
+                            <a class="button button-small" href="{{ url_for('season_report_page') }}">Season Report</a>
+                            {% endif %}
+
 
                             <a
                                 class="button button-small"
@@ -156,6 +164,15 @@ Seasons | CourtStats
                             >
                                 Export CSV
                             </a>
+
+                            <form
+                                method="post"
+                                action="{{ url_for('delete_season_page', season_id=season.id) }}"
+                                onsubmit="return confirm('Delete this season? All season games, player game statistics, and roster entries will be permanently deleted. Global player and team records will remain. This cannot be undone.');"
+                            >
+                                <input type="hidden" name="csrf_token" value="{{ request.session.get('csrf_token', '') }}">
+                                <button type="submit" class="button button-small button-destructive">Delete</button>
+                            </form>
 
                         </div>
 

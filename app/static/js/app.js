@@ -120,44 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateThemeControls();
 
 
-    const colorSchemeQuery = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-    );
-
-
-    const handleSystemThemeChange = (event) => {
-        let savedTheme = null;
-
-        try {
-            savedTheme = localStorage.getItem(
-                "courtstats-theme"
-            );
-        } catch (error) {
-            savedTheme = null;
-        }
-
-        if (
-            savedTheme === "light"
-            || savedTheme === "dark"
-        ) {
-            return;
-        }
-
-        setTheme(
-            event.matches
-                ? "dark"
-                : "light",
-            false
-        );
-    };
-
-
-    colorSchemeQuery.addEventListener(
-        "change",
-        handleSystemThemeChange
-    );
-
-
     // ==================================================
     // Mobile navigation
     // ==================================================

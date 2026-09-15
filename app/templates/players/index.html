@@ -9,6 +9,13 @@ Players | CourtStats
 
 {% block content %}
 
+{% if deleted %}
+<div class="message message-success form-alert" role="status">Player deleted.</div>
+{% endif %}
+{% if deletion_conflict %}
+<div class="message message-error form-alert" role="alert">Player cannot be deleted because they are the only PLAYED participant in a completed game. Correct or delete that game first.</div>
+{% endif %}
+
 <section class="page-header page-header-split">
 
     <div class="page-header-copy">
@@ -116,6 +123,7 @@ Players | CourtStats
 
                     <td>
 
+                        <div class="actions data-actions">
                         <a
                             class="button button-small"
                             href="{{ url_for(
@@ -125,6 +133,16 @@ Players | CourtStats
                         >
                             Edit
                         </a>
+
+                        <form
+                            method="post"
+                            action="{{ url_for('delete_player_page', player_id=player.id) }}"
+                            onsubmit="return confirm('Delete this player? All roster memberships and all season/external-game statistics for this player will be permanently removed and historical analytics may change. This cannot be undone.');"
+                        >
+                            <input type="hidden" name="csrf_token" value="{{ request.session.get('csrf_token', '') }}">
+                            <button type="submit" class="button button-small button-destructive">Delete</button>
+                        </form>
+                        </div>
 
                     </td>
 

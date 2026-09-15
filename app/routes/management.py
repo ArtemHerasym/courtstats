@@ -38,8 +38,10 @@ from app.services.external_game import (
     get_external_game,
 )
 from app.services.player import (
+    PlayerDeletionConflictError,
     PlayerNotFoundError,
     create_player,
+    delete_player,
     get_player,
     search_players,
     update_player,
@@ -48,6 +50,7 @@ from app.services.season import (
     SeasonNameConflictError,
     SeasonNotFoundError,
     create_season_for_team_name,
+    delete_season,
     get_season,
     list_seasons,
     update_season,
@@ -80,6 +83,26 @@ PLAYER_RETURN_CONTEXTS = {
     "roster",
     "external_game",
 }
+
+
+@router.post("/app/seasons/{season_id}/delete", dependencies=[Depends(require_html_csrf)])
+def delete_season_page(season_id: int, db: Session = Depends(get_db)):
+    try:
+        delete_season(db, season_id)
+    except SeasonNotFoundError:
+        return HTMLResponse(content="Season not found.", status_code=404)
+    return RedirectResponse(url="/app/seasons?deleted=1", status_code=303)
+
+
+@router.post("/app/players/{player_id}/delete", dependencies=[Depends(require_html_csrf)])
+def delete_player_page(player_id: int, db: Session = Depends(get_db)):
+    try:
+        delete_player(db, player_id)
+    except PlayerNotFoundError:
+        return HTMLResponse(content="Player not found.", status_code=404)
+    except PlayerDeletionConflictError:
+        return RedirectResponse(url="/app/players?deletion_conflict=1", status_code=303)
+    return RedirectResponse(url="/app/players?deleted=1", status_code=303)
 
 
 def _first_validation_message(

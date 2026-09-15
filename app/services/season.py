@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import (
     IntegrityError,
     SQLAlchemyError,
@@ -8,6 +8,9 @@ from sqlalchemy.exc import (
 from sqlalchemy.orm import Session
 
 from app.models.season import Season
+from app.models.game import Game
+from app.models.player_game_stats import PlayerGameStats
+from app.models.season_roster import SeasonRoster
 from app.models.team import Team
 from app.schemas.season import (
     SeasonCreate,
@@ -26,6 +29,22 @@ class SeasonNotFoundError(Exception):
 
 class SeasonNameConflictError(Exception):
     pass
+
+
+def delete_season(db: Session, season_id: int) -> None:
+    """Remove only the season's owned rows in one transaction."""
+    try:
+        season = get_season(db, season_id)
+        game_ids = select(Game.id).where(Game.season_id == season_id)
+        db.execute(delete(PlayerGameStats).where(PlayerGameStats.game_id.in_(game_ids)))
+        db.execute(delete(Game).where(Game.season_id == season_id))
+        db.execute(delete(SeasonRoster).where(SeasonRoster.season_id == season_id))
+        db.expire(season, ["games", "season_rosters"])
+        db.delete(season)
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 
 def _ensure_season_name_available(

@@ -39,6 +39,7 @@ from app.services.external_game import (
     ExternalGameNotFoundError,
     ExternalGameOpponentNotFoundError,
     create_external_game,
+    delete_external_game,
     get_external_game,
     list_external_games,
 )
@@ -241,11 +242,21 @@ def external_games_page(
         name="external_games/index.html",
         context={
             "external_games": external_games,
+            "deleted": request.query_params.get("deleted") == "1",
             "has_completed_games": (
                 has_completed_games
             ),
         },
     )
+
+
+@router.post("/app/external-games/{external_game_id}/delete", dependencies=[Depends(require_html_csrf)])
+def delete_external_game_page(external_game_id: int, db: Session = Depends(get_db)):
+    try:
+        delete_external_game(db, external_game_id)
+    except ExternalGameNotFoundError:
+        return HTMLResponse(content="External game not found.", status_code=404)
+    return RedirectResponse(url="/app/external-games?deleted=1", status_code=303)
 
 
 @router.get(

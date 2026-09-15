@@ -1,0 +1,52 @@
+{# Only call with verified, public-safe content. No player model objects.
+   Chart contract: id, title (finding-led), kind (progression/player/comparison),
+   units, category_label, sample_note, interpretation, caution,
+   labels, datasets [{label, data}], rows [{label, values}].
+   Values are numeric or null (undefined); rows provide formatted exact values.
+   Every chart must have matching accessible table rows before publication. #}
+{% macro chart(visual) %}
+{% if visual.labels and visual.datasets and visual.rows %}
+<figure class="card dashboard-chart-card report-chart">
+    <figcaption class="dashboard-chart-header">
+        <h3 id="{{ visual.id }}-title">{{ visual.title }}</h3>
+        <p id="{{ visual.id }}-context">{{ visual.units }} · {{ visual.sample_note }}</p>
+    </figcaption>
+    <div class="report-chart-canvas" hidden>
+        <canvas id="{{ visual.id }}" role="img" aria-labelledby="{{ visual.id }}-title"
+                aria-describedby="{{ visual.id }}-context {{ visual.id }}-interpretation"></canvas>
+    </div>
+    <script type="application/json" data-report-chart="{{ visual.id }}">{{ visual|tojson }}</script>
+    <p id="{{ visual.id }}-interpretation">{{ visual.interpretation }}</p>
+    <p class="report-note">{{ visual.caution }}</p>
+    <details class="report-reference" open>
+        <summary>Chart data and exact values</summary>
+        <p class="table-scroll-hint">Scroll the table horizontally to see all values.</p>
+        <div class="table-container" tabindex="0" role="region" aria-label="{{ visual.title }} data">
+            <table class="table">
+                <caption>{{ visual.title }} ({{ visual.units }})</caption>
+                <thead><tr><th scope="col">{{ visual.category_label }}</th>
+                    {% for dataset in visual.datasets %}<th scope="col">{{ dataset.label }}</th>{% endfor %}
+                </tr></thead>
+                <tbody>{% for row in visual.rows %}<tr><th scope="row">{{ row.label }}</th>
+                    {% for value in row['values'] %}<td>{{ value }}</td>{% endfor %}
+                </tr>{% endfor %}</tbody>
+            </table>
+        </div>
+    </details>
+</figure>
+{% endif %}
+{% endmacro %}
+
+{% macro finding(item) %}
+<article class="report-finding"{% if item.id %} id="{{ item.id }}"{% endif %}>
+    <h3>{{ item.title }}</h3>
+    {% if item.visual %}{{ chart(item.visual) }}{% endif %}
+    {% if item.evidence %}<p><strong>What the data shows:</strong> {{ item.evidence }}</p>{% endif %}
+    <dl class="report-finding-notes">
+        <div><dt>Why it matters</dt><dd>{{ item.importance }}</dd></div>
+        <div><dt>Interpretation</dt><dd>{{ item.interpretation }}</dd></div>
+        <div><dt>Sample and caution</dt><dd>{{ item.sample_note }} {{ item.caution }}</dd></div>
+    </dl>
+    {% if item.href %}<a href="{{ item.href }}">View supporting analysis</a>{% endif %}
+</article>
+{% endmacro %}

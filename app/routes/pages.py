@@ -781,6 +781,7 @@ def seasons_page(
         name="seasons/index.html",
         context={
             "seasons": seasons,
+            "deleted": request.query_params.get("deleted") == "1",
         },
     )
 
@@ -800,6 +801,8 @@ def players_page(
         name="players/index.html",
         context={
             "players": players,
+            "deleted": request.query_params.get("deleted") == "1",
+            "deletion_conflict": request.query_params.get("deletion_conflict") == "1",
         },
     )
 

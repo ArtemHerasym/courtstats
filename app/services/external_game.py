@@ -1,7 +1,7 @@
 from datetime import date
 
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -29,6 +29,21 @@ class ExternalGameNotFoundError(Exception):
 
 class ExternalGameOpponentNotFoundError(Exception):
     pass
+
+
+def delete_external_game(db: Session, external_game_id: int) -> None:
+    """Remove an external game and its statistics, preserving global records."""
+    try:
+        game = get_external_game(db, external_game_id)
+        db.execute(delete(ExternalGamePlayerStats).where(
+            ExternalGamePlayerStats.external_game_id == external_game_id,
+        ))
+        db.expire(game, ["player_stats"])
+        db.delete(game)
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 
 def _get_opponent_team(

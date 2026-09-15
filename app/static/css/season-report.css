@@ -1,0 +1,74 @@
+/* Editorial layout only. Shared analytics-page components supply the visual system. */
+.season-report { min-width: 0; }
+.season-report .report-hero { margin-bottom: var(--space-8); }
+.report-team { margin: 0 0 var(--space-4); font-weight: 600; }
+.report-lead { max-width: 68ch; color: var(--shell-secondary); line-height: 1.7; }
+.report-hero .actions { margin-block: var(--space-6); }
+.season-report .report-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.season-report .report-period-records { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.report-layout { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: var(--space-9); }
+.report-index { align-self: start; position: sticky; top: var(--space-6); }
+.report-index summary { font-size: 14px; font-weight: 600; cursor: pointer; padding-block: var(--space-3); }
+.report-index nav { display: grid; gap: var(--space-1); }
+.report-index a { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); color: var(--shell-secondary); font-size: 14px; }
+.report-index a:hover { background: var(--shell-neutral); color: var(--shell-primary); }
+.report-body { min-width: 0; max-width: 880px; }
+.report-section { padding-block: var(--space-8); border-top: 1px solid var(--shell-border); scroll-margin-top: var(--space-6); }
+.report-section:first-child { padding-top: 0; border-top: 0; }
+.season-report h2 { margin: 0 0 var(--space-5); font-size: 24px; font-weight: 600; line-height: 1.4; letter-spacing: -0.025em; }
+.season-report h3 { margin: var(--space-6) 0 var(--space-3); font-size: 18px; font-weight: 600; line-height: 1.4; }
+.season-report h4 { margin: 0 0 var(--space-2); font-size: 14px; font-weight: 600; }
+.report-body p { max-width: 72ch; line-height: 1.75; margin: 0 0 var(--space-4); color: var(--shell-secondary); }
+.report-body strong { color: var(--shell-text); }
+.report-body .report-note { font-size: 14px; line-height: 1.6; }
+.report-callout { border-left: 3px solid var(--shell-primary); padding: var(--space-4) var(--space-5); background: var(--shell-neutral); margin-bottom: var(--space-5); }
+.report-callout p:last-child { margin-bottom: 0; }
+.report-observation { display: grid; gap: var(--space-1); padding-block: var(--space-4); }
+.report-observation strong { font-size: 20px; }
+.report-observation span { font-size: 14px; }
+.report-stat-groups, .report-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) var(--space-7); }
+.report-stat-groups { margin-block: var(--space-4) var(--space-6); }
+.report-stat-groups p { font-size: 14px; }
+.report-pipeline { list-style: none; counter-reset: pipeline; padding: 0; margin: var(--space-6) 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+.report-pipeline li { counter-increment: pipeline; display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: var(--space-3); align-content: start; }
+.report-pipeline li::before { content: counter(pipeline, decimal-leading-zero); grid-row: span 2; color: var(--shell-primary); font-size: 14px; font-weight: 600; padding-top: 2px; }
+.report-pipeline span { font-size: 14px; color: var(--shell-secondary); }
+.report-formulas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) var(--space-6); margin-block: var(--space-5) var(--space-6); }
+.report-formulas dt, .report-limitations dt, .report-dictionary dt, .report-finding-notes dt { font-weight: 600; color: var(--shell-text); }
+.report-formulas dd, .report-limitations dd, .report-dictionary dd, .report-finding-notes dd { margin: var(--space-1) 0 0; color: var(--shell-secondary); }
+.report-formulas dd { font-size: 14px; overflow-wrap: anywhere; }
+.report-limitations, .report-finding-notes { display: grid; gap: var(--space-5); line-height: 1.7; }
+.report-subsection { margin-top: var(--space-7); scroll-margin-top: var(--space-6); }
+.report-evolution { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); padding: 0; margin: var(--space-6) 0; font-size: 14px; }
+.report-evolution li:not(:last-child)::after { content: ' →'; padding-left: var(--space-3); color: var(--shell-muted); }
+.report-evolution li:last-child { color: var(--shell-primary); font-weight: 600; }
+.report-project { padding: var(--space-6); margin-top: var(--space-6); }
+.report-project h3 { margin-top: 0; }
+.report-project .report-note { margin: var(--space-4) 0 0; }
+.report-reference { border-top: 1px solid var(--shell-border); }
+.report-reference summary { cursor: pointer; padding-block: var(--space-4); font-weight: 600; }
+.season-report summary:focus-visible { outline: 2px solid var(--shell-primary); outline-offset: 3px; }
+.report-dictionary { display: grid; gap: var(--space-4); margin: 0 0 var(--space-6); }
+.report-dictionary > div { display: grid; grid-template-columns: 85px minmax(0, 1fr); gap: var(--space-4); }
+.report-dictionary dd { margin: 0; }
+.report-footer { border-top: 1px solid var(--shell-border); padding-top: var(--space-7); }
+.report-footer .actions { gap: var(--space-6); }
+.report-chart { margin: var(--space-6) 0; }
+.report-chart-canvas { position: relative; height: 320px; margin-block: var(--space-4); }
+.season-report caption { text-align: left; padding: var(--space-3); color: var(--shell-secondary); }
+.report-finding + .report-finding { border-top: 1px solid var(--shell-border); margin-top: var(--space-7); padding-top: var(--space-4); }
+.report-finding, .report-chart h3 { scroll-margin-top: var(--space-6); }
+@media (max-width: 850px) {
+    .report-layout { grid-template-columns: 1fr; gap: var(--space-7); }
+    .report-index { position: static; border-block: 1px solid var(--shell-border); }
+    .report-index nav { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: var(--space-3); }
+}
+@media (max-width: 480px) {
+    .season-report .report-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .report-index nav, .report-stat-groups, .report-formulas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .report-pipeline, .report-insights { grid-template-columns: 1fr; }
+    .report-section { padding-block: var(--space-7); }
+    .report-hero .actions .button { white-space: normal; }
+    .report-dictionary > div { grid-template-columns: 90px minmax(0, 1fr); gap: var(--space-3); }
+    .report-chart-canvas { height: 280px; }
+}

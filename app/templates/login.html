@@ -33,20 +33,7 @@
                 savedTheme = null;
             }
 
-            let theme = savedTheme;
-
-            if (
-                theme !== "light"
-                && theme !== "dark"
-            ) {
-                theme = window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches
-                    ? "dark"
-                    : "light";
-            }
-
-            root.dataset.theme = theme;
+            root.dataset.theme = savedTheme === "dark" ? "dark" : "light";
         })();
     </script>
 

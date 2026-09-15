@@ -18,7 +18,7 @@
     </title>
 
     <!--
-        Apply the saved/system theme before the page renders.
+        Apply the saved theme or light default before the page renders.
         This prevents a light-theme flash when dark mode is active.
     -->
     <script>
@@ -37,20 +37,7 @@
                 savedTheme = null;
             }
 
-            let theme = savedTheme;
-
-            if (
-                theme !== "light"
-                && theme !== "dark"
-            ) {
-                theme = window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches
-                    ? "dark"
-                    : "light";
-            }
-
-            root.dataset.theme = theme;
+            root.dataset.theme = savedTheme === "dark" ? "dark" : "light";
         })();
     </script>
 
@@ -237,6 +224,7 @@
                     </button>
 
 
+                    {% block account_action %}
                     <form
                         method="post"
                         action="/logout"
@@ -256,6 +244,7 @@
                         </button>
 
                     </form>
+                    {% endblock %}
 
                 </div>
 

@@ -1,0 +1,1113 @@
+{
+  "source_title": "JCP 2025–26 Season Analytics Evidence",
+  "verified_on": "2026-09-13",
+  "team_totals": {
+    "points": 998,
+    "opponent_points": 1065,
+    "rebounds": 529,
+    "assists": 214,
+    "turnovers": 248,
+    "field_makes": 406,
+    "field_attempts": 833,
+    "three_makes": 104,
+    "three_attempts": 304,
+    "two_makes": 302,
+    "two_attempts": 529,
+    "free_makes": 82,
+    "free_attempts": 130
+  },
+  "team_metrics": [
+    {
+      "label": "Team PPG",
+      "value": "66.5",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "Opponent PPG",
+      "value": "71.0",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "Average Margin",
+      "value": "-4.5",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "FG%",
+      "value": "48.7%",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "3P%",
+      "value": "34.2%",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "2P%",
+      "value": "57.1%",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "FT%",
+      "value": "63.1%",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "TS%",
+      "value": "56.1%",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "REB/G",
+      "value": "35.3",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "AST/G",
+      "value": "14.3",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "TOV/G",
+      "value": "16.5",
+      "sample_note": "15 recorded games"
+    },
+    {
+      "label": "AST:TOV",
+      "value": "0.86",
+      "sample_note": "15 recorded games"
+    }
+  ],
+  "players": [
+    {
+      "label": "#2",
+      "observations": 15,
+      "points": 97,
+      "ppg": "6.5",
+      "rebounds": 32,
+      "rpg": "2.1",
+      "assists": 41,
+      "turnovers": 43,
+      "ratio": "0.95",
+      "field_makes": 33,
+      "field_attempts": 89,
+      "fg": "37.1%",
+      "three_makes": 30,
+      "three_attempts": 68,
+      "three": "44.1%",
+      "two_makes": 3,
+      "two_attempts": 21,
+      "two": "14.3%",
+      "free_makes": 1,
+      "free_attempts": 2,
+      "ft": "50.0%",
+      "ts": "54.0%"
+    },
+    {
+      "label": "#30",
+      "observations": 15,
+      "points": 58,
+      "ppg": "3.9",
+      "rebounds": 19,
+      "rpg": "1.3",
+      "assists": 114,
+      "turnovers": 41,
+      "ratio": "2.78",
+      "field_makes": 19,
+      "field_attempts": 85,
+      "fg": "22.4%",
+      "three_makes": 12,
+      "three_attempts": 62,
+      "three": "19.4%",
+      "two_makes": 7,
+      "two_attempts": 23,
+      "two": "30.4%",
+      "free_makes": 8,
+      "free_attempts": 16,
+      "ft": "50.0%",
+      "ts": "31.5%"
+    },
+    {
+      "label": "#25",
+      "observations": 15,
+      "points": 12,
+      "ppg": "0.8",
+      "rebounds": 10,
+      "rpg": "0.7",
+      "assists": 3,
+      "turnovers": 17,
+      "ratio": "0.18",
+      "field_makes": 6,
+      "field_attempts": 34,
+      "fg": "17.6%",
+      "three_makes": 0,
+      "three_attempts": 11,
+      "three": "0.0%",
+      "two_makes": 6,
+      "two_attempts": 23,
+      "two": "26.1%",
+      "free_makes": 0,
+      "free_attempts": 2,
+      "ft": "0.0%",
+      "ts": "17.2%"
+    },
+    {
+      "label": "#12",
+      "observations": 15,
+      "points": 217,
+      "ppg": "14.5",
+      "rebounds": 112,
+      "rpg": "7.5",
+      "assists": 17,
+      "turnovers": 32,
+      "ratio": "0.53",
+      "field_makes": 98,
+      "field_attempts": 172,
+      "fg": "57.0%",
+      "three_makes": 3,
+      "three_attempts": 18,
+      "three": "16.7%",
+      "two_makes": 95,
+      "two_attempts": 154,
+      "two": "61.7%",
+      "free_makes": 18,
+      "free_attempts": 23,
+      "ft": "78.3%",
+      "ts": "59.6%"
+    },
+    {
+      "label": "#35",
+      "observations": 15,
+      "points": 107,
+      "ppg": "7.1",
+      "rebounds": 59,
+      "rpg": "3.9",
+      "assists": 1,
+      "turnovers": 17,
+      "ratio": "0.06",
+      "field_makes": 36,
+      "field_attempts": 67,
+      "fg": "53.7%",
+      "three_makes": 30,
+      "three_attempts": 49,
+      "three": "61.2%",
+      "two_makes": 6,
+      "two_attempts": 18,
+      "two": "33.3%",
+      "free_makes": 5,
+      "free_attempts": 9,
+      "ft": "55.6%",
+      "ts": "75.4%"
+    },
+    {
+      "label": "#13",
+      "observations": 15,
+      "points": 84,
+      "ppg": "5.6",
+      "rebounds": 52,
+      "rpg": "3.5",
+      "assists": 22,
+      "turnovers": 30,
+      "ratio": "0.73",
+      "field_makes": 28,
+      "field_attempts": 82,
+      "fg": "34.1%",
+      "three_makes": 24,
+      "three_attempts": 68,
+      "three": "35.3%",
+      "two_makes": 4,
+      "two_attempts": 14,
+      "two": "28.6%",
+      "free_makes": 4,
+      "free_attempts": 6,
+      "ft": "66.7%",
+      "ts": "49.6%"
+    },
+    {
+      "label": "#23",
+      "observations": 15,
+      "points": 265,
+      "ppg": "17.7",
+      "rebounds": 148,
+      "rpg": "9.9",
+      "assists": 15,
+      "turnovers": 45,
+      "ratio": "0.33",
+      "field_makes": 113,
+      "field_attempts": 191,
+      "fg": "59.2%",
+      "three_makes": 5,
+      "three_attempts": 25,
+      "three": "20.0%",
+      "two_makes": 108,
+      "two_attempts": 166,
+      "two": "65.1%",
+      "free_makes": 34,
+      "free_attempts": 57,
+      "ft": "59.6%",
+      "ts": "61.3%"
+    },
+    {
+      "label": "#15",
+      "observations": 15,
+      "points": 158,
+      "ppg": "10.5",
+      "rebounds": 97,
+      "rpg": "6.5",
+      "assists": 1,
+      "turnovers": 23,
+      "ratio": "0.04",
+      "field_makes": 73,
+      "field_attempts": 113,
+      "fg": "64.6%",
+      "three_makes": 0,
+      "three_attempts": 3,
+      "three": "0.0%",
+      "two_makes": 73,
+      "two_attempts": 110,
+      "two": "66.4%",
+      "free_makes": 12,
+      "free_attempts": 15,
+      "ft": "80.0%",
+      "ts": "66.1%"
+    }
+  ],
+  "games": [
+    {
+      "date": "2025-11-08",
+      "opponent": "FCP",
+      "points": 50,
+      "opponent_points": 70,
+      "result": "Loss"
+    },
+    {
+      "date": "2025-11-15",
+      "opponent": "Lalumiere",
+      "points": 44,
+      "opponent_points": 92,
+      "result": "Loss"
+    },
+    {
+      "date": "2025-12-02",
+      "opponent": "SEPA",
+      "points": 69,
+      "opponent_points": 104,
+      "result": "Loss"
+    },
+    {
+      "date": "2025-12-04",
+      "opponent": "DME",
+      "points": 51,
+      "opponent_points": 56,
+      "result": "Loss"
+    },
+    {
+      "date": "2025-12-05",
+      "opponent": "DME",
+      "points": 84,
+      "opponent_points": 61,
+      "result": "Win"
+    },
+    {
+      "date": "2025-12-12",
+      "opponent": "CPA",
+      "points": 43,
+      "opponent_points": 69,
+      "result": "Loss"
+    },
+    {
+      "date": "2025-12-20",
+      "opponent": "HILTON HEAD",
+      "points": 83,
+      "opponent_points": 54,
+      "result": "Win"
+    },
+    {
+      "date": "2025-12-21",
+      "opponent": "HILTON HEAD",
+      "points": 66,
+      "opponent_points": 51,
+      "result": "Win"
+    },
+    {
+      "date": "2025-12-22",
+      "opponent": "HILTON HEAD",
+      "points": 67,
+      "opponent_points": 65,
+      "result": "Win"
+    },
+    {
+      "date": "2026-01-06",
+      "opponent": "VRP",
+      "points": 83,
+      "opponent_points": 89,
+      "result": "Loss"
+    },
+    {
+      "date": "2026-01-20",
+      "opponent": "SFA",
+      "points": 73,
+      "opponent_points": 50,
+      "result": "Win"
+    },
+    {
+      "date": "2026-02-06",
+      "opponent": "PHC",
+      "points": 65,
+      "opponent_points": 61,
+      "result": "Win"
+    },
+    {
+      "date": "2026-02-07",
+      "opponent": "DME",
+      "points": 71,
+      "opponent_points": 63,
+      "result": "Win"
+    },
+    {
+      "date": "2026-02-16",
+      "opponent": "IMG",
+      "points": 64,
+      "opponent_points": 83,
+      "result": "Loss"
+    },
+    {
+      "date": "2026-02-27",
+      "opponent": "DME",
+      "points": 85,
+      "opponent_points": 97,
+      "result": "Loss"
+    }
+  ],
+  "team_charts": [
+    {
+      "id": "report-season-scoring",
+      "title": "JCP averaged 66.5 points; opponents averaged 71.0",
+      "kind": "comparison",
+      "units": "Points per game",
+      "category_label": "Sample",
+      "sample_note": "15 recorded games",
+      "interpretation": "The verified season summary records an average scoring margin of −4.5 points per game.",
+      "caution": "This describes the recorded sample. It is not adjusted for pace or opponent quality.",
+      "labels": [
+        "Season sample"
+      ],
+      "datasets": [
+        {
+          "label": "JCP",
+          "data": [
+            66.5
+          ]
+        },
+        {
+          "label": "Opponents",
+          "data": [
+            71
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "15 games",
+          "values": [
+            "66.5",
+            "71.0"
+          ]
+        }
+      ]
+    }
+  ],
+  "progression_charts": [
+    {
+      "id": "report-game-scoring",
+      "title": "Recorded scores across the 15-game sample",
+      "kind": "progression",
+      "units": "Points",
+      "category_label": "Game and result",
+      "sample_note": "15 games · 7 wins · 8 losses",
+      "interpretation": "Each point is a recorded game score in chronological order. The table identifies the opponent and result for each game.",
+      "caution": "Opponent quality and schedule differences affect comparisons. These scores alone do not establish improvement.",
+      "labels": [
+        "11-08 · FCP",
+        "11-15 · Lalumiere",
+        "12-02 · SEPA",
+        "12-04 · DME",
+        "12-05 · DME",
+        "12-12 · CPA",
+        "12-20 · HILTON HEAD",
+        "12-21 · HILTON HEAD",
+        "12-22 · HILTON HEAD",
+        "01-06 · VRP",
+        "01-20 · SFA",
+        "02-06 · PHC",
+        "02-07 · DME",
+        "02-16 · IMG",
+        "02-27 · DME"
+      ],
+      "datasets": [
+        {
+          "label": "JCP",
+          "data": [
+            50,
+            44,
+            69,
+            51,
+            84,
+            43,
+            83,
+            66,
+            67,
+            83,
+            73,
+            65,
+            71,
+            64,
+            85
+          ]
+        },
+        {
+          "label": "Opponents",
+          "data": [
+            70,
+            92,
+            104,
+            56,
+            61,
+            69,
+            54,
+            51,
+            65,
+            89,
+            50,
+            61,
+            63,
+            83,
+            97
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "2025-11-08 · FCP · Loss",
+          "values": [
+            50,
+            70
+          ]
+        },
+        {
+          "label": "2025-11-15 · Lalumiere · Loss",
+          "values": [
+            44,
+            92
+          ]
+        },
+        {
+          "label": "2025-12-02 · SEPA · Loss",
+          "values": [
+            69,
+            104
+          ]
+        },
+        {
+          "label": "2025-12-04 · DME · Loss",
+          "values": [
+            51,
+            56
+          ]
+        },
+        {
+          "label": "2025-12-05 · DME · Win",
+          "values": [
+            84,
+            61
+          ]
+        },
+        {
+          "label": "2025-12-12 · CPA · Loss",
+          "values": [
+            43,
+            69
+          ]
+        },
+        {
+          "label": "2025-12-20 · HILTON HEAD · Win",
+          "values": [
+            83,
+            54
+          ]
+        },
+        {
+          "label": "2025-12-21 · HILTON HEAD · Win",
+          "values": [
+            66,
+            51
+          ]
+        },
+        {
+          "label": "2025-12-22 · HILTON HEAD · Win",
+          "values": [
+            67,
+            65
+          ]
+        },
+        {
+          "label": "2026-01-06 · VRP · Loss",
+          "values": [
+            83,
+            89
+          ]
+        },
+        {
+          "label": "2026-01-20 · SFA · Win",
+          "values": [
+            73,
+            50
+          ]
+        },
+        {
+          "label": "2026-02-06 · PHC · Win",
+          "values": [
+            65,
+            61
+          ]
+        },
+        {
+          "label": "2026-02-07 · DME · Win",
+          "values": [
+            71,
+            63
+          ]
+        },
+        {
+          "label": "2026-02-16 · IMG · Loss",
+          "values": [
+            64,
+            83
+          ]
+        },
+        {
+          "label": "2026-02-27 · DME · Loss",
+          "values": [
+            85,
+            97
+          ]
+        }
+      ]
+    }
+  ],
+  "player_charts": [
+    {
+      "id": "report-player-scoring",
+      "title": "265 points recorded for jersey #23",
+      "kind": "player",
+      "units": "Total recorded points",
+      "category_label": "Jersey",
+      "sample_note": "8 players · 15 observations per player",
+      "interpretation": "The chart compares recorded scoring totals. It describes scoring volume without treating one statistic as a complete assessment of a player.",
+      "caution": "Minutes and explicit DNP status were not recorded. Observations do not establish actual appearances or equal playing opportunity.",
+      "labels": [
+        "#23",
+        "#12",
+        "#15",
+        "#35",
+        "#2",
+        "#13",
+        "#30",
+        "#25"
+      ],
+      "datasets": [
+        {
+          "label": "Recorded points",
+          "data": [
+            265,
+            217,
+            158,
+            107,
+            97,
+            84,
+            58,
+            12
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "#23 · 15 observations",
+          "values": [
+            265
+          ]
+        },
+        {
+          "label": "#12 · 15 observations",
+          "values": [
+            217
+          ]
+        },
+        {
+          "label": "#15 · 15 observations",
+          "values": [
+            158
+          ]
+        },
+        {
+          "label": "#35 · 15 observations",
+          "values": [
+            107
+          ]
+        },
+        {
+          "label": "#2 · 15 observations",
+          "values": [
+            97
+          ]
+        },
+        {
+          "label": "#13 · 15 observations",
+          "values": [
+            84
+          ]
+        },
+        {
+          "label": "#30 · 15 observations",
+          "values": [
+            58
+          ]
+        },
+        {
+          "label": "#25 · 15 observations",
+          "values": [
+            12
+          ]
+        }
+      ]
+    }
+  ],
+  "comparison_charts": [
+    {
+      "id": "report-turnovers",
+      "title": "Ball security was the clearest separator between wins and losses",
+      "kind": "comparison",
+      "units": "Turnovers per game",
+      "category_label": "Metric",
+      "sample_note": "7 wins and 8 losses",
+      "interpretation": "Every win occurred with 10–11 turnovers; every loss occurred with 17–25 turnovers.",
+      "caution": "Lower-turnover games were strongly associated with better outcomes in this 15-game sample. Association does not establish causation.",
+      "labels": [
+        "Turnovers"
+      ],
+      "datasets": [
+        {
+          "label": "Wins (n=7)",
+          "data": [
+            10.3
+          ]
+        },
+        {
+          "label": "Losses (n=8)",
+          "data": [
+            22
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "Turnovers",
+          "values": [
+            "10.3",
+            "22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-assist-turnover",
+      "title": "AST:TOV was stronger in wins",
+      "kind": "comparison",
+      "units": "Assists per turnover",
+      "category_label": "Metric",
+      "sample_note": "7 wins and 8 losses",
+      "interpretation": "The season AST:TOV ratio within the win group was 1.57, compared with 0.57 within the loss group.",
+      "caution": "Ratios compare combined assists and turnovers within each group. They do not measure causal impact.",
+      "labels": [
+        "AST:TOV"
+      ],
+      "datasets": [
+        {
+          "label": "Wins (n=7)",
+          "data": [
+            1.57
+          ]
+        },
+        {
+          "label": "Losses (n=8)",
+          "data": [
+            0.57
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "AST:TOV",
+          "values": [
+            "1.57",
+            "0.57"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-rebounding",
+      "title": "Wins featured 16.9 more rebounds per game",
+      "kind": "comparison",
+      "units": "Rebounds per game",
+      "category_label": "Metric",
+      "sample_note": "7 wins and 8 losses",
+      "interpretation": "The largest difference came from offensive rebounds: 19.0 per game in wins and 7.3 in losses.",
+      "caution": "Opponent rebound totals were not collected. These are JCP totals, not rebounding margin.",
+      "labels": [
+        "Total rebounds",
+        "Offensive rebounds"
+      ],
+      "datasets": [
+        {
+          "label": "Wins (n=7)",
+          "data": [
+            44.3,
+            19
+          ]
+        },
+        {
+          "label": "Losses (n=8)",
+          "data": [
+            27.4,
+            7.3
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "Total rebounds",
+          "values": [
+            "44.3",
+            "27.4"
+          ]
+        },
+        {
+          "label": "Offensive rebounds",
+          "values": [
+            "19.0",
+            "7.3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-shooting-efficiency",
+      "title": "JCP took the same number of shots—but converted them far more efficiently in wins",
+      "kind": "comparison",
+      "units": "Shooting percentage (%)",
+      "category_label": "Metric",
+      "sample_note": "7 wins and 8 losses",
+      "interpretation": "Field-goal attempts barely differed: 55.6 per game in wins and 55.5 in losses. JCP scored 72.7 points per game in wins and 61.1 in losses.",
+      "caution": "The pattern suggests higher shooting efficiency was associated with better offensive performance. No possession-based rating is estimated.",
+      "labels": [
+        "FG%",
+        "TS%"
+      ],
+      "datasets": [
+        {
+          "label": "Wins (n=7)",
+          "data": [
+            52.7,
+            61.3
+          ]
+        },
+        {
+          "label": "Losses (n=8)",
+          "data": [
+            45.3,
+            51.5
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "FG%",
+          "values": [
+            "52.7",
+            "45.3"
+          ]
+        },
+        {
+          "label": "TS%",
+          "values": [
+            "61.3",
+            "51.5"
+          ]
+        }
+      ],
+      "percentage": true
+    }
+  ],
+  "win_loss_rows": [
+    {
+      "metric": "PPG",
+      "wins": "72.7",
+      "losses": "61.1"
+    },
+    {
+      "metric": "FG%",
+      "wins": "52.7%",
+      "losses": "45.3%"
+    },
+    {
+      "metric": "TS%",
+      "wins": "61.3%",
+      "losses": "51.5%"
+    },
+    {
+      "metric": "3P%",
+      "wins": "38.8%",
+      "losses": "29.6%"
+    },
+    {
+      "metric": "2P%",
+      "wins": "61.6%",
+      "losses": "53.4%"
+    },
+    {
+      "metric": "REB/G",
+      "wins": "44.3",
+      "losses": "27.4"
+    },
+    {
+      "metric": "OREB/G",
+      "wins": "19.0",
+      "losses": "7.3"
+    },
+    {
+      "metric": "AST/G",
+      "wins": "16.1",
+      "losses": "12.6"
+    },
+    {
+      "metric": "TOV/G",
+      "wins": "10.3",
+      "losses": "22.0"
+    },
+    {
+      "metric": "AST:TOV",
+      "wins": "1.57",
+      "losses": "0.57"
+    },
+    {
+      "metric": "FGA/G",
+      "wins": "55.6",
+      "losses": "55.5"
+    }
+  ],
+  "period_rows": [
+    {
+      "metric": "PPG",
+      "first": "59.6",
+      "final": "71.6"
+    },
+    {
+      "metric": "Turnovers / game",
+      "first": "20.0",
+      "final": "14.4"
+    },
+    {
+      "metric": "FG%",
+      "first": "46.0%",
+      "final": "50.9%"
+    },
+    {
+      "metric": "TS%",
+      "first": "52.7%",
+      "final": "58.9%"
+    },
+    {
+      "metric": "Rebounds / game",
+      "first": "32.4",
+      "final": "38.4"
+    },
+    {
+      "metric": "Average scoring margin",
+      "first": "-17.0",
+      "final": "+0.8"
+    }
+  ],
+  "period_records": [
+    {
+      "label": "First 5",
+      "value": "1–4"
+    },
+    {
+      "label": "Middle 5",
+      "value": "3–2"
+    },
+    {
+      "label": "Final 5",
+      "value": "3–2"
+    }
+  ],
+  "period_charts": [
+    {
+      "id": "report-period-scoring",
+      "title": "Later-season games had higher scoring",
+      "kind": "comparison",
+      "units": "Points per game",
+      "category_label": "Measure",
+      "sample_note": "First 5 games and final 5 games",
+      "interpretation": "Scoring rose from 59.6 points per game in the first five games to 71.6 in the final five.",
+      "caution": "Opponents and schedule changed. This progression does not isolate development from game context.",
+      "labels": [
+        "Scoring"
+      ],
+      "datasets": [
+        {
+          "label": "First 5",
+          "data": [
+            59.6
+          ]
+        },
+        {
+          "label": "Final 5",
+          "data": [
+            71.6
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "PPG",
+          "values": [
+            "59.6",
+            "71.6"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-period-turnovers",
+      "title": "Later-season games had fewer turnovers",
+      "kind": "comparison",
+      "units": "Turnovers per game",
+      "category_label": "Measure",
+      "sample_note": "First 5 games and final 5 games",
+      "interpretation": "Turnovers fell from 20.0 per game in the first five games to 14.4 in the final five.",
+      "caution": "This is a chronological comparison of different games, not proof that development alone explains the change.",
+      "labels": [
+        "Turnovers"
+      ],
+      "datasets": [
+        {
+          "label": "First 5",
+          "data": [
+            20
+          ]
+        },
+        {
+          "label": "Final 5",
+          "data": [
+            14.4
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "label": "Turnovers / game",
+          "values": [
+            "20.0",
+            "14.4"
+          ]
+        }
+      ]
+    }
+  ],
+  "major_findings": [
+    {
+      "id": "finding-ball-security",
+      "title": "Ball security was the clearest separator between wins and losses",
+      "evidence": "JCP averaged 10.3 turnovers in wins and 22.0 in losses. Every win had 10–11 turnovers; every loss had 17–25. AST:TOV was 1.57 in wins and 0.57 in losses.",
+      "importance": "The turnover ranges did not overlap between wins and losses in this dataset.",
+      "interpretation": "Lower-turnover games were strongly associated with better outcomes in this 15-game sample.",
+      "sample_note": "7 wins and 8 losses.",
+      "caution": "This association is not proof that turnovers determined the results.",
+      "href": "#report-turnovers-title"
+    },
+    {
+      "id": "finding-rebounding",
+      "title": "Wins featured 16.9 more rebounds per game",
+      "evidence": "JCP averaged 44.3 rebounds in wins and 27.4 in losses. Offensive rebounds accounted for the largest difference: 19.0 per game in wins versus 7.3 in losses.",
+      "importance": "7 of the 8 games with at least 35 rebounds were wins. All 7 games below 35 rebounds were losses.",
+      "interpretation": "Higher rebounding totals, especially offensive rebounding, were strongly associated with winning in this dataset.",
+      "sample_note": "7 wins and 8 losses.",
+      "caution": "Opponent rebound totals were not collected; this cannot be described as out-rebounding opponents or as rebound margin.",
+      "href": "#report-rebounding-title"
+    },
+    {
+      "id": "finding-shooting",
+      "title": "JCP took the same number of shots—but converted them far more efficiently in wins",
+      "evidence": "FGA/game was 55.6 in wins and 55.5 in losses. FG% was 52.7% versus 45.3%; TS% was 61.3% versus 51.5%.",
+      "importance": "JCP scored 72.7 PPG in wins and 61.1 in losses. Two-point shooting was 61.6% versus 53.4%, and three-point shooting was 38.8% versus 29.6%.",
+      "interpretation": "The pattern suggests that better offensive performances were associated with higher shooting efficiency rather than more field-goal attempts.",
+      "sample_note": "7 wins and 8 losses.",
+      "caution": "FG% and TS% describe shooting efficiency. The dataset does not support an exact possession-based offensive rating or a causal explanation.",
+      "href": "#report-shooting-efficiency-title"
+    },
+    {
+      "id": "finding-progression",
+      "title": "Later-season games combined higher scoring with fewer turnovers",
+      "evidence": "From the first five games to the final five, PPG rose from 59.6 to 71.6 and turnovers fell from 20.0 to 14.4 per game. FG% rose from 46.0% to 50.9%, TS% from 52.7% to 58.9%, and rebounds from 32.4 to 38.4 per game.",
+      "importance": "Average scoring margin moved from -17.0 to +0.8. Records were 1–4 in the first five, 3–2 in the middle five, and 3–2 in the final five.",
+      "interpretation": "Several team-level measures moved in a favorable direction as the season progressed: scoring rose, turnovers fell, and efficiency and rebounding increased.",
+      "sample_note": "5 games in each chronological group.",
+      "caution": "Opponents and schedule changed throughout the season. This progression is not proof that development alone explains the differences.",
+      "href": "#progression"
+    }
+  ],
+  "executive_insights": [
+    {
+      "href": "#finding-ball-security",
+      "title": "Ball security was the clearest separator between wins and losses",
+      "text": "10.3 turnovers per game in wins versus 22.0 in losses; the recorded turnover ranges did not overlap."
+    },
+    {
+      "href": "#finding-rebounding",
+      "title": "Wins featured 16.9 more rebounds per game",
+      "text": "44.3 rebounds per game in wins versus 27.4 in losses, with the largest difference in offensive rebounds."
+    },
+    {
+      "href": "#finding-shooting",
+      "title": "JCP took the same number of shots—but converted them far more efficiently in wins",
+      "text": "FGA/game was 55.6 versus 55.5, while FG% was 52.7% in wins versus 45.3% in losses."
+    },
+    {
+      "href": "#finding-progression",
+      "title": "Later-season games combined higher scoring with fewer turnovers",
+      "text": "PPG rose from 59.6 in the first five games to 71.6 in the final five, while turnovers fell from 20.0 to 14.4 per game."
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "Use ball security as a starting point for game review",
+      "evidence": "Wins averaged 10.3 turnovers; losses averaged 22.0.",
+      "implication": "Compare low- and high-turnover games in film review to investigate the situations behind the recorded difference.",
+      "caution": "The statistical association does not establish why turnovers or outcomes differed. Sample: 7 wins and 8 losses."
+    },
+    {
+      "title": "Review offensive-rebounding opportunities",
+      "evidence": "Offensive rebounds averaged 19.0 per game in wins and 7.3 in losses.",
+      "implication": "Use the recorded offensive-rebounding difference to guide questions for game review and future data collection.",
+      "caution": "Collect opponent rebound totals before evaluating rebounding margin. Sample: 7 wins and 8 losses."
+    },
+    {
+      "title": "Examine shot conversion alongside attempts",
+      "evidence": "FGA/game was 55.6 in wins and 55.5 in losses; FG% was 52.7% versus 45.3%.",
+      "implication": "Review the context of made and missed shots rather than assuming that more attempts alone explain better scoring.",
+      "caution": "Shot-location and lineup data would be needed for more specific tactical recommendations. Sample: 7 wins and 8 losses."
+    }
+  ]
+}
