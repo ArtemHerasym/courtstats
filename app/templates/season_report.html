@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "public_base.html" %}
 {% from "components/season_report.html" import chart, finding %}
 
 {% block title %}2025–26 Season Analytics | CourtStats{% endblock %}
@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/static/css/season-report.css?v=2">
 {% endblock %}
 {# Public report contains no forms, logout action, or session-derived content. #}
-{% block account_action %}<a class="button button-secondary" href="{{ url_for('home_page') }}">Open CourtStats</a>{% endblock %}
+
 
 {# PUBLICATION GATE: report is the checked-in, public-safe workbook snapshot.
    Raw totals and all season-summary formulas were reconciled before population.
@@ -38,7 +38,7 @@
         <p class="report-lead">Statistics collected across 15 games connect a manual basketball analysis workflow to the development of CourtStats.</p>
         <div class="actions">
             <a class="button button-primary" href="#executive-summary">Explore the Analysis</a>
-            <a class="button button-secondary" href="{{ url_for('home_page') }}">Explore CourtStats</a>
+            <a class="button button-secondary" href="{{ url_for('public_home') }}">Explore CourtStats</a>
         </div>
         <div class="analytics-metric-grid report-metrics" aria-label="Verified dataset summary">
             {% for value, label in [('15', 'Games'), ('8', 'Players'), ('120', 'Player-Game Records'), ('7–8', 'Record')] %}
@@ -261,8 +261,8 @@
                 <div class="card report-project">
                     <h3>One workflow, carried forward</h3>
                     <p>The analysis supplied the practical problem. CourtStats turned that experience into a software project.</p>
-                    <a class="button button-primary" href="{{ url_for('home_page') }}">Explore CourtStats</a>
-                    <p class="report-note">The application requires sign-in. This report is publicly readable.</p>
+                    <a class="button button-primary" href="{{ url_for('public_home') }}">Explore CourtStats</a>
+                    <p class="report-note">Explore the public project overview. Operational records require authorized staff sign-in.</p>
                 </div>
             </section>
 
@@ -300,7 +300,7 @@
 
             <footer class="report-footer">
                 <p><strong>2025–26 JCP Season Analytics</strong><br>Built as part of the CourtStats project.</p>
-                <div class="actions"><a href="{{ url_for('home_page') }}">Back to CourtStats</a><a href="#overview">Back to top</a></div>
+                <div class="actions"><a href="{{ url_for('public_home') }}">Back to CourtStats</a><a href="#overview">Back to top</a></div>
             </footer>
         </div>
     </div>

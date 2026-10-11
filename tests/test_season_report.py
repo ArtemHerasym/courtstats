@@ -77,7 +77,7 @@ def test_public_report_has_no_write_methods(client, method):
 
 
 @pytest.mark.parametrize("path", [
-    "/", "/app/seasons", "/app/seasons/1/dashboard", "/app/players",
+    "/app", "/app/seasons", "/app/seasons/1/dashboard", "/app/players",
     "/app/roster", "/app/games", "/app/games/new", "/app/games/1/report",
     "/app/games/1/stats", "/app/external-games", "/app/external-games/new",
 ])
@@ -101,12 +101,12 @@ def test_report_does_not_change_authenticated_session_or_publish_private_data(lo
     assert "test-coach" not in response.text
     assert "csrf_token" not in response.text
     assert "<form" not in response.text
-    assert logged_in_client.get("/").status_code == 200
+    assert logged_in_client.get("/app").status_code == 200
     assert logged_in_client.post("/players", json={}).status_code == 403
 
 
 def test_home_has_one_report_entry_and_keeps_logout(logged_in_client):
-    html = logged_in_client.get("/").text
+    html = logged_in_client.get("/app").text
     links = [attrs for tag, attrs in ReportHTML(html).tags if tag == "a"]
     assert sum(attrs.get("href", "").endswith(REPORT_URL) for attrs in links) == 1
     assert 'action="/logout"' in html

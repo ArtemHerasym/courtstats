@@ -53,7 +53,7 @@ def test_external_games_nav_link(
     logged_in_client,
 ):
     response = logged_in_client.get(
-        "/"
+        "/app"
     )
 
     assert response.status_code == 200

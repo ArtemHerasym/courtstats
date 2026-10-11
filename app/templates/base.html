@@ -103,8 +103,8 @@
 
                     <a
                         href="{{ url_for('home_page') }}"
-                        class="nav-link{% if current_path == '/' %} nav-link-active{% endif %}"
-                        {% if current_path == "/" %}
+                        class="nav-link{% if current_path == '/app' %} nav-link-active{% endif %}"
+                        {% if current_path == "/app" %}
                             aria-current="page"
                         {% endif %}
                     >

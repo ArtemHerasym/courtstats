@@ -1,0 +1,84 @@
+{% extends "public_base.html" %}
+{% block title %}CourtStats | Basketball Analytics Platform{% endblock %}
+{% block head %}
+<meta name="description" content="CourtStats is a basketball statistics and analytics platform built with FastAPI for Jordan Christian Preparatory. Designed and developed by Artem Herasymenko.">
+{% endblock %}
+{% block body_class %}portfolio-page{% endblock %}
+{% block content %}
+<section class="portfolio-hero" aria-labelledby="project-title">
+    <div>
+        <p class="eyebrow">Jordan Christian Preparatory · Software &amp; data analysis</p>
+        <h1 id="project-title">CourtStats</h1>
+        <p class="portfolio-subtitle">Basketball Statistics &amp; Analytics Platform</p>
+        <p class="portfolio-lead">From the score sheet to season insight. A platform for recording raw game statistics, managing seasons and rosters, and turning validated records into basketball performance analysis.</p>
+        <div class="actions portfolio-actions">
+            <a class="button button-primary" href="/season-report/2025-26">View 2025–26 Analytics Case Study</a>
+            <a class="button button-secondary" href="https://github.com/ArtemHerasym/courtstats" target="_blank" rel="noopener noreferrer">View Source Code</a>
+        </div>
+        <a class="portfolio-staff" href="/login">Authorized Staff Login</a>
+    </div>
+    <aside class="portfolio-evidence" aria-labelledby="evidence-title">
+        <p class="eyebrow">The evidence behind the project</p>
+        <h2 id="evidence-title">2025–26 season analysis</h2>
+        <dl class="portfolio-numbers">
+            <div><dt>Games</dt><dd>15</dd></div>
+            <div><dt>Players</dt><dd>8</dd></div>
+            <div><dt>Player-game observations</dt><dd>120</dd></div>
+        </dl>
+        <p>A real JCP basketball dataset, published as a verified static snapshot with anonymized jersey labels. The case study explains the calculations, findings, and limits of the evidence.</p>
+        <a href="/season-report/2025-26">Read the season analysis →</a>
+    </aside>
+</section>
+
+<section class="portfolio-section portfolio-split" id="project" aria-labelledby="project-heading">
+    <div><p class="eyebrow">Project ownership</p><h2 id="project-heading">Designed and developed by Artem Herasymenko</h2></div>
+    <div><p>I structured and validated the basketball data, designed the database workflow, and built the season, roster, and game management tools. I implemented reusable statistical calculations and analytics views, developed the FastAPI application, tested it, and deployed it on Railway.</p>
+        <p>CourtStats connects two parts of that work: a public analysis that readers can examine, and an authenticated application for maintaining operational records.</p>
+    </div>
+</section>
+
+<section class="portfolio-section" aria-labelledby="story-heading">
+    <p class="eyebrow">Why I built it</p><h2 id="story-heading">A workflow that outgrew the spreadsheet</h2>
+    <p class="portfolio-copy">The project began with manually recorded game statistics. Structuring them in spreadsheets made season analysis possible, but repeated calculations and workflow limitations exposed the need for persistent records, input validation, and reusable analysis. CourtStats carries that work into an application.</p>
+    <ol class="portfolio-workflow" aria-label="Project progression">
+        <li>Manual game statistics</li><li>Spreadsheet structure</li><li>Repeated calculations</li><li>Workflow limitations</li><li>CourtStats</li>
+    </ol>
+</section>
+
+<section class="portfolio-section portfolio-split" aria-labelledby="features-heading">
+    <div><p class="eyebrow">Implemented capabilities</p><h2 id="features-heading">One place to maintain records and analyze performance</h2></div>
+    <dl class="portfolio-features">
+        <div><dt>Seasons &amp; rosters</dt><dd>Organize players and season rosters alongside game records.</dd></div>
+        <div><dt>Validated game statistics</dt><dd>Record raw statistics with validation before calculating summaries.</dd></div>
+        <div><dt>Reusable analytics</dt><dd>Calculate team and player metrics, season trends, leaderboards, and player summaries.</dd></div>
+        <div><dt>Separate external games</dt><dd>Keep external-game records isolated from official season analytics.</dd></div>
+        <div><dt>Reports &amp; exports</dt><dd>Review game and season reports and export statistics as CSV.</dd></div>
+        <div><dt>Protected operations</dt><dd>Use authenticated access, CSRF protection, data-integrity checks, and automated tests.</dd></div>
+    </dl>
+</section>
+
+<section class="portfolio-section" aria-labelledby="engineering-heading">
+    <p class="eyebrow">Engineering approach</p><h2 id="engineering-heading">Raw records first. Derived metrics second.</h2>
+    <ol class="portfolio-workflow portfolio-architecture" aria-label="Application architecture">
+        <li>Browser</li><li>FastAPI routes</li><li>Service layer</li><li>SQLAlchemy</li><li>PostgreSQL</li>
+    </ol>
+    <div class="portfolio-engineering">
+        <p>Raw game statistics remain the foundation. The service layer derives metrics consistently; shooting percentages use combined makes divided by combined attempts rather than averages of individual percentages.</p>
+        <p>External games stay separate from official season totals. Automated tests cover calculations, validation, authentication, and operational workflows. The public case study uses a static snapshot rather than live database records.</p>
+    </div>
+    <h3 class="portfolio-stack-heading">Built with</h3>
+    <p><a href="https://github.com/ArtemHerasym/courtstats" target="_blank" rel="noopener noreferrer">Explore the implementation on GitHub</a></p>
+    <ul class="portfolio-stack" aria-label="Technology stack">
+        {% for technology in ['Python', 'FastAPI', 'SQLAlchemy', 'PostgreSQL', 'Alembic', 'Pydantic', 'Jinja', 'JavaScript', 'Chart.js', 'Pytest', 'Git / GitHub', 'Railway'] %}<li>{{ technology }}</li>{% endfor %}
+    </ul>
+</section>
+
+<aside class="portfolio-privacy" aria-labelledby="privacy-heading">
+    <h2 id="privacy-heading">Public evidence. Protected records.</h2>
+    <p>The public report presents an anonymized, read-only, verified season snapshot. Operational records and management tools require authorized staff authentication.</p>
+</aside>
+<footer class="portfolio-footer">
+    <p><strong>CourtStats</strong><br>Designed and developed by Artem Herasymenko</p>
+    <div class="actions"><a href="https://github.com/ArtemHerasym/courtstats" target="_blank" rel="noopener noreferrer">GitHub</a><a href="/season-report/2025-26">Season Analytics</a><a href="/login">Authorized Staff Login</a></div>
+</footer>
+{% endblock %}

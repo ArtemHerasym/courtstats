@@ -49,7 +49,7 @@ def test_valid_login_creates_session(
     )
 
     assert response.status_code == 303
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/app"
 
     cookie = response.headers[
         "set-cookie"
@@ -59,7 +59,7 @@ def test_valid_login_creates_session(
     assert "httponly" in cookie
     assert "samesite=lax" in cookie
 
-    protected_response = client.get("/")
+    protected_response = client.get("/app")
 
     assert protected_response.status_code == 200
 
@@ -83,7 +83,7 @@ def test_login_is_case_insensitive_for_username(
     )
 
     assert response.status_code == 303
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/app"
 
 
 def test_invalid_password_returns_generic_error(
@@ -108,7 +108,7 @@ def test_invalid_password_returns_generic_error(
     )
 
     protected_response = client.get(
-        "/",
+        "/app",
         follow_redirects=False,
     )
 

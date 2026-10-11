@@ -107,7 +107,7 @@ def test_primary_navbar_links_are_enabled(
     authenticated_client,
 ):
     response = authenticated_client.get(
-        "/"
+        "/app"
     )
 
     assert response.status_code == 200
@@ -131,7 +131,7 @@ def test_primary_navigation_pages_load(
     authenticated_client,
 ):
     paths = [
-        "/",
+        "/app",
         "/app/seasons",
         "/app/players",
         "/app/roster",
@@ -331,7 +331,7 @@ def test_anonymous_navigation_redirects_to_login(
     client,
 ):
     protected_paths = [
-        "/",
+        "/app",
         "/app/seasons",
         "/app/players",
         "/app/roster",

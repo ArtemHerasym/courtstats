@@ -1,5 +1,5 @@
 def test_home_page(authenticated_client):
-    response = authenticated_client.get("/")
+    response = authenticated_client.get("/app")
 
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
@@ -9,7 +9,7 @@ def test_home_page(authenticated_client):
 def test_home_page_loads_stylesheet(
     authenticated_client,
 ):
-    response = authenticated_client.get("/")
+    response = authenticated_client.get("/app")
 
     assert "/static/css/app.css" in response.text
 
@@ -29,7 +29,7 @@ def test_anonymous_home_redirects_to_login(
     client,
 ):
     response = client.get(
-        "/",
+        "/app",
         follow_redirects=False,
     )
 

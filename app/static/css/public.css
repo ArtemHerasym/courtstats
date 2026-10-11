@@ -1,0 +1,56 @@
+/* Public portfolio uses the existing CourtStats theme and interaction tokens. */
+@media (max-width: 460px) {
+    .public-page .nav-actions { grid-template-columns: minmax(0, 1fr) 40px; }
+    .public-page .nav-actions > a { min-width: 0; white-space: normal; }
+}
+.portfolio-hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 3rem; align-items: center; padding: 3rem 0 4rem; }
+.portfolio-hero h1 { font-size: clamp(3rem, 7vw, 5.5rem); letter-spacing: -.055em; line-height: 1.1; margin: .5rem 0 1rem; }
+.portfolio-subtitle { font-size: clamp(1.2rem, 2.5vw, 1.7rem); font-weight: 600; color: var(--color-text); }
+.portfolio-lead { max-width: 58ch; font-size: 1.1rem; line-height: 1.75; color: var(--color-text-secondary); margin: 1.4rem 0; }
+.portfolio-actions { margin: 1.6rem 0 1rem; }
+.portfolio-staff { display: inline-block; font-size: .9rem; }
+.portfolio-evidence { padding: 2rem; background: var(--color-surface); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary); border-radius: var(--radius-md); }
+.portfolio-evidence h2 { font-size: 1.5rem; }
+.portfolio-evidence p { color: var(--color-text-secondary); line-height: 1.7; }
+.portfolio-numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.portfolio-numbers div:last-child { grid-column: 1 / -1; }
+.portfolio-numbers dt { font-size: .85rem; color: var(--color-text-secondary); }
+.portfolio-numbers dd { font-size: 2.7rem; font-weight: 700; letter-spacing: -.04em; margin: 0; color: var(--color-text); }
+.portfolio-section { padding: 3rem 0; border-top: 1px solid var(--color-border); scroll-margin-top: 6rem; }
+.portfolio-section h2 { max-width: 30ch; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.3; margin: .5rem 0 1.5rem; }
+.portfolio-section p { color: var(--color-text-secondary); line-height: 1.8; }
+.portfolio-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 4rem; }
+.portfolio-copy { max-width: 80ch; }
+.portfolio-workflow { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+.portfolio-workflow li { padding: 1.2rem; background: var(--color-surface); border-right: 1px solid var(--color-border); font-weight: 600; font-size: .9rem; }
+.portfolio-workflow li:last-child { border: 0; color: var(--color-link); }
+.portfolio-features { margin: 0; }
+.portfolio-features div { padding: 1rem 0; border-bottom: 1px solid var(--color-border); }
+.portfolio-features div:first-child { padding-top: 0; }
+.portfolio-features dt { font-weight: 600; }
+.portfolio-features dd { margin: .4rem 0 0; line-height: 1.7; color: var(--color-text-secondary); }
+.portfolio-engineering { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; margin-top: 1rem; }
+.portfolio-stack-heading { font-size: 1rem; margin: 1.5rem 0 1rem; }
+.portfolio-stack { display: flex; flex-wrap: wrap; gap: .6rem; list-style: none; padding: 0; }
+.portfolio-stack li { padding: .45rem .8rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); font-size: .9rem; }
+.portfolio-privacy { padding: 1.5rem 2rem; background: var(--color-primary-soft); border-radius: var(--radius-md); }
+.portfolio-privacy h2 { font-size: 1.15rem; margin-bottom: .5rem; }
+.portfolio-privacy p { color: var(--color-text-secondary); line-height: 1.7; margin: 0; }
+.portfolio-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; padding: 2.5rem 0 1rem; color: var(--color-text-secondary); font-size: .9rem; }
+.portfolio-footer p { line-height: 1.8; }
+@media (max-width: 900px) {
+    .portfolio-hero, .portfolio-split { grid-template-columns: 1fr; gap: 2rem; }
+    .portfolio-hero { padding-top: 1.5rem; }
+    .portfolio-numbers { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .portfolio-numbers div:last-child { grid-column: auto; }
+    .portfolio-workflow { grid-template-columns: 1fr; }
+    .portfolio-workflow li { border-right: 0; border-bottom: 1px solid var(--color-border); }
+}
+@media (max-width: 520px) {
+    .portfolio-evidence, .portfolio-privacy { padding: 1.25rem; }
+    .portfolio-numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .portfolio-numbers div:last-child { grid-column: 1 / -1; }
+    .portfolio-engineering { grid-template-columns: 1fr; gap: 0; }
+    .portfolio-actions .button { width: 100%; white-space: normal; text-align: center; }
+    .portfolio-section { padding: 2rem 0; }
+}

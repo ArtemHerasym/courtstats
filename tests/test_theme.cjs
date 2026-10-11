@@ -41,7 +41,7 @@ function environment(saved, unavailable = false) {
     return {context, root, storage, listeners, attributes, icons, label, events};
 }
 
-for (const template of ['base', 'login', 'signup']) {
+for (const template of ['base', 'public_base', 'login', 'signup']) {
     const source = fs.readFileSync(path.join(rootPath, `app/templates/${template}.html`), 'utf8');
     const init = source.match(/<script>([\s\S]*?)<\/script>/)[1];
     for (const saved of [null, 'invalid', 'light', 'dark']) {

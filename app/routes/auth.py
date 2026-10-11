@@ -140,7 +140,7 @@ def login(
     )
 
     return RedirectResponse(
-        url="/",
+        url="/app",
         status_code=303,
     )
 
@@ -162,7 +162,7 @@ def signup_page(
 
     if current_user is not None:
         return RedirectResponse(
-            url="/",
+            url="/app",
             status_code=303,
         )
 

@@ -100,7 +100,7 @@ def render_new_game_form(
     )
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/app", response_class=HTMLResponse)
 def home_page(request: Request):
     return templates.TemplateResponse(
         request=request,

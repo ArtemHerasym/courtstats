@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#003262"
+    >
+
+    <title>
+        {% block title %}CourtStats{% endblock %}
+    </title>
+
+    <!--
+        Apply the saved theme or light default before the page renders.
+        This prevents a light-theme flash when dark mode is active.
+    -->
+    <script>
+        (function () {
+            const root = document.documentElement;
+
+            root.classList.add("js");
+
+            let savedTheme = null;
+
+            try {
+                savedTheme = localStorage.getItem(
+                    "courtstats-theme"
+                );
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            root.dataset.theme = savedTheme === "dark" ? "dark" : "light";
+        })();
+    </script>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/app.css"
+    >
+
+    <link rel="stylesheet" href="/static/css/public.css">
+    {% block head %}{% endblock %}
+</head>
+
+<body class="app-shell public-page {% block body_class %}{% endblock %}">
+<header class="site-header"><div class="container">
+    <nav class="navbar" aria-label="Primary navigation" data-navbar>
+        <a href="/" class="brand" aria-label="CourtStats home"><span class="brand-mark" aria-hidden="true">CS</span><span>CourtStats</span></a>
+        <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="public-navigation" data-nav-toggle>Menu</button>
+        <div class="nav-panel" id="public-navigation" data-nav-panel>
+            <div class="nav-links">
+                <a class="nav-link" href="/#project">Project</a>
+                <a class="nav-link" href="/season-report/2025-26"{% if request.url.path == '/season-report/2025-26' %} aria-current="page"{% endif %}>Season Analytics</a>
+                <a class="nav-link" href="https://github.com/ArtemHerasym/courtstats" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <a class="button button-secondary" href="/login">Authorized Staff Login</a>
+                    <button
+                        class="theme-toggle"
+                        type="button"
+                        data-theme-toggle
+                        aria-label="Switch to dark mode"
+                        title="Switch to dark mode"
+                    >
+                        <svg
+                            class="theme-toggle-icon theme-toggle-icon-moon"
+                            data-theme-icon="moon"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <path
+                                d="M21 14.7A8 8 0 0 1 9.3 3a7 7 0 1 0 11.7 11.7z"
+                            ></path>
+                        </svg>
+
+                        <svg
+                            class="theme-toggle-icon theme-toggle-icon-sun"
+                            data-theme-icon="sun"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="4"
+                            ></circle>
+                            <path
+                                d="M12 2v2m0 16v2m10-10h-2M4 12H2m17.1-7.1-1.4 1.4M6.3 17.7l-1.4 1.4m14.2 0-1.4-1.4M6.3 6.3 4.9 4.9"
+                            ></path>
+                        </svg>
+
+                        <span
+                            class="theme-toggle-label"
+                            data-theme-label
+                        >
+                            Switch to dark mode
+                        </span>
+                    </button>
+
+
+            </div>
+        </div>
+    </nav>
+</div></header>
+<main class="container page-content">{% block content %}{% endblock %}</main>
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

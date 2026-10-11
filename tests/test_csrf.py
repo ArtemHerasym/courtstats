@@ -204,7 +204,7 @@ def test_logout_accepts_valid_csrf(
     assert response.headers["location"] == "/login"
 
     protected_response = logged_in_client.get(
-        "/",
+        "/app",
         follow_redirects=False,
     )
 

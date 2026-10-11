@@ -103,7 +103,7 @@ def test_authenticated_user_is_redirected_from_signup(
     )
 
     assert response.status_code == 303
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/app"
 
 
 def test_signup_get_and_post_return_404_when_disabled(
@@ -200,7 +200,7 @@ def test_valid_signup_creates_active_user_and_clears_session(
     assert not hasattr(user, "school_access_code")
 
     protected_response = client.get(
-        "/",
+        "/app",
         follow_redirects=False,
     )
     assert protected_response.status_code == 303
@@ -233,7 +233,7 @@ def test_login_shows_created_message_and_new_user_can_login(
         follow_redirects=False,
     )
     assert login_response.status_code == 303
-    assert login_response.headers["location"] == "/"
+    assert login_response.headers["location"] == "/app"
 
 
 @pytest.mark.parametrize(

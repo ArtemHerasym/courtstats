@@ -15,6 +15,7 @@ from app.core.config import settings
 from app.core.rate_limit import limiter
 from app.routes.auth import router as auth_router
 from app.routes.pages import router as pages_router
+from app.routes.public import router as public_router
 from app.routes.season_report import router as season_report_router
 from app.routers.game import router as game_router
 from app.routers.player import router as player_router
@@ -84,7 +85,8 @@ app.mount(
 # Public authentication routes.
 app.include_router(auth_router)
 
-# One public, static case study; operational routes stay protected below.
+# Public project and static case study; operational routes stay protected below.
+app.include_router(public_router)
 app.include_router(season_report_router)
 
 # Protected HTML/Jinja routes.
